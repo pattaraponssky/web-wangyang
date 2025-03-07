@@ -1,0 +1,15 @@
+{
+"type": "FeatureCollection",
+"name": "Floodmark",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Floodmark_No": "1.ยโสธร", "Location": "สถานีผลิตน้ำการประปาส่วนภูมิภาค ยโสธร", "E_": 407245.12485899997, "N_": 1747007.988593, "Map50k": "5840_IV", "H_Flood": 0.4, "Flood": 128.43, "Year": 2562.0 }, "geometry": { "type": "Point", "coordinates": [ 104.133948098487124, 15.800039859923295 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "2.มหาสารคาม ห้วยคะคาง", "Location": "ปตร.ห้วยคะคาง", "E_": 320242.628, "N_": 1790500.58, "Map50k": "5641 _II", "H_Flood": 0.2, "Flood": 142.168, "Year": 2562.0 }, "geometry": { "type": "Point", "coordinates": [ 103.318513408692766, 16.188307152410552 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "3.มหาสารคามน้ำชี", "Location": "วัดบ้านท่าประทาย", "E_": 319933.323, "N_": 1793210.957, "Map50k": "5641 _II", "H_Flood": 0.5, "Flood": 143.629, "Year": 2560.0 }, "geometry": { "type": "Point", "coordinates": [ 103.315413038807861, 16.212776074672639 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "4.กาฬสินธิ์", "Location": "เขื่อนป้องกันตลิ่งลำน้ำปาว หน้าสำนักงานป้องกันและบรรเทาสาธารณะภัยกาฬสินธุ์", "E_": 339706.784, "N_": 1817620.643, "Map50k": "5641_I", "H_Flood": 1.258, "Flood": 141.134, "Year": 2562.0 }, "geometry": { "type": "Point", "coordinates": [ 103.498670177213157, 16.434753645102468 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "5.ขอนแก่น", "Location": "รีสอร์ทร้างริมแม่น้ำชี", "E_": 269916.33, "N_": 1811624.516, "Map50k": "5541_I", "H_Flood": 1.443, "Flood": 152.296, "Year": 2554.0 }, "geometry": { "type": "Point", "coordinates": [ 102.845882497078776, 16.374893634850199 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "6.ชัยภูมิ", "Location": "โรงฆ่าสัตว์ เทศบาลเมืองชัยภูมิ", "E_": 182364.736, "N_": 1750751.017, "Map50k": "5440 IV", "H_Flood": 1.0, "Flood": 183.453, "Year": 2554.0 }, "geometry": { "type": "Point", "coordinates": [ 102.035055975922532, 15.815342048450859 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "7.ชุมแพ", "Location": "บ้านเลขที่ 32 ม.6 ต.ไชยสอ อ.ชุมแพ จ.ขอนแก่น(ริมลำน้ำเชิญ)", "E_": 193069.809, "N_": 1825931.377, "Map50k": "5441_ IV", "H_Flood": 0.3, "Flood": 211.604, "Year": 2560.0 }, "geometry": { "type": "Point", "coordinates": [ 102.12509250545169, 16.495477595086932 ] } },
+{ "type": "Feature", "properties": { "Floodmark_No": "8.หนองบัวลำภู", "Location": "สำนักงานเทศบาลเมืองหนองบัวลำภู", "E_": 226484.914, "N_": 1902243.847, "Map50k": "5443_II", "H_Flood": 0.6, "Flood": 212.09, "Year": 2562.0 }, "geometry": { "type": "Point", "coordinates": [ 102.428543403285062, 17.188690871968959 ] } }
+]
+}

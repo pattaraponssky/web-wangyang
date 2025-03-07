@@ -1,0 +1,66 @@
+ 
+                                              HEC-RAS - River Analysis System
+ 
+ 
+Project File:  d:\RAS_WangYang\Wangyang.prj
+ 
+Project Name:  Wangyang
+ 
+ 
+Plan Name:     UnSteady Flow Caribate
+ 
+Short ID:      Un Cari
+ 
+
+Starting Time:   06Nov2010 0700
+
+Ending Time:     31Mar2012 0700
+
+
+                ################################################
+                #                                              #
+                #                                              #
+                #       1D and 2D Unsteady Flow Module         #
+                #                                              #
+                #                                              #
+                #          HEC-RAS 6.6 September 2024          #
+                #                                              #
+                #             18FEB25 at 15:06:22              #
+                #                                              #
+                ################################################
+                
+ 
+ 
+ 
+
+
+
+                 ***   Volume Accounting for 1D Flow Area in 1000 m^3   ***
+
+         US Inflow      DS Outflow       Lat Hydro        SA Hydro     Groundwater      Diversions   Precip Excess
+         *********      **********       *********        ********     ***********      **********   *************
+            86742.          71414.                                                                                                
+
+    Start 1D Reach  Final 1D Reach   Starting SA's      Final SA's
+    **************  **************   *************      **********
+            11168.         111020.                                
+
+ 
+
+
+
+                 ***  Total Volume Accounting (for the entire model) in 1000 m^3   ***
+
+Total Boundary Flux of Water In           86742.
+Total Boundary Flux of Water Out          71414.
+
+Starting Volume                           11168.
+Ending Volume                            111020.
+
+
+                             Error   Percent Error
+                             *****   *************
+                            84524.           86.33
+
+
+

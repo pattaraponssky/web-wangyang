@@ -1,0 +1,41 @@
+import React from "react";
+import { Paper, Card, CardContent, Typography, Stack, Grid } from "@mui/material";
+
+const cardData = [
+  { title: "เขื่อน/อ่างเก็บน้ำ", value: "55", unit: "หน่วย", image: "./images/icons/reservoir_icon.png", color: "#64b5f6" },
+  { title: "สถานีวัดน้ำท่า", value: "106", unit: "สถานี", image: "./images/icons/flow_station_icon.png", color: "#4db6ac" },
+  { title: "สถานีวัดน้ำฝน", value: "186", unit: "สถานี", image: "./images/icons/rain_station_icon.png", color: "#ffd54f" },
+  { title: "ประตูระบายน้ำ", value: "38", unit: "สถานี", image: "./images/icons/gate_icon.png", color: "#e57373" },
+];
+
+const DashboardCards: React.FC = () => {
+  return (
+    <Grid container spacing={3}>
+      {cardData.map((card, index) => (
+        <Grid item xs={12} sm={6} lg={3} key={index}>
+          <Paper elevation={3} sx={{ borderRadius: 2, padding: 2, backgroundColor: card.color }}>
+            <Card sx={{ borderRadius: 2, backgroundColor: "#f5f5f5", color:"#28378B" }}>
+              <CardContent>
+                <Typography variant="h5" sx={{ fontFamily: "Prompt", color:"#28378B", fontWeight: "bold" }} gutterBottom>
+                  {card.title}
+                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  {/* ใช้ <img> แทนไอคอน */}
+                  <img src={card.image} alt={card.title} style={{ width: "2rem", height: "2rem" }} />
+                  <Typography variant="h4" fontWeight={600} sx={{ fontFamily: "Prompt", color:"#28378B" }}>
+                    {card.value}
+                    <Typography variant="body1" component="span" sx={{ fontSize: "1.2rem", marginLeft: "4px", color:"#28378B" }}>
+                      {card.unit}
+                    </Typography>
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Paper>
+        </Grid>
+      ))}
+    </Grid>
+  );
+};
+
+export default DashboardCards;
