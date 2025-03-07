@@ -4,7 +4,6 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 const FloatingMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const offset = 100; // ปรับค่า offset ตามต้องการ (เช่น 100px)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
