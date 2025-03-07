@@ -1,4 +1,4 @@
-# โครงการใช้งาน
+# Website WangYang
 
 โปรแบบเว็บไซต์พยากรณ์น้ำในพื้นที่่วังยาง เพื่อติดตามและติดตั้งระดับน้ำและโอกาสได้ต่างๆดูได้
 
@@ -8,12 +8,10 @@
 - [TypeScript](https://www.typescriptlang.org/) - ภาษาโปรแกรมมีโปรแมนเจมินโครงสร้างตัว
 - [MUI](https://mui.com/) - โปรแพม UI ที่เพรียมเลยเจสติโมตริเซียม
 
-## วิธีแวดล้อม
-
 ### ติดตั้งโปรแกรมโปรแพรมไว้
 ```sh
-npm create vite@latest my-water-forecast --template react-ts
-cd my-water-forecast
+npm create vite@latest web-wangyang --template react-ts
+cd web-wangyang
 npm install
 ```
 
@@ -25,10 +23,9 @@ npm run dev
 ## โครงสร้างสำคัญ
 - **src/components** - เมนูของคอมโพเนนท์
 - **src/pages** - หน้าเพจ
-- **src/assets** - โปรแพรมเกราฟิกภาพ
+- **src/assets** - โปรแพรมกราฟิกภาพ
 - **src/pubilc** - สำหรับเก็บไฟล์ข้อมูลที่ใช้
 
 ## เพิ่มเติม
 - เพิ่มเพิ่มเติม ติดตั้ง `.env` และตั้ง API URL
-- ทดสอบข้อมูลพริมิเทศน้ำไปใหม่
 
