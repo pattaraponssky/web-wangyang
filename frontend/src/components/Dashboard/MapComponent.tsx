@@ -168,13 +168,12 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
             if (iconHtml) {
               const marker = new longdo.Marker(position, {
                 title: Res_Name_T || Rain_Station_Code || Level_Station_Code || Name,
-                detail: Res_Name_T ? `อ่างเก็บน้ำ: ${Res_Name_T}\nพื้นที่: ${SubDistrict_Name_T}, ${District_Name_T}, ${Province_Name_T}\nปริมาณ: ${Vol_mcm} ล้านลูกบาศก์เมตร`
-                        : Rain_Station_Code ? `สถานีวัดน้ำฝน: ${Rain_Station_Code}\nพื้นที่: ${SubDistrict_Name_T}, ${District_Name_T}, ${Province_Name_T}`
-                        : Level_Station_Code ? `สถานีวัดน้ำท่า: ${Level_Station_Code}\nแม่น้ำ: ${feature.properties.River_Name_E}`
-                        : `ประตูระบายน้ำ: ${Name}\nแม่น้ำ: ${feature.properties.River}`,
+                detail: Res_Name_T ? `อ่างเก็บน้ำ: ${Res_Name_T}<br>พื้นที่: ${SubDistrict_Name_T}<br> ${District_Name_T}<br> ${Province_Name_T}<br>ปริมาณกักเก็บ: ${Vol_mcm} ล้าน ลบ.ม.`
+                        : Rain_Station_Code ? `รหัสสถานีวัดน้ำฝน: ${Rain_Station_Code} <br>พื้นที่: ${SubDistrict_Name_T}<br>${District_Name_T} ${Province_Name_T}`
+                        : Level_Station_Code ? `รหัสสถานีวัดน้ำท่า: ${Level_Station_Code}<br>แม่น้ำ: ${feature.properties.River_Name_E}`
+                        : `แม่น้ำ: ${feature.properties.River}`,
                 icon: { html: iconHtml },
               });
-
               map.Overlays.add(marker);
               newMarkers.push(marker);
             }

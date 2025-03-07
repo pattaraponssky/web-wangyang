@@ -4,6 +4,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 const FloatingMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const offset = 100; // ปรับค่า offset ตามต้องการ (เช่น 100px)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -14,34 +15,25 @@ const FloatingMenu: React.FC = () => {
   };
 
   const handleScrollTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 70; // ระยะที่ต้องการเลื่อนขึ้นเพิ่ม
-      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - offset;
-  
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
-    handleClose();
+    handleClose(); // ปิดเมนูก่อนที่จะเลื่อน
+    setTimeout(() => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 200); // รอให้เมนูปิดก่อนค่อยเลื่อน
   };
-  
+
   return (
     <>
       <Fab
         color="primary"
-        sx={{ position: "fixed", bottom: 20, right: 20 }}
+        sx={{ position: "fixed", bottom: 20, right: 20, zIndex: 1000 }}
         onClick={handleClick}
       >
         {anchorEl ? <ExpandLess /> : <ExpandMore />}
       </Fab>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={() => handleScrollTo("map")}>แผนที่ตำแหน่งสถานีสำคัญ</MenuItem>
         <MenuItem onClick={() => handleScrollTo("flood-warning")}>เกณฑ์การเฝ้าระวังและเตือนภัย</MenuItem>
         <MenuItem onClick={() => handleScrollTo("forecast-chart")}>ผลการพยากรณ์ปริมาณน้ำท่า</MenuItem>
