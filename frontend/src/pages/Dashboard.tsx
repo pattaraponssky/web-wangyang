@@ -13,6 +13,7 @@ import WaterGateTable from "../components/Dashboard/WaterGateTable";
 import WaterLevelChart from "../components/Dashboard/WaterLevel";
 import FloatingMenu from "../components/Dashboard/selectMenu";
 import VelocLineChart from "../components/Dashboard/VelocChart";
+import { Padding, PaddingOutlined } from "@mui/icons-material";
 
 const Dashboard: React.FC = () => {
   const mapKey = 'e75fee377b3d393b7a32576ce2b0229d'; // กำหนด Map API Key ของ Longdo
@@ -35,7 +36,6 @@ const Dashboard: React.FC = () => {
   ];
 
   const BoxStyle = {
-    // padding: "20px",
     // maxWidth: "90%",
     margin: "auto",
     backgroundColor: "white",
@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
       <Box sx={BoxStyle}}>
         <RunHecRas />
       </Box> */}
-      <Box sx={BoxStyle} id="flood-warning">
+      <Box sx={{...BoxStyle}} id="flood-warning">
         <FloodWarningTable/>
       </Box>
       <Box sx={{...BoxStyle,padding:"20px"}} id="forecast-chart" >
@@ -102,9 +102,24 @@ const Dashboard: React.FC = () => {
       <Box sx={BoxStyle} id="water-gate">
         <WaterGateTable/>
       </Box>
-      <Box sx={BoxStyle} id="flood-map">
+      {/* <Box sx={BoxStyle} id="flood-map">
         <ImageComponent src="./images/map_flood.jpg" alt="" title={"แผนที่น้ำท่วม"} />
-      </Box>
+      </Box> */}
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6} sm={12}>
+        <Box sx={BoxStyle} id="flood-map">
+          <ImageComponent src="./images/map_flood.jpg" alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
+        </Box>
+        </Grid>
+        <Grid item xs={12} md={6} sm={12} >
+        <Box sx={BoxStyle} id="diagrams-map">
+          <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/03/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg" alt="" title={"แผนผังลุ่มแม่น้ำชี"} />
+        </Box>
+        <Box sx={BoxStyle} id="report-chart">
+          <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/03/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg" height={'100%'} width={'89%'} alt="" title={"รายงานกราฟแสดงระดับน้ำเขื่อนวังยาง"} />
+        </Box>
+        </Grid>
+      </Grid>
       <FloatingMenu />
     </div>
   );

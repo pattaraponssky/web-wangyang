@@ -36,11 +36,13 @@ const FloatingMenu: React.FC = () => {
         <MenuItem onClick={() => handleScrollTo("map")}>แผนที่ตำแหน่งสถานีสำคัญ</MenuItem>
         <MenuItem onClick={() => handleScrollTo("flood-warning")}>เกณฑ์การเฝ้าระวังและเตือนภัย</MenuItem>
         <MenuItem onClick={() => handleScrollTo("forecast-chart")}>ผลการพยากรณ์ปริมาณน้ำท่า</MenuItem>
+        <MenuItem onClick={() => handleScrollTo("water-level")}>ระดับน้ำแต่ละสถานี</MenuItem>
         <MenuItem onClick={() => handleScrollTo("velocity-chart")}>ความเร็วการไหลของน้ำ</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("water-level")}>ภาพหน้าตัดลำน้ำ</MenuItem>
         <MenuItem onClick={() => handleScrollTo("profile-chart")}>รูปตัดตามยาวแม่น้ำ</MenuItem>
         <MenuItem onClick={() => handleScrollTo("water-gate")}>ข้อเสนอแนะการเปิด-ปิด ปตร.</MenuItem>
         <MenuItem onClick={() => handleScrollTo("flood-map")}>แผนที่น้ำท่วม</MenuItem>
+        <MenuItem onClick={() => handleScrollTo("diagrams-map")}>แผนผังลุ่มแม่น้ำชี</MenuItem>
+        <MenuItem onClick={() => handleScrollTo("report-chart")}>รายงานกราฟแสดงระดับน้ำ</MenuItem>
       </Menu>
     </>
   );

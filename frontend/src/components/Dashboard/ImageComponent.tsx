@@ -1,29 +1,55 @@
-import { Typography } from '@mui/material';
-import React from 'react';
+import { Typography } from "@mui/material";
+import React, { useRef } from "react";
 
 interface ImageProps {
   src: string;
   alt: string;
-  title: string; // เพิ่ม prop สำหรับชื่อหัวข้อ
-  width?: string | number; // ความกว้างของรูป
-  height?: string | number; // ความสูงของรูป
+  title: string;
+  width?: string | number;
+  height?: string | number;
 }
 
-const ImageComponent: React.FC<ImageProps> = ({ src, alt, width, height }) => {
+const ImageComponent: React.FC<ImageProps> = ({ src, alt, title, width, height }) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const openDialog = () => {
+    if (dialogRef.current) {
+      dialogRef.current.showModal();
+    }
+  };
+
+  const closeDialog = (e: React.MouseEvent<HTMLDialogElement>) => {
+    // ถ้าคลิกที่ dialog แต่ไม่ใช่ที่รูป ให้ปิด dialog
+    if (e.target === dialogRef.current) {
+      dialogRef.current?.close();
+    }
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px',fontFamily:"Prompt", maxWidth:"100%"}}>
-      <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color:"#28378B" }}>
-          แผนที่น้ำท่วมพื้นที่วังยาง
-        </Typography>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", fontFamily: "Prompt", maxWidth: "100%" }}>
+      <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
+        {title}
+      </Typography>
       <img
         src={src}
         alt={alt}
+        onClick={openDialog} // คลิกเพื่อเปิดรูปขยาย
         style={{
-          width: width ? width : '70vw', // ถ้าไม่กำหนดความกว้างจะใช้ 60% โดยอัตโนมัติ
-          height: height ? height : 'auto', // ถ้าไม่กำหนดความสูงจะใช้ auto โดยอัตโนมัติ
-          objectFit: 'cover', // ให้รูปไม่ยืดหรือบิดเบี้ยว
+          width: width ? width : "100%",
+          height: height ? height : "auto",
+          objectFit: "cover",
+          cursor: "pointer", // เปลี่ยนเป็นรูปมือเมื่อ hover
         }}
       />
+      
+      {/* Dialog แสดงภาพขยาย */}
+      <dialog ref={dialogRef} onClick={closeDialog} style={{ border: "none", background: "rgba(0, 0, 0, 0.2)", padding: "20px" }}>
+        <img
+          src={src}
+          alt={alt}
+          style={{ maxWidth: "90vw", maxHeight: "90vh", borderRadius: "8px" }}
+        />
+      </dialog>
     </div>
   );
 };

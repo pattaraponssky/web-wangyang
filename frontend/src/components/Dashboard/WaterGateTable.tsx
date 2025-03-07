@@ -133,21 +133,29 @@ const WaterLevelTable: React.FC = () => {
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={5} align="center">กำลังโหลดข้อมูล...</TableCell>
+              <TableCell colSpan={6} align="center">กำลังโหลดข้อมูล...</TableCell> {/* เปลี่ยน colSpan เป็น 6 */}
             </TableRow>
           ) : error ? (
             <TableRow>
-              <TableCell colSpan={5} align="center" style={{ color: "red" }}>{error}</TableCell>
+              <TableCell colSpan={6} align="center">{error}</TableCell> {/* เปลี่ยน colSpan เป็น 6 */}
             </TableRow>
           ) : (
             data.map((row, index) => (
               <TableRow key={index}>
                 <TableCell sx={getCellStyle(index)}>{row.datetime}</TableCell>
-                <TableCell sx={getCellStyle(index)}> 6 </TableCell>
-                <TableCell sx={getCellStyle(index)}>{parseFloat(row.gate_open.toFixed(2))}</TableCell> {/* แสดงค่า gate_open */}
-                <TableCell sx={getCellStyle(index)}>{parseFloat(row.gate_water_upper.toFixed(2))}</TableCell>
-                <TableCell sx={getCellStyle(index)}>{parseFloat(row.gate_water_lower.toFixed(2))}</TableCell>
-                <TableCell sx={getCellStyle(index)}>{parseFloat(row.flow_rate.toFixed(2))}</TableCell>
+                <TableCell sx={getCellStyle(index)}>6</TableCell>
+                <TableCell sx={getCellStyle(index)}>
+                  {parseFloat(row.gate_open.toFixed(2))}
+                </TableCell>
+                <TableCell sx={getCellStyle(index)}>
+                  {parseFloat(row.gate_water_upper.toFixed(2))}
+                </TableCell>
+                <TableCell sx={getCellStyle(index)}>
+                  {parseFloat(row.gate_water_lower.toFixed(2))}
+                </TableCell>
+                <TableCell sx={getCellStyle(index)}>
+                  {parseFloat(row.flow_rate.toFixed(2))}
+                </TableCell>
               </TableRow>
             ))
           )}

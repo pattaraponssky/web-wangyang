@@ -13,8 +13,9 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Header setOpen={setDrawerOpen} />
+
         <Box display="flex" flexDirection="column" minHeight="100vh" minWidth="100%" sx={{ backgroundColor: "#f0f0f0" }}>
+        <Header setOpen={setDrawerOpen} />
         <Box display="flex" flexGrow={1} mt={8}>
           <DrawerComponent open={drawerOpen} setOpen={setDrawerOpen} />
           <Box flex={1} p={2}>
