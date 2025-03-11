@@ -173,7 +173,7 @@ const getWaterLevelStatus = (station: string, elevation: number) => {
 
       </Box>
 
-      <Box sx={{ position: "relative", width: "100%", aspectRatio: "20/8" , height: {
+      <Box sx={{ position: "relative", width: "100%", aspectRatio: "20/10" , height: {
             xs: "auto",  // สำหรับขนาดจอเล็ก
             sm: "auto",  // สำหรับขนาดจอปานกลาง
             md: "auto",  // สำหรับขนาดจอใหญ่

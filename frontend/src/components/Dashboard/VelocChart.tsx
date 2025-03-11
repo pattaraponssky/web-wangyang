@@ -76,7 +76,7 @@ const VelocLineChart: React.FC = () => {
   
   const lineChartOptions: ApexOptions = {
     chart: {
-      type: "line" as "line",
+      type: "area" as "area",
       toolbar: { show: false },
       fontFamily: "Prompt",
       zoom: { enabled: true },
@@ -93,10 +93,27 @@ const VelocLineChart: React.FC = () => {
       x: { format: "dd MMM yyyy HH:mm" },
       y: { formatter: (val: any) => `${Number(val.toFixed(2)).toLocaleString()} m/s` },
     },
-    stroke: { curve: "smooth" },
+    stroke: { curve: "smooth" , width: [2],},
     markers: { size: 0 },
     colors: ["#2196f3"],
     grid: { strokeDashArray: 4 },
+    fill: {
+      type: ["gradient"], // กำหนดให้เส้นแรกเป็นไล่สี
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.5,
+        opacityFrom: 0.9,
+        opacityTo: 0.2,
+        stops: [0, 100],
+        colorStops: [
+          [
+            { offset: 0, color: "#007bff", opacity: 1 }, // สีดำด้านบน
+            { offset: 100, color: "#ADD8E6", opacity: 0.4 }, // สีเทาด้านล่าง
+          ],
+        ],
+      },
+    },
   };
 
   return (
@@ -127,7 +144,7 @@ const VelocLineChart: React.FC = () => {
           <ReactApexChart
             options={lineChartOptions}
             series={chartData.filter((item) => item.name === selectedStation)} // แสดงเฉพาะสถานีที่เลือก
-            type="line"
+            type="area"
             height="100%"
           />
         </Box>

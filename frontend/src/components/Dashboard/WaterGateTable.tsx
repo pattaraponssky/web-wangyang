@@ -17,16 +17,16 @@ const HeaderCellStyle = {
   textAlign: "center",
   backgroundColor: "rgb(1, 87, 155)",
   color: "white",
-  fontSize: { xs: "0.8rem", sm: "1rem" }
+  fontSize: { xs: "0.7rem", sm: "0.8rem" , md: "1rem"},
 };
 
 const getCellStyle = (index: number) => ({
   border: "1px solid #ddd",
-  padding: "8px",
+  padding: "5px",
   backgroundColor: index % 2 === 0 ? "#FAFAFA" : "#FFF",
   textAlign: "center",
   fontFamily: "Prompt",
-  fontSize: { xs: "0.6rem", sm: "0.8rem" }
+  fontSize: { xs: "0.6rem", sm: "0.7rem" , md: "0.8rem"},
 });
 
 const WaterLevelTable: React.FC = () => {
@@ -110,18 +110,23 @@ const WaterLevelTable: React.FC = () => {
 
   return (
     <TableContainer sx={{  justifySelf: "center",
-        maxWidth: "90vw",
+        maxWidth: {
+          xs: "100vw",
+          sm: "100vw",
+          md: "80vw",
+        },
         overflowX: "auto", // ให้ Scroll ได้ในมือถือ
-        padding: 2,
+        paddingBottom: 3,
+        paddingTop: 2,
       }}>
       <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
-        {loading ? "กำลังโหลดข้อมูล..." : error ? "เกิดข้อผิดพลาด" : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำ"}
+        {loading ? "กำลังโหลดข้อมูล..." : error ? "เกิดข้อผิดพลาด" : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำวังยาง"}
       </Typography>
 
       <Table aria-label="water-level-table">
         <TableHead sx={{backgroundColors:"#99CCFF"}}>
           <TableRow>
-            <TableCell sx={HeaderCellStyle}>วัน-เวลา</TableCell>
+            <TableCell sx={{...HeaderCellStyle,minWidth:{sm:"20vw",md:"15vw",lg:"auto"}}}>วัน-เวลา</TableCell>
             <TableCell sx={HeaderCellStyle}>จำนวนบาน</TableCell>
             <TableCell sx={HeaderCellStyle}>ระยะเปิดบาน<br/>(ม.)</TableCell> {/* เพิ่มคอลัมน์ */}
             <TableCell sx={HeaderCellStyle}>ระดับน้ำเหนือ<br/>(ม.รทก.)</TableCell>

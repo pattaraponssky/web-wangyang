@@ -15,7 +15,7 @@ const AboutUs: React.FC = () => {
       <Card sx={{ backgroundColor: "#f5f5f5", borderRadius: "10px", boxShadow: 2 }}>
         <CardContent>
           <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: "10px", fontFamily: "Prompt" }}>
-            ติดต่อเรา
+            ช่องทางติดต่อ
           </Typography>
           <Typography variant="body2" sx={{ fontFamily: "Prompt" }}>
             📍 ที่อยู่: กรุงเทพมหานคร, ประเทศไทย  

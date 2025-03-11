@@ -165,18 +165,42 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
               iconHtml = `<div style="width:24px; height:24px; background-image:url('./images/icons/gate_icon.png'); background-size:cover;"></div>`;
             }
 
+            let iconUrl = "";
+              if (Res_Name_T) {
+                iconUrl = "./images/icons/reservoir_icon.png";
+              } else if (Rain_Station_Code) {
+                iconUrl = "./images/icons/rain_station_icon.png";
+              } else if (Level_Station_Code) {
+                iconUrl = "./images/icons/flow_station_icon.png";
+              } else {
+                iconUrl = "./images/icons/gate_icon.png";
+              }
+
             if (iconHtml) {
               const marker = new longdo.Marker(position, {
-                title: Res_Name_T || Rain_Station_Code || Level_Station_Code || Name,
-                detail: Res_Name_T ? `อ่างเก็บน้ำ: ${Res_Name_T}<br>พื้นที่: ${SubDistrict_Name_T}<br> ${District_Name_T}<br> ${Province_Name_T}<br>ปริมาณกักเก็บ: ${Vol_mcm} ล้าน ลบ.ม.`
-                        : Rain_Station_Code ? `รหัสสถานีวัดน้ำฝน: ${Rain_Station_Code} <br>พื้นที่: ${SubDistrict_Name_T}<br>${District_Name_T} ${Province_Name_T}`
-                        : Level_Station_Code ? `รหัสสถานีวัดน้ำท่า: ${Level_Station_Code}<br>แม่น้ำ: ${feature.properties.River_Name_E}`
-                        : `แม่น้ำ: ${feature.properties.River}`,
+                title: `<img src="${iconUrl}" style="width:25px; height:25px; vertical-align:middle; margin-right:5px" /> 
+                        <span style="font-size:1.1rem; font-weight:bold; vertical-align:middle; "> ${Res_Name_T || Rain_Station_Code || Level_Station_Code || Name} </span>`,
+                detail: Res_Name_T ? `<span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${SubDistrict_Name_T} ${District_Name_T} ${Province_Name_T}<br> </span> 
+                        <span style="font-size:0.9rem; font-weight:bold;">ปริมาณกักเก็บ: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Vol_mcm} ล้าน ลบ.ม.</span>` 
+                        : Rain_Station_Code ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำฝน: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Rain_Station_Code} </span><br>
+                        <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${SubDistrict_Name_T} ${District_Name_T} ${Province_Name_T}<br> </span>` 
+                        : Level_Station_Code ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Level_Station_Code} </span><br>
+                        <span style="font-size:0.9rem; font-weight:bold;">แม่น้ำ: </span>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${feature.properties.River_Name_E} </span><br>` 
+                        : `<span style="font-size:0.9rem; font-weight:bold;">แม่น้ำ: </span>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${feature.properties.River||''} </span><br>`
+                    ,
                 icon: { html: iconHtml },
               });
               map.Overlays.add(marker);
               newMarkers.push(marker);
             }
+            
           }
         });
       }

@@ -193,6 +193,7 @@ const LongProfileChart: React.FC = () => {
                       borderColor: '#66B2FF',
                       position: "bottom", // ✅ ทำให้ข้อความชิดด้านล่าง                      
                       style: {
+                          fontSize: '1rem',
                           color: '#fff',
                           background: '#66B2FF',
                       },
@@ -206,6 +207,7 @@ const LongProfileChart: React.FC = () => {
                   label: {                     
                       position: "bottom", // ✅ ทำให้ข้อความชิดด้านล่าง
                       style: {
+                          fontSize: '15px',
                           color: '#fff',
                           background: '#66B2FF',                          
                       },
@@ -218,32 +220,16 @@ const LongProfileChart: React.FC = () => {
         {
           x: 140, // ตำแหน่งในแกน X ที่ต้องการเริ่มพื้นที่
           x2: 200, // ตำแหน่งในแกน X ที่ต้องการสิ้นสุดพื้นที่
-          borderColor: '#FF0000', // สีของเส้นขอบ
-          fillColor: '#FF0000', // สีพื้นหลังของพื้นที่
-          opacity: 0.1, // ความโปร่งใส
-          label: {
-            // text: "พื้นที่ที่ต้องการไฮไลต์",
-            style: {
-              color: '#ffffff',
-              background: '#FF0000',
-              fontSize: '12px',
-            },
-          },
+          borderColor: '#E5CCFF', // สีของเส้นขอบ
+          fillColor: '#E5CCFF', // สีพื้นหลังของพื้นที่
+          opacity: 0, // ความโปร่งใส
         },
         {
           x: 0, // ตำแหน่งในแกน X ที่ต้องการเริ่มพื้นที่
           x2: 140, // ตำแหน่งในแกน X ที่ต้องการสิ้นสุดพื้นที่
-          borderColor: 'blue', // สีของเส้นขอบ
-          fillColor: 'blue', // สีพื้นหลังของพื้นที่
+          borderColor: 'red', // สีของเส้นขอบ
+          fillColor: 'red', // สีพื้นหลังของพื้นที่
           opacity: 0.1, // ความโปร่งใส
-          label: {
-            // text: "พื้นที่ที่ต้องการไฮไลต์",
-            style: {
-              color: '#ffffff',
-              background: '#FF0000',
-              fontSize: '12px',
-            },
-          },
         },
       ],
     
@@ -257,6 +243,7 @@ const LongProfileChart: React.FC = () => {
           label: {
             show: true,
             style: {
+              fontSize: '1rem',
               fontWeight: 'bold', // ทำให้ตัวหนา
               color: '#000',
             },
@@ -272,6 +259,7 @@ const LongProfileChart: React.FC = () => {
           label: {
             show: true,
             style: {
+              fontSize: '1rem',
               fontWeight: 'bold', // ทำให้ตัวหนา
               color: '#000',
             },
@@ -293,6 +281,7 @@ const LongProfileChart: React.FC = () => {
               offsetY: 35,
               offsetX: 25,
               style: {
+                  fontSize: '1rem',
                   color: '#fff',
                   background: '#FF0033',
               },
@@ -314,6 +303,7 @@ const LongProfileChart: React.FC = () => {
               offsetY: 40,
               offsetX: 0,
               style: {
+                  fontSize: '1rem',
                   color: '#fff',
                   background: '#FF0033',
               },
@@ -335,6 +325,7 @@ const LongProfileChart: React.FC = () => {
             offsetY: 40,
             offsetX: 10,
             style: {
+                fontSize: '1rem',
                 color: '#fff',
                 background: '#FF0033',
             },
@@ -356,6 +347,7 @@ const LongProfileChart: React.FC = () => {
             offsetY: 45,
             offsetX: -30,
             style: {
+                fontSize: '1rem',
                 color: '#fff',
                 background: '#FF0033',
 
@@ -378,6 +370,7 @@ const LongProfileChart: React.FC = () => {
             offsetY: 45,
             offsetX: 0,
             style: {
+                fontSize: '1rem',
                 color: '#fff',
                 background: '#FF0033',
             },
@@ -399,6 +392,7 @@ const LongProfileChart: React.FC = () => {
               offsetY: 40,
               offsetX: -70,
               style: {
+                  fontSize: '1rem',
                   color: '#fff',
                   background: '#FF0033',
               },
@@ -413,31 +407,52 @@ const LongProfileChart: React.FC = () => {
           show: true,
           style: {
             color: '#skyblue',
-            fontSize: '14px',
+            fontSize: '1rem',
             fontWeight: 'bold',
           },
           text: '→→→ ทิศทางน้ำไหล →→→', // ใช้ลูกศร →  
-          offsetY: -10, // ขยับขึ้น
+          offsetY: -20, // ขยับขึ้น
           offsetX: 10, 
         },
       },
       ],
     },
     stroke: {
-      width: [4, 4, 4, 5],
+      width: [2, 0, 5, 5],
       curve: "straight" as "straight",
-      dashArray: [0, 3, 3, 0],
+      dashArray: [0, 0, 8, 8],
     },
-    colors: ["#000", "#ff0000", "#994C00", "#007bff"],
-
+    colors: ["#007bff","#000000", "#800000", "#808080" ],
+    fill: {
+      
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.5,
+        opacityFrom: 0.9,
+        opacityTo: 0.2,
+        stops: [0, 100],
+        colorStops: [
+          [
+            { offset: 0, color: "#007bff", opacity: 1 }, // สีดำด้านบน
+            { offset: 100, color: "#007bff", opacity: 0.5 }, // สีเทาด้านล่าง
+          ],
+          [
+            { offset: 0, color: "#000000", opacity: 1 }, // สีดำด้านบน
+            { offset: 100, color: "#333333", opacity: 0.2 }, // สีเทาด้านล่าง
+          ],
+        ],
+      },
+    },
   };
   
 
   const chartSeries = [
-    { name: "Ground (ท้ายคลอง)", data: data.map((d) => d.Ground) },
+    { name: "Water Level (ระดับผิวน้ำ)", type: "area",  data: data.map((d) => d.WaterLevel ?? null) },
+    { name: "Ground (ท้ายคลอง)", type: "area",data: data.map((d) => d.Ground) },
     { name: "LOB (ตลิ่งซ้าย)", data: data.map((d) => d.LOB) },
     { name: "ROB (ตลิ่งขวา)", data: data.map((d) => d.ROB) },
-    { name: "Water Level (ระดับผิวน้ำ)", data: data.map((d) => d.WaterLevel ?? null) }, // แสดงข้อมูลระดับน้ำ
+     // แสดงข้อมูลระดับน้ำ
   ];
   
 

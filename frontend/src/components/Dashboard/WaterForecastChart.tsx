@@ -65,19 +65,20 @@ const WaterForecastChart: React.FC = () => {
               },
               yaxis: {
                 labels: { formatter: (val: any) => Number(val.toFixed(2)).toLocaleString(), style: { fontSize: '1rem' } },
-                title: { text: 'ปริมาณน้ำ (ล้าน ลบ.ม.)', style: { fontSize: '1rem' } },
+                title: { text: 'อัตราการไหล (ลบ.ม./วินาที)', style: { fontSize: '1rem' } },
               },
               tooltip: {
                 x: { format: 'dd MMM yyyy HH:mm' },
                 y: { formatter: (val: any) => `${Number(val.toFixed(2)).toLocaleString()} ล้าน ลบ.ม.` },
               },
+              
               annotations: {
                 xaxis: [
                   {
                     x: seriesItem.data[72]?.[0],
                     borderColor: '#FF0000',
                     label: {
-                      borderColor: '#FF0000',
+                      borderColor: '#000',
                       style: { color: '#fff', background: '#FF0000' ,fontSize:'1rem'},
                       text: 'ผลพยากรณ์',
                     },
@@ -92,8 +93,8 @@ const WaterForecastChart: React.FC = () => {
                   <ReactApexChart
                     options={options}
                     series={[
-                      { name: seriesItem.name, data: normalData },
-                      { name: `${seriesItem.name} (พยากรณ์)`, data: dashedData }
+                      { name: `${seriesItem.name} (ค่าตรวจวัดจริง)`, data: normalData },
+                      { name: `${seriesItem.name} (ค่าพยากรณ์)`, data: dashedData }
                     ]}
                     type="line"
                     height={350}

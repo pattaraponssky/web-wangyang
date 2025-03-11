@@ -7,3 +7,7 @@ html, body {
     overflow: auto;
   }
   
+.ldmap_placeholder .ldmap_frame .ldmap_popup_title {
+
+    height: auto !important;
+}

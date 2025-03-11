@@ -51,7 +51,8 @@ const FloodWarningTable: React.FC = () => {
         justifySelf: "center",
         maxWidth: "90vw",
         overflowX: "auto", // ให้ Scroll ได้ในมือถือ
-        padding: 2,
+        paddingBottom: 3,
+        paddingTop: 2,
    
       }}
     >
