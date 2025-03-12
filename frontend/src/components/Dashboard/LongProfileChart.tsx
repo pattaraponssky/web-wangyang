@@ -189,14 +189,14 @@ const LongProfileChart: React.FC = () => {
           },
         },
               {
-                  x: 134, // ตำแหน่ง x
+                  x: 137, // ตำแหน่ง x
                   borderColor: '#000',
                   borderWidth: 0,
                   label: {                
                       borderColor: '#66B2FF',
                       position: "bottom", // ✅ ทำให้ข้อความชิดด้านล่าง                      
                       style: {
-                          fontSize: '1rem',
+                          fontSize: '1.15rem',
                           color: '#fff',
                           background: '#66B2FF',
                       },

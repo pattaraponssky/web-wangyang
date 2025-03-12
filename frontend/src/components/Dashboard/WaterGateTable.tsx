@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { formatThaiDate } from "../../utility";
 
 interface DataWaterLevel {
   datetime: string;
@@ -111,13 +112,14 @@ const WaterLevelTable: React.FC = () => {
   return (
     <TableContainer sx={{  justifySelf: "center",
         maxWidth: {
-          xs: "100vw",
-          sm: "100vw",
-          md: "80vw",
+          xs: "90%",
+          sm: "90%",
+          md: "80%",
         },
         overflowX: "auto", // ให้ Scroll ได้ในมือถือ
         paddingBottom: 3,
         paddingTop: 2,
+
       }}>
       <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
         {loading ? "กำลังโหลดข้อมูล..." : error ? "เกิดข้อผิดพลาด" : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำวังยาง"}
@@ -126,7 +128,7 @@ const WaterLevelTable: React.FC = () => {
       <Table aria-label="water-level-table">
         <TableHead sx={{backgroundColors:"#99CCFF"}}>
           <TableRow>
-            <TableCell sx={{...HeaderCellStyle,minWidth:{sm:"20vw",md:"15vw",lg:"auto"}}}>วัน-เวลา</TableCell>
+            <TableCell sx={{...HeaderCellStyle,minWidth:{sm:"20%",md:"15%",lg:"auto"}}}>วัน-เวลา</TableCell>
             <TableCell sx={HeaderCellStyle}>จำนวนบาน</TableCell>
             <TableCell sx={HeaderCellStyle}>ระยะเปิดบาน<br/>(ม.)</TableCell> {/* เพิ่มคอลัมน์ */}
             <TableCell sx={HeaderCellStyle}>ระดับน้ำเหนือ<br/>(ม.รทก.)</TableCell>
@@ -147,7 +149,7 @@ const WaterLevelTable: React.FC = () => {
           ) : (
             data.map((row, index) => (
               <TableRow key={index}>
-                <TableCell sx={getCellStyle(index)}>{row.datetime}</TableCell>
+                <TableCell sx={getCellStyle(index)}>{formatThaiDate(row.datetime)}</TableCell>
                 <TableCell sx={getCellStyle(index)}>6</TableCell>
                 <TableCell sx={getCellStyle(index)}>
                   {parseFloat(row.gate_open.toFixed(2))}

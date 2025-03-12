@@ -27,7 +27,7 @@ const FloodWarningTable: React.FC = () => {
     whiteSpace: "normal", // อนุญาตให้ขึ้นบรรทัดใหม่
     overflow: "hidden", 
     textOverflow: "ellipsis", // เพิ่ม ... เมื่อข้อความยาวเกิน
-    fontSize: isSmallScreen ? "0.75rem" : "0.875rem",
+    fontSize: { xs: "0.6rem", sm: "0.7rem" , md: "0.8rem"},
     padding: isSmallScreen ? "4px" : "8px",
   });
   
@@ -41,7 +41,7 @@ const FloodWarningTable: React.FC = () => {
     backgroundColor: "#F0F0F0",
     overflow: "hidden",
     textOverflow: "ellipsis", 
-    fontSize: isSmallScreen ? "0.75rem" : "0.875rem", // ลดขนาด font บนมือถือ
+    fontSize: { xs: "0.7rem", sm: "0.8rem" , md: "0.9rem"},
     padding: isSmallScreen ? "4px" : "8px", // ลด padding บนมือถือ
   };
   return (

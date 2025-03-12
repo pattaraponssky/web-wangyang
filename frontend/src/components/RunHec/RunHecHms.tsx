@@ -4,10 +4,8 @@ import { BeachAccess, WaterDrop, Cloud, Flood } from "@mui/icons-material";
 import axios from "axios"; 
 
 const cardData = [
-  { title: "แปลงไฟล์ .txt เป็น .dss",icon: <BeachAccess />, url: "http://localhost/input-hms.php" },
-  { title: "แก้ไขวันที่พยากรณ์",icon: <WaterDrop />, url: "http://localhost/hms_change_date.php" },
-  { title: "Hec-HMS Compute",icon: <Cloud />, url: "http://localhost/hms_compute.php" },
-  { title: "รันทั้งหมด",icon: <Flood />, url: "http://localhost/hms_run_all.php" },
+  { title: "แก้ไขช่วงวันที่พยากรณ์",icon: <BeachAccess />, url: "http://localhost/wangyang/hms_change_date.php" },
+  { title: "Hec-HMS Compute",icon: <WaterDrop />, url: "http://localhost/wangyang/hms_change_date.php" },
 ];
 
 const RunHecHms: React.FC = () => {
@@ -39,10 +37,10 @@ const RunHecHms: React.FC = () => {
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-        <Grid item xs={12} sm={6} lg={3} key={index}>
+        <Grid item xs={12} sm={6} lg={6} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
-              <Typography variant="h6" color="textSecondary" gutterBottom>
+              <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>
                {card.icon} {card.title}
               </Typography>
             

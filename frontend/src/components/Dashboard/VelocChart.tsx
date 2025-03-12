@@ -3,7 +3,6 @@ import ReactApexChart from "react-apexcharts";
 import { Box, CardContent, Typography, Grid } from "@mui/material";
 import Papa from "papaparse";
 import { ApexOptions } from "apexcharts";
-import { formatThaiDate } from "../../utility";
 
 const stationMapping = {
   "E.91": 184715,
@@ -35,7 +34,7 @@ const VelocLineChart: React.FC = () => {
     const [day, month, yearAndTime] = dateTimeStr.split("/");
     const [year, time] = yearAndTime.split(" ");
     const formattedDateTime = new Date(`${year}-${month}-${day}T${time}`).getTime();
-    return formatThaiDate(formattedDateTime.toString()) ? null : formattedDateTime;
+    return isNaN(formattedDateTime) ? null : formattedDateTime;
   };
 
   const processCSVData = (data: any[]) => {

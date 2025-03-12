@@ -4,13 +4,12 @@ import { BeachAccess, WaterDrop, Cloud, Flood } from "@mui/icons-material";
 import axios from "axios"; 
 
 const cardData = [
-  { title: "แก้ไขวันที่พยากรณ์",icon: <BeachAccess />, url: "http://localhost/ras_change_date.php" },
-  { title: "Compute Hec-Ras",icon: <WaterDrop />, url: "http://localhost/ras_compute.php" },
-  { title: "ดึงข้อมูลเป็น csv",icon: <Cloud />, url: "http://localhost/ras_dss_to_csv.php" },
-  { title: "รันทั้งหมด",icon: <Flood />, url: "http://localhost/ras_run_all.php" },
+  { title: "ดาวน์โหลดกริดฝนพยากรณ์", icon: <BeachAccess />, url: "http://localhost/wangyang/dowload_rain_grid.php" },
+  { title: "สร้างไฟล์ input-hms.txt",icon: <WaterDrop />, url: "http://localhost/wangyang/write_input_txt.php" },
+  { title: "สร้างไฟล์ input-hms.dss",icon: <Flood />, url: "http://localhost/wangyang/write_input_dss.php" },
 ];
 
-const RunHecRas: React.FC = () => {
+const RunCreateText: React.FC = () => {
   const [messages, setMessages] = useState<{ [key: number]: string }>({});
 
   // ฟังก์ชันรันไฟล์ PHP ตาม URL ของแต่ละ Card
@@ -33,16 +32,16 @@ const RunHecRas: React.FC = () => {
 
   return (
   <div>
-       <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
-        ขั้นตอนที่ 3 (Hec-Ras)
+       <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold", fontFamily:"Prompt"}}>
+        ขั้นตอนที่ 1 เตรียมข้อมูลน้ำฝน-น้ำท่า (Hec-Dss)
       </Typography>
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-        <Grid item xs={12} sm={6} lg={3} key={index}>
+        <Grid item xs={12} sm={4} lg={4} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
-              <Typography variant="h6" color="textSecondary" gutterBottom>
+              <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>
                {card.icon} {card.title}
               </Typography>
             
@@ -66,4 +65,4 @@ const RunHecRas: React.FC = () => {
   );
 };
 
-export default RunHecRas;
+export default RunCreateText;

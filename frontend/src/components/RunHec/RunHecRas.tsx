@@ -4,13 +4,13 @@ import { BeachAccess, WaterDrop, Cloud, Flood } from "@mui/icons-material";
 import axios from "axios"; 
 
 const cardData = [
-  { title: "ดาวน์โหลดไฟล์กริดฝน", icon: <BeachAccess />, url: "http://localhost/code-xampp/sukhothai/dowload_rain_grid.php" },
-  { title: "สร้าง input-hms.txt",icon: <WaterDrop />, url: "http://localhost/code-xampp/sukhothai/write_input_txt.php" },
-  { title: "...",icon: <Cloud />, url: "http://localhost/code-xampp/sukhothai/write_output_txt.php" },
-  { title: "รันทั้งหมด",icon: <Flood />, url: "http://localhost/txt_run_all.php" },
+  { title: "แก้ไขวันที่ช่วงพยากรณ์",icon: <BeachAccess />, url: "http://localhost/wangyang/ras_change_date.php" },
+  { title: "Compute Hec-Ras",icon: <WaterDrop />, url: "http://localhost/wangyang/ras_compute.php" },
+  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: "http://localhost/wangyang/ras_dss_to_csv.php" },
+  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: "http://localhost/wangyang/ras_run_all.php" },
 ];
 
-const RunCreateText: React.FC = () => {
+const RunHecRas: React.FC = () => {
   const [messages, setMessages] = useState<{ [key: number]: string }>({});
 
   // ฟังก์ชันรันไฟล์ PHP ตาม URL ของแต่ละ Card
@@ -34,7 +34,7 @@ const RunCreateText: React.FC = () => {
   return (
   <div>
        <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
-        ขั้นตอนที่ 1 เตรียมข้อมูลน้ำฝนและน้ำท่า
+        ขั้นตอนที่ 3 รันโมเดล (Hec-Ras)
       </Typography>
     <Grid container spacing={3}>
 
@@ -42,7 +42,7 @@ const RunCreateText: React.FC = () => {
         <Grid item xs={12} sm={6} lg={3} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
-              <Typography variant="h6" color="textSecondary" gutterBottom>
+              <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>
                {card.icon} {card.title}
               </Typography>
             
@@ -66,4 +66,4 @@ const RunCreateText: React.FC = () => {
   );
 };
 
-export default RunCreateText;
+export default RunHecRas;

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import Header from "./components/layout/Header";
-import DrawerComponent from "./components/layout/Drawer";
+import Header from "./components/Layout/Header";
+import DrawerComponent from "./components/Layout/Drawer";
 import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import AboutUs from "./pages/AboutUs"; // ✅ นำเข้า AboutUs
 import { Box } from "@mui/material";
-import Footer from "./components/layout/Footer";
+import Footer from "./components/Layout/Footer";
+import HecRun from "./pages/HecRun";
 
 
 const App: React.FC = () => {
@@ -23,6 +24,7 @@ const App: React.FC = () => {
               <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/aboutus" element={<AboutUs />} />
+              <Route path="/hecrun" element={<HecRun />} />
             </Routes>
           </Box>
         </Box>

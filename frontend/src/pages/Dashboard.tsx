@@ -7,9 +7,6 @@ import WaterForecastChart from "../components/Dashboard/WaterForecastChart";
 import FloodWarningTable from "../components/Dashboard/WarningTable";
 import ImageComponent from "../components/Dashboard/ImageComponent";
 import WaterGateTable from "../components/Dashboard/WaterGateTable";
-// import RunCreateText from "../components/Dashboard/RunCreateText";
-// import RunHecHms from "../components/Dashboard/RunHecHms";
-// import RunHecRas from "../components/Dashboard/RunHecRas";
 import WaterLevelChart from "../components/Dashboard/WaterLevel";
 import FloatingMenu from "../components/Dashboard/selectMenu";
 import VelocLineChart from "../components/Dashboard/VelocChart";
@@ -53,7 +50,7 @@ const Dashboard: React.FC = () => {
       id="map"
       >
         <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color:"#28378B" }}>
-          แผนที่ตำแหน่งสถานีที่สำคัญลุ่มน้ำชี
+          แผนที่ตำแหน่งสถานีที่สำคัญพื้นที่วังยาง
         </Typography>
         <LongdoMap
         id="longdo-map"
@@ -65,15 +62,6 @@ const Dashboard: React.FC = () => {
       <Box sx={{marginBlock:"20px"}}>
         <DashboardCards/>
       </Box>
-      {/* <Box sx={BoxStyle}}>
-        <RunCreateText />
-      </Box>
-      <Box sx={BoxStyle}>
-        <RunHecHms />
-      </Box>
-      <Box sx={BoxStyle}}>
-        <RunHecRas />
-      </Box> */}
       <Box sx={{...BoxStyle}} id="flood-warning">
         <FloodWarningTable/>
       </Box>
@@ -102,9 +90,6 @@ const Dashboard: React.FC = () => {
       <Box sx={BoxStyle} id="water-gate">
         <WaterGateTable/>
       </Box>
-      {/* <Box sx={BoxStyle} id="flood-map">
-        <ImageComponent src="./images/map_flood.jpg" alt="" title={"แผนที่น้ำท่วม"} />
-      </Box> */}
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} sm={12}>
         <Box sx={BoxStyle} id="flood-map">
