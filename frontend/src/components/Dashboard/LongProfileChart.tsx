@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import ReactApexChart from "react-apexcharts";
 import { Box, Button, CardContent, MenuItem, Select, Stack, Typography} from "@mui/material";
+import { formatThaiDate } from "../../utility";
+import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
 
 const LongProfileChart: React.FC = () => {
   const [data, setData] = useState<{ Ground: number; LOB: number; ROB: number; KM: number; WaterLevel?: number }[]>([]);
   const [waterData, setWaterData] = useState<{ NO: number; CrossSection: number; Date: string | null; WaterLevel: number }[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
+  const dates = [...new Set(waterData.map((d) => d.Date))].sort();
+  const currentIndex = dates.indexOf(selectedDate);
   useEffect(() => {
     // โหลดไฟล์ CSV หลัก
     fetch("./data/longProfile.csv")
@@ -422,7 +425,7 @@ const LongProfileChart: React.FC = () => {
       curve: "straight" as "straight",
       dashArray: [0, 0, 8, 8],
     },
-    colors: ["#007bff","#000000", "#800000", "#808080" ],
+    colors: ["#007bff","#000000", "red", "green" ],
     fill: {
       
       gradient: {
@@ -462,20 +465,24 @@ const LongProfileChart: React.FC = () => {
         <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
            รูปตัดตามยาวแม่น้ำ
         </Typography>
-        <Box sx={{justifyItems:"center"}}>
-        {/* Stack สำหรับปุ่มและ Select */}
-        <Stack direction="row" spacing="10" sx={{justifyItems:"center"}}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 1, mb: 2 }}>
           {/* ปุ่มเลื่อนไปวันก่อนหน้า */}
           <Button
             variant="contained"
-            sx={{ fontFamily: "Prompt"  ,minHeight:"40px" ,padding:"auto"}}
-            onClick={() => {
-              const dates = [...new Set(waterData.map((d) => d.Date))].sort();
-              const currentIndex = dates.indexOf(selectedDate);
-              if (currentIndex > 0) setSelectedDate(dates[currentIndex - 1]);
+            onClick={() => setSelectedDate(dates[currentIndex - 1])}
+            disabled={currentIndex <= 0}
+            sx={{
+              fontFamily: "Prompt",
+              fontSize: { xs: "0.8rem", sm: "1rem" },
+              bgcolor: "#1976d2",
+              "&:hover": { bgcolor: "#115293" },
+              borderRadius: "20px",
+              paddingX: "16px",
             }}
           >
-           ⬅️ ย้อนหลัง
+            
+            <ArrowBack sx={{ fontSize: "1.5rem" }} />
+            ย้อนกลับ
           </Button>
   
           {/* Dropdown เลือกวันที่ */}
@@ -486,7 +493,7 @@ const LongProfileChart: React.FC = () => {
           >
             {[...new Set(waterData.map((d) => d.Date))].sort().map((date) => (
               <MenuItem key={date || ""} value={date || ""} sx={{ fontFamily: "Prompt" }}>
-                {(date)}
+                {formatThaiDate(date || "")}
               </MenuItem>
             ))}
           </Select>
@@ -494,20 +501,24 @@ const LongProfileChart: React.FC = () => {
   
           {/* ปุ่มเลื่อนไปวันถัดไป */}
           <Button
-            variant="contained"
-            sx={{ fontFamily: "Prompt"  ,minHeight:"30px",padding:"auto"}} 
-            onClick={() => {
-              const dates = [...new Set(waterData.map((d) => d.Date))].sort();
-              const currentIndex = dates.indexOf(selectedDate);
-              if (currentIndex < dates.length - 1) setSelectedDate(dates[currentIndex + 1]);
-            }}
-          >
-            ถัดไป ➡️
-          </Button>
+          variant="contained"
+          onClick={() => setSelectedDate(dates[currentIndex + 1])}
+          disabled={currentIndex >= dates.length - 1}
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+            bgcolor: "#1976d2",
+            "&:hover": { bgcolor: "#115293" },
+            borderRadius: "20px",
+            paddingX: "16px",
+          }}
+        >
+          ถัดไป
+          <ArrowForward sx={{ fontSize: "1.5rem" }} />
+        </Button>
           
-        </Stack>  
-        </Box>
-        {/* กราฟ */}
+        </Box>  
+
         <Box>
           <ReactApexChart options={chartOptions} series={chartSeries} type="line" height={600} />
         </Box>

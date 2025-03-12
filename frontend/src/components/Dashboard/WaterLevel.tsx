@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
+import { formatThaiDate } from "../../utility";
+import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
 interface WaterLevelData {
   time: string;
@@ -147,11 +149,25 @@ const getWaterLevelStatus = (station: string, elevation: number) => {
       </Typography>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 1, mb: 2 }}>
         
-        <Button variant="contained" onClick={handlePrevTime} disabled={selectedIndex === 0} sx={{ fontFamily: "Prompt", minHeight: "40px", fontSize: { xs: "0.8rem", sm: "1rem" } }}>
-          ⬅️ ย้อนหลัง
-        </Button>
+      <Button
+        variant="contained"
+        onClick={handlePrevTime}
+        disabled={selectedIndex === 0}
+        sx={{
+          fontFamily: "Prompt",
+          fontSize: { xs: "0.8rem", sm: "1rem" },
+          bgcolor: "#1976d2",
+          "&:hover": { bgcolor: "#115293" },
+          borderRadius: "20px",
+          paddingX: "16px",
+        }}
+      >
+        
+        <ArrowBack sx={{ fontSize: "1.5rem" }} />
+        ย้อนกลับ
+      </Button>
 
-        <Select value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)} sx={{  fontSize: { xs: "0.8rem", sm: "1rem" } }}>
+        <Select value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)} sx={{ fontFamily: "Prompt", fontSize: { xs: "0.8rem", sm: "1rem" } }}>
           {Object.keys(stationMapping).map((station) => (
             <MenuItem key={station} value={station}>
               {station}
@@ -159,16 +175,29 @@ const getWaterLevelStatus = (station: string, elevation: number) => {
           ))}
         </Select>
 
-        <Select value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))} sx={{  fontSize: { xs: "0.8rem", sm: "1rem" } }}>
+        <Select value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))} sx={{ fontFamily: "Prompt", fontSize: { xs: "0.8rem", sm: "1rem" } }}>
           {timeList.map((time, index) => (
             <MenuItem key={time} value={index}>
-              {formatDate(time)}
+              {formatThaiDate(formatDate(time))}
             </MenuItem>
           ))}
         </Select>
 
-        <Button variant="contained" onClick={handleNextTime} disabled={selectedIndex >= timeList.length - 1} sx={{ fontFamily: "Prompt", minHeight: "40px", fontSize: { xs: "0.8rem", sm: "1rem" } }}>
-          ถัดไป ➡️
+        <Button
+          variant="contained"
+          onClick={handleNextTime}
+          disabled={selectedIndex >= timeList.length - 1}
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+            bgcolor: "#1976d2",
+            "&:hover": { bgcolor: "#115293" },
+            borderRadius: "20px",
+            paddingX: "16px",
+          }}
+        >
+          ถัดไป
+          <ArrowForward sx={{ fontSize: "1.5rem" }} />
         </Button>
 
       </Box>
