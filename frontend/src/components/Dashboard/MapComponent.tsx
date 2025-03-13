@@ -115,7 +115,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
 
     if (map) {
       map.location({ lat: 16.2219, lon: 103.34 }, true);
-      map.zoom(10, true);
+      map.zoom(11, true);
       setTimeout(() => addGeoJsonMarkers(), 500); // รอให้ map โหลดก่อน
       setTimeout(() => addTopoJsonMarkers(), 500); // รอให้ map โหลดก่อน
       setTimeout(() => addGeoJsonPolygons(), 500); // รอให้ map โหลดก่อน
@@ -285,7 +285,7 @@ const addGeoJsonLines = () => {
               iconHtml = `
                 <div style="text-align:center;">
                   <img src="./images/icons/reservoir_icon.png" style="width:24px; height:24px;"/>
-                  <div style="background-color:white; padding:2px; width:150px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                  <div style="background-color:white; padding:2px; width:100px; border-radius:5px; font-size: 12px; margin-top: 2px;">
                   ${feature.properties.Name}
                   </div>
                 </div>`;
@@ -310,7 +310,7 @@ const addGeoJsonLines = () => {
                 <div style="text-align:center;">
                   <img src="./images/icons/gate_icon.png" style="width:24px; height:24px;"/>
                   <div style="background-color:white; width: 80px;padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                  ${feature.properties.name}
+                  ${feature.properties.Name}
                   </div>
                 </div>`;
             }
@@ -334,8 +334,7 @@ const addGeoJsonLines = () => {
                           geoJsonData.name === 'DAM Station' ? Name :
                           geoJsonData.name === 'Rain Station' ? Code :
                           geoJsonData.name === 'Hydro Station' ? CodeStation :
-                          geoJsonData.name === 'ProjectStation' ? Name :
-                          Name
+                          geoJsonData.name === 'ProjectStation' ? Name : ""
                         }
                         </span>`,
                 detail: geoJsonData.name === 'DAM Station' ? `<span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
@@ -350,8 +349,8 @@ const addGeoJsonLines = () => {
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${CodeStation}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>` 
-                        : `<span style="font-size:0.9rem; font-weight:bold;">แม่น้ำ: </span>
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Detail} </span><br>`
+                        : `<span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Name} </span><br>`
                     ,
                 icon: { html: iconHtml },
               });

@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
     "./data/DamStation.geojson",
     "./data/HydroStation.geojson",
     "./data/RainStation.geojson",
-    // "./data/ProjectStation.geojson",
+    "./data/ProjectStation.geojson",
   ];
 
   const BoxStyle = {
