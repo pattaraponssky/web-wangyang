@@ -25,7 +25,9 @@ const Dashboard: React.FC = () => {
     day: 'numeric'
   });
 
-  const geoJsonPaths = [
+  const JsonPaths = [
+    "./data/Basin.json",
+    // "./data/SubBasin.json",
     "./data/Reservoir.geojson", 
     "./data/Rain_Station.geojson",
     "./data/Level_Station.geojson",  
@@ -55,7 +57,7 @@ const Dashboard: React.FC = () => {
         <LongdoMap
         id="longdo-map"
         mapKey={mapKey}
-        geoJsonPaths={geoJsonPaths}// ส่งข้อมูล GeoJSON เข้าไป
+        JsonPaths={JsonPaths}// ส่งข้อมูล GeoJSON เข้าไป
       />
       
       </Box>

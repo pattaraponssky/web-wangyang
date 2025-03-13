@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { feature } from "topojson-client";
 
 declare global {
   interface Window {
@@ -12,35 +13,40 @@ export let map: any;
 interface LongdoMapProps {
   id: string;
   mapKey: string;
-  geoJsonPaths: string[];
+  JsonPaths: string[];
+  topoJsonPaths?: string[];  // เพิ่ม property นี้
   callback?: () => void;
 }
 
-const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callback }) => {
+const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [geoJsonDataList, setGeoJsonDataList] = useState<any[]>([]);
+  const [JsonDataList, setJsonDataList] = useState<any[]>([]);
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [markers, setMarkers] = useState<any[]>([]);
 
   // โหลดไฟล์ GeoJSON
   useEffect(() => {
-    const loadGeoJsonFiles = async () => {
+    const loadJsonFiles = async () => {
       try {
-        const geoJsonDataListPromises = geoJsonPaths.map(async (path) => {
+        console.log("เริ่มโหลดไฟล์ GeoJSON...");
+        const JsonDataListPromises = JsonPaths.map(async (path) => {
           const response = await fetch(path);
           if (!response.ok) throw new Error(`โหลดไฟล์ไม่สำเร็จ: ${path}`);
           return response.json();
         });
 
-        const geoJsonDataList = await Promise.all(geoJsonDataListPromises);
-        setGeoJsonDataList(geoJsonDataList);
+        const JsonDataList = await Promise.all(JsonDataListPromises);
+        setJsonDataList(JsonDataList);
+        console.log("โหลดไฟล์ GeoJSON สำเร็จ:", JsonDataList);
       } catch (error) {
         console.error("เกิดข้อผิดพลาดในการโหลด GeoJSON:", error);
       }
     };
 
-    loadGeoJsonFiles();
-  }, [geoJsonPaths]);
+    loadJsonFiles();
+  }, [JsonPaths]);
+
+  
 
   // โหลด Longdo Map API
   useEffect(() => {
@@ -54,6 +60,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
         document.body.appendChild(script);
 
         script.onload = () => {
+          console.log("สคริปต์ Longdo โหลดเสร็จแล้ว");
           if (window.longdo && window.longdo.Map) {
             setIsMapReady(true);
           } else {
@@ -77,16 +84,19 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
   // เมื่อแผนที่โหลดเสร็จ ให้เริ่มต้นใช้งานแผนที่
   useEffect(() => {
     if (isMapReady && mapContainerRef.current) {
+      console.log("แผนที่ Longdo พร้อมใช้งานแล้ว");
       initializeMap();
     }
   }, [isMapReady]);
 
-  // เมื่อ geoJsonDataList เปลี่ยน ให้เพิ่ม Marker
+  // เมื่อ JsonDataList หรือ topoJsonDataList เปลี่ยน ให้เพิ่ม Marker
   useEffect(() => {
     if (isMapReady) {
+      console.log("กำลังเพิ่ม markers...");
       addGeoJsonMarkers();
+      addTopoJsonMarkers(); // เพิ่มการแสดงผลจาก TopoJSON
     }
-  }, [geoJsonDataList, isMapReady]);
+  }, [JsonDataList, isMapReady]);
 
   // ฟังก์ชันสร้างแผนที่
   const initializeMap = () => {
@@ -104,13 +114,16 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
     if (map) {
       map.location({ lat: 16.217848, lon: 103.616211 }, true);
       map.zoom(11, true);
+      console.log("กำหนดตำแหน่งแผนที่เริ่มต้นที่ 16.217848, 103.616211");
       setTimeout(() => addGeoJsonMarkers(), 500); // รอให้ map โหลดก่อน
+      setTimeout(() => addTopoJsonMarkers(), 500); // รอให้ map โหลดก่อน
       if (callback) callback();
     } else {
       console.error("ไม่สามารถสร้างแผนที่ได้");
     }
   };
 
+  
   // ฟังก์ชันเพิ่ม Marker จาก GeoJSON
   const addGeoJsonMarkers = () => {
     if (!map) {
@@ -124,7 +137,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
 
     let newMarkers: any[] = []; // เก็บ Marker ใหม่
 
-    geoJsonDataList.forEach((geoJsonData) => {
+    JsonDataList.forEach((geoJsonData) => {
       if (geoJsonData && geoJsonData.features) {
         geoJsonData.features.forEach((feature: any) => {
           const { lat, long, Res_Name_T, Vol_mcm, SubDistrict_Name_T, District_Name_T, Province_Name_T, Rain_Station_Code, Level_Station_Code, Name } = feature.properties;
@@ -201,13 +214,97 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, geoJsonPaths, callbac
               newMarkers.push(marker);
             }
             
+              }
+            });
           }
         });
-      }
-    });
+        setMarkers(newMarkers); // อัปเดต state
+        console.log("เพิ่ม markers จาก GeoJSON เสร็จเรียบร้อย");
+      };
 
+      
+  // ฟังก์ชันเพิ่ม Marker จาก TopoJSON
+  const addTopoJsonMarkers = () => {
+    if (!map || JsonDataList.length === 0) {
+        console.log("แผนที่ยังไม่ถูกสร้างหรือไม่มีข้อมูล TopoJSON");
+        return;
+    }
+  
+    console.log("กำลังเพิ่ม markers จาก TopoJSON...");
+    let newMarkers: any[] = []; // เก็บ Marker ใหม่จาก TopoJSON
+  
+    JsonDataList.forEach((topoJsonData, index) => {
+        console.log(`กำลังประมวลผล TopoJSON object ที่ ${index + 1}`);
+        
+        if (topoJsonData && topoJsonData.objects) {
+            Object.values(topoJsonData.objects).forEach((object: any, objectIndex: number) => {
+                console.log(`กำลังประมวลผล object ที่ ${objectIndex + 1}`);
+                
+                if (object.type === 'GeometryCollection') {
+                    object.geometries.forEach((geometry: any, geometryIndex: number) => {
+                        console.log(`กำลังประมวลผล geometry ที่ ${geometryIndex + 1}`);
+                        
+                        if (geometry.type === 'Polygon' && geometry.arcs) {
+                            console.log("พบ Polygon geometry");
+                            
+                            // แปลง TopoJSON เป็น GeoJSON
+                            const geoJson = feature(topoJsonData, geometry); // แปลง geometry จาก TopoJSON เป็น GeoJSON
+                            console.log("Converted GeoJSON:", geoJson); // ตรวจสอบข้อมูล GeoJSON ที่แปลงแล้ว
+                            
+                            // ตรวจสอบว่า geoJson.properties มี lat และ long
+                            const { lat, lon, Name } = geoJson.properties || {};
+                            console.log(`Properties - lat: ${lat}, lon: ${lon}, Name: ${Name}`);
+  
+                            const position = {
+                                lat: lat || (Array.isArray(geoJson.geometry.coordinates[0]) && geoJson.geometry.coordinates[0][1]),
+                                lon: lon || (Array.isArray(geoJson.geometry.coordinates[0]) && geoJson.geometry.coordinates[0][0]),
+                            };
+                            
+                            if (position.lat && position.lon) {
+                                console.log("ตำแหน่งที่ตั้งของ polygon: ", position);
+                                
+                                // แสดงข้อมูลเป็น Polygon บนแผนที่
+                                const polygonCoordinates = Array.isArray(geoJson.geometry.coordinates[0])
+                                    ? geoJson.geometry.coordinates[0].map((coord: any) => ({
+                                        lat: coord[1],  // ค่าละติจูด
+                                        lon: coord[0],  // ค่าลองจิจูด
+                                    }))
+                                    : [];
+                                
+                                console.log("Polygon Coordinates: ", polygonCoordinates);
+                                
+                                const polygon = new longdo.Polygon(polygonCoordinates, {
+                                  title: 'ขอบเขตพื้นที่ศึกษาวังยาง', //Popup title
+                                  detail: 'รายละเอียด', //Popup 
+                                  // label: 'ขอบเขตพื้นที่ศึกษาวังยาง',
+                                  lineWidth: 3,
+                                  lineColor: 'rgba(0, 0, 0, 1)',
+                                  fillColor: "rgba(255, 0, 0,0.02)",
+                                  // visibleRange: { min: 7, max: 18 }, // ปรับระยะการมองเห็น
+                                });
+                                
+  
+                                console.log("เพิ่ม Polygon ลงในแผนที่");
+                                map.Overlays.add(polygon); // เพิ่ม Polygon ลงในแผนที่
+                                newMarkers.push(polygon);
+                            } else {
+                                console.log("ไม่พบตำแหน่ง lat, lon สำหรับ Polygon นี้");
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            console.log("ไม่พบข้อมูลใน TopoJSON object หรือ object type ไม่ถูกต้อง");
+        }
+    });
+  
     setMarkers(newMarkers); // อัปเดต state
-  };
+    console.log("เพิ่ม markers จาก TopoJSON เสร็จเรียบร้อย");
+};
+
+
+  
 
   return <div ref={mapContainerRef} id={id} style={{ width: "100%", height: "500px" }} />;
 };
