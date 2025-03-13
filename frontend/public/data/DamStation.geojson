@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"name": "DAM Station",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null, "Name": "เขื่อนมหาสารคาม", "description": null, "timestamp": null, "begin": null, "end": null, "altitudeMode": null, "tessellate": -1, "extrude": 0, "visibility": 0, "drawOrder": null, "icon": null }, "geometry": { "type": "Point", "coordinates": [ 102.947348159946799, 16.368620888662839, 0.0 ] } },
+{ "type": "Feature", "properties": { "id": null, "Name": "เขื่อนวังยาง", "description": null, "timestamp": null, "begin": null, "end": null, "altitudeMode": null, "tessellate": -1, "extrude": 0, "visibility": 0, "drawOrder": null, "icon": null }, "geometry": { "type": "Point", "coordinates": [ 103.473630800730703, 16.199521828497652, 0.0 ] } },
+{ "type": "Feature", "properties": { "id": null, "Name": "ฝายร้อยเอ็ด", "description": null, "timestamp": null, "begin": null, "end": null, "altitudeMode": null, "tessellate": -1, "extrude": 0, "visibility": -1, "drawOrder": null, "icon": null }, "geometry": { "type": "Point", "coordinates": [ 103.789144980514905, 16.172106440700279, 0.0 ] } }
+]
+}

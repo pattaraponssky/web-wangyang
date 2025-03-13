@@ -26,12 +26,12 @@ const Dashboard: React.FC = () => {
   });
 
   const JsonPaths = [
-    "./data/Basin.json",
-    // "./data/SubBasin.json",
-    "./data/Reservoir.geojson", 
-    "./data/Rain_Station.geojson",
-    "./data/Level_Station.geojson",  
-    "./data/Regulator.geojson", 
+    "./data/River.geojson",
+    "./data/ProjectArea.geojson",
+    "./data/DamStation.geojson",
+    "./data/HydroStation.geojson",
+    "./data/RainStation.geojson",
+    // "./data/ProjectStation.geojson",
   ];
 
   const BoxStyle = {

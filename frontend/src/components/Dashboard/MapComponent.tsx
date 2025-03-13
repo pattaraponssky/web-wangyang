@@ -95,6 +95,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
       console.log("กำลังเพิ่ม markers...");
       addGeoJsonMarkers();
       addTopoJsonMarkers(); // เพิ่มการแสดงผลจาก TopoJSON
+      addGeoJsonPolygons();
+      addGeoJsonLines();
     }
   }, [JsonDataList, isMapReady]);
 
@@ -112,16 +114,145 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     });
 
     if (map) {
-      map.location({ lat: 16.217848, lon: 103.616211 }, true);
-      map.zoom(11, true);
-      console.log("กำหนดตำแหน่งแผนที่เริ่มต้นที่ 16.217848, 103.616211");
+      map.location({ lat: 16.2219, lon: 103.34 }, true);
+      map.zoom(10, true);
       setTimeout(() => addGeoJsonMarkers(), 500); // รอให้ map โหลดก่อน
       setTimeout(() => addTopoJsonMarkers(), 500); // รอให้ map โหลดก่อน
+      setTimeout(() => addGeoJsonPolygons(), 500); // รอให้ map โหลดก่อน
+      setTimeout(() => addGeoJsonLines(), 500); // รอให้ map โหลดก่อน
+      addGeoJsonLines
       if (callback) callback();
     } else {
       console.error("ไม่สามารถสร้างแผนที่ได้");
     }
   };
+
+  const addGeoJsonPolygons = () => {
+    if (!map) {
+        console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
+        return;
+    }
+
+    let newPolygons: any[] = []; // เก็บ Polygon ที่สร้างขึ้น
+
+    JsonDataList.forEach((geoJsonData) => {
+        if (geoJsonData && geoJsonData.features) {
+            geoJsonData.features.forEach((feature: any) => {
+                const { MBASIN_T, MBASIN_E, AREA_SQKM, Area } = feature.properties;
+                const geometryType = feature.geometry.type;
+                const coordinates = feature.geometry.coordinates;
+
+                let polygonCoordinates: any[] = [];
+
+                if (geometryType === "Polygon") {
+                    polygonCoordinates = coordinates[0].map((coord: any) => ({
+                        lat: coord[1],  // ค่าละติจูด
+                        lon: coord[0],  // ค่าลองจิจูด
+                    }));
+                } else if (geometryType === "MultiPolygon") {
+                    coordinates.forEach((polygon: any) => {
+                        polygonCoordinates = polygon[0].map((coord: any) => ({
+                            lat: coord[1],  // ค่าละติจูด
+                            lon: coord[0],  // ค่าลองจิจูด
+                        }));
+
+                        // เพิ่มแต่ละ Polygon แยกกัน
+                        const multiPolygon = new longdo.Polygon(polygonCoordinates, {
+                          title: `ขอบเขตพื้นที่ศึกษาวังยาง`,
+                          detail: `<b>ขนาดพื้นที่:</b> ${Area} ตร.กม.<br>
+                          <b>แม่น้ำ:</b> ${MBASIN_T}`,
+                          // label: 'ขอบเขตพื้นที่ศึกษาวังยาง',
+                          lineWidth: 3,
+                          lineColor: 'rgba(25, 25, 112, 0.5)',
+                          fillColor: "rgba(0, 255, 255,0.05)",
+                        });
+
+                        map.Overlays.add(multiPolygon);
+                        newPolygons.push(multiPolygon);
+                    });
+                }
+
+                // ถ้าเป็น Polygon ปกติ (ไม่ใช่ MultiPolygon)
+                if (polygonCoordinates.length > 0) {
+                    const polygon = new longdo.Polygon(polygonCoordinates, {
+                        title: `พื้นที่: ${MBASIN_T}`,
+                        detail: `<b>ขนาดพื้นที่:</b> ${Area}  ตร.กม.`,
+                        lineColor: "blue",
+                        lineWidth: 2,
+                        fillColor: "rgba(0, 255, 255,0.05)",
+                    });
+
+                    map.Overlays.add(polygon);
+                    newPolygons.push(polygon);
+                }
+            });
+        }
+    });
+
+    console.log("✅ Polygon ถูกเพิ่มลงในแผนที่เรียบร้อย");
+};
+
+
+const addGeoJsonLines = () => {
+  if (!map) {
+      console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
+      return;
+  }
+
+  let newPolylines: any[] = []; // เก็บเส้นที่สร้างขึ้น
+
+  JsonDataList.forEach((geoJsonData) => {
+      if (geoJsonData && geoJsonData.features) {
+          geoJsonData.features.forEach((feature: any) => {
+              const { name_en } = feature.properties;
+              const geometryType = feature.geometry.type;
+              const coordinates = feature.geometry.coordinates;
+
+              let lineCoordinates: any[] = [];
+
+              if (geometryType === "LineString") {
+                  lineCoordinates = coordinates.map((coord: any) => ({
+                      lat: coord[1],  // ละติจูด
+                      lon: coord[0],  // ลองจิจูด
+                  }));
+              } else if (geometryType === "MultiLineString") {
+                  coordinates.forEach((line: any) => {
+                      const polylineCoords = line.map((coord: any) => ({
+                          lat: coord[1],
+                          lon: coord[0],
+                      }));
+
+                      // เพิ่มแต่ละเส้น MultiLineString แยกกัน
+                      const multiPolyline = new longdo.Polyline(polylineCoords, {
+                          title: `แม่น้ำ: ${name_en}`,
+                          lineWidth: 3, // ความหนาของเส้น
+                          lineColor: "blue", // สีเส้น
+                          lineStyle: longdo.LineStyle.Solid, // รูปแบบเส้น (Solid = เส้นทึบ)
+                      });
+
+                      map.Overlays.add(multiPolyline);
+                      newPolylines.push(multiPolyline);
+                  });
+              }
+
+              // ถ้าเป็น LineString ปกติ (ไม่ใช่ MultiLineString)
+              if (lineCoordinates.length > 0) {
+                  const polyline = new longdo.Polyline(lineCoordinates, {
+                      title: `แม่น้ำ: ${name_en}`,
+                      lineWidth: 3,
+                      lineColor: "blue",
+                      lineStyle: longdo.LineStyle.Solid,
+                  });
+
+                  map.Overlays.add(polyline);
+                  newPolylines.push(polyline);
+              }
+          });
+      }
+  });
+
+  console.log("✅ เพิ่มเส้นแม่น้ำลงในแผนที่เรียบร้อย");
+};
 
   
   // ฟังก์ชันเพิ่ม Marker จาก GeoJSON
@@ -140,9 +271,9 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     JsonDataList.forEach((geoJsonData) => {
       if (geoJsonData && geoJsonData.features) {
         geoJsonData.features.forEach((feature: any) => {
-          const { lat, long, Res_Name_T, Vol_mcm, SubDistrict_Name_T, District_Name_T, Province_Name_T, Rain_Station_Code, Level_Station_Code, Name } = feature.properties;
-
+          const { lat, long, Name ,CodeStation  ,Code ,River  ,Basin  ,Detail ,Amphoe ,Province} = feature.properties;
           const position = {
+
             lat: lat || feature.geometry.coordinates[1],
             lon: long || feature.geometry.coordinates[0],
           };
@@ -150,40 +281,46 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
           if (position.lat && position.lon) {
             let iconHtml = "";
 
-            if (geoJsonData.name === 'Reservoir' && Res_Name_T) {
+            if (geoJsonData.name === 'DAM Station') {
               iconHtml = `
                 <div style="text-align:center;">
                   <img src="./images/icons/reservoir_icon.png" style="width:24px; height:24px;"/>
                   <div style="background-color:white; padding:2px; width:150px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                    ${Res_Name_T}
+                  ${feature.properties.Name}
                   </div>
                 </div>`;
-            } else if (geoJsonData.name === 'Rain_Station' && Rain_Station_Code) {
+            } else if (geoJsonData.name === 'Rain Station') {
               iconHtml = `
                 <div style="text-align:center;">
                   <img src="./images/icons/rain_station_icon.png" style="width:24px; height:24px;" />
                   <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                    ${Rain_Station_Code}
+                    ${feature.properties.Code}
                   </div>
                 </div>`;
-            } else if (geoJsonData.name === 'Level_Station' && Level_Station_Code) {
+            } else if (geoJsonData.name === 'Hydro Station') {
               iconHtml = `
                 <div style="text-align:center;">
                   <img src="./images/icons/flow_station_icon.png" style="width:24px; height:24px;"/>
                   <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                    ${Level_Station_Code}
+                  ${feature.properties.CodeStation}
                   </div>
                 </div>`;
-            } else if (geoJsonData.name === 'Regulator' && Name) {
-              iconHtml = `<div style="width:24px; height:24px; background-image:url('./images/icons/gate_icon.png'); background-size:cover;"></div>`;
+            } else if (geoJsonData.name === 'ProjectStation') {
+              iconHtml = `
+                <div style="text-align:center;">
+                  <img src="./images/icons/gate_icon.png" style="width:24px; height:24px;"/>
+                  <div style="background-color:white; width: 80px;padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                  ${feature.properties.name}
+                  </div>
+                </div>`;
             }
 
             let iconUrl = "";
-              if (Res_Name_T) {
+              if (geoJsonData.name === 'DAM Station') {
                 iconUrl = "./images/icons/reservoir_icon.png";
-              } else if (Rain_Station_Code) {
+              } else if (geoJsonData.name === 'Rain Station') {
                 iconUrl = "./images/icons/rain_station_icon.png";
-              } else if (Level_Station_Code) {
+              } else if (geoJsonData.name === 'Hydro Station') {
                 iconUrl = "./images/icons/flow_station_icon.png";
               } else {
                 iconUrl = "./images/icons/gate_icon.png";
@@ -192,21 +329,29 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
             if (iconHtml) {
               const marker = new longdo.Marker(position, {
                 title: `<img src="${iconUrl}" style="width:25px; height:25px; vertical-align:middle; margin-right:5px" /> 
-                        <span style="font-size:1.1rem; font-weight:bold; vertical-align:middle; "> ${Res_Name_T || Rain_Station_Code || Level_Station_Code || Name} </span>`,
-                detail: Res_Name_T ? `<span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${SubDistrict_Name_T} ${District_Name_T} ${Province_Name_T}<br> </span> 
+                        <span style="font-size:1.1rem; font-weight:bold; vertical-align:middle;"> 
+                        ${
+                          geoJsonData.name === 'DAM Station' ? Name :
+                          geoJsonData.name === 'Rain Station' ? Code :
+                          geoJsonData.name === 'Hydro Station' ? CodeStation :
+                          geoJsonData.name === 'ProjectStation' ? Name :
+                          Name
+                        }
+                        </span>`,
+                detail: geoJsonData.name === 'DAM Station' ? `<span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${River} ${Basin} ${Detail}<br> </span> 
                         <span style="font-size:0.9rem; font-weight:bold;">ปริมาณกักเก็บ: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Vol_mcm} ล้าน ลบ.ม.</span>` 
-                        : Rain_Station_Code ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำฝน: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Rain_Station_Code} </span><br>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ล้าน ลบ.ม.</span>` 
+                        : geoJsonData.name === 'Rain Station' ? `<span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${SubDistrict_Name_T} ${District_Name_T} ${Province_Name_T}<br> </span>` 
-                        : Level_Station_Code ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span>
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Level_Station_Code} </span><br>
-                        <span style="font-size:0.9rem; font-weight:bold;">แม่น้ำ: </span>
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${feature.properties.River_Name_E} </span><br>` 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>` 
+                        : geoJsonData.name === 'Hydro Station' ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${CodeStation}</span><br>
+                        <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>` 
                         : `<span style="font-size:0.9rem; font-weight:bold;">แม่น้ำ: </span>
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${feature.properties.River||''} </span><br>`
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Detail} </span><br>`
                     ,
                 icon: { html: iconHtml },
               });
@@ -275,11 +420,11 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                                 
                                 const polygon = new longdo.Polygon(polygonCoordinates, {
                                   title: 'ขอบเขตพื้นที่ศึกษาวังยาง', //Popup title
-                                  detail: 'รายละเอียด', //Popup 
+                                  detail: 'โครงการ..รายละเอียด', //Popup 
                                   // label: 'ขอบเขตพื้นที่ศึกษาวังยาง',
-                                  lineWidth: 3,
-                                  lineColor: 'rgba(0, 0, 0, 1)',
-                                  fillColor: "rgba(255, 0, 0,0.02)",
+                                  lineWidth: 5,
+                                  lineColor: 'rgba(25, 25, 112, 1)',
+                                  fillColor: "rgba(0, 255, 255,0.02)",
                                   // visibleRange: { min: 7, max: 18 }, // ปรับระยะการมองเห็น
                                 });
                                 
