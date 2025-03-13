@@ -1,6 +1,6 @@
 {
 "type": "FeatureCollection",
-"name": "ProjectStation",
+"name": "ProjecStation",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "name": "โครงการส่งน้ำและบำรุงรักษาชีกลาง", "X": 103.7895824, "Y": 16.17079064, "auxiliary_": 103.81629056603894, "auxiliar_1": 16.149302355476618, "auxiliar_2": 103.82001213334952, "auxiliar_3": 16.152977538527061, "auxiliary_storage_labeling_positionx": 1003942.654968943, "auxiliary_storage_labeling_positiony": 1794798.6375373264 }, "geometry": { "type": "Point", "coordinates": [ 103.7895824, 16.17079064 ] } },
