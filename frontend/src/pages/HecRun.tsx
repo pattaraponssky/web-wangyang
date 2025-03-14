@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import RunCreateDss from "../components/RunHec/RunCreateDss";
 import RunHecHms from "../components/RunHec/RunHecHms";
 import RunHecRas from "../components/RunHec/RunHecRas";
@@ -17,12 +17,18 @@ const BoxStyle = {
 const HecRun: React.FC = () => {
   return (
     <Box sx={{margin: "auto" }}>
-    <Box sx={BoxStyle}>
-        <RunCreateDss />
-      </Box>
-      <Box sx={BoxStyle}>
-        <RunHecHms />
-      </Box>
+    <Grid container spacing={2}>
+      <Grid item xs={12} md={6} sm={12}>
+        <Box sx={BoxStyle}>
+          <RunCreateDss />
+        </Box>
+      </Grid>
+      <Grid item xs={12} md={6} sm={12}>
+        <Box sx={BoxStyle}>
+          <RunHecHms />
+        </Box>
+      </Grid>
+    </Grid>
       <Box sx={BoxStyle}>
         <RunHecRas />
       </Box>

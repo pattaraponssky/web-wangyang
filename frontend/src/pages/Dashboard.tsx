@@ -52,7 +52,7 @@ const Dashboard: React.FC = () => {
       id="map"
       >
         <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color:"#28378B" }}>
-          แผนที่ตำแหน่งสถานีที่สำคัญพื้นที่วังยาง
+          แผนที่ตำแหน่งสถานีที่สำคัญพื้นที่ศึกษาโครงการวังยาง
         </Typography>
         <LongdoMap
         id="longdo-map"

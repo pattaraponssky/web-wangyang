@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Button, Card, CardContent, Typography, Grid } from "@mui/material";
 import { BeachAccess, WaterDrop, Cloud, Flood } from "@mui/icons-material";
 import axios from "axios"; 
+import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขวันที่ช่วงพยากรณ์",icon: <BeachAccess />, url: "http://localhost/wangyang/ras_change_date.php" },
-  { title: "Compute Hec-Ras",icon: <WaterDrop />, url: "http://localhost/wangyang/ras_compute.php" },
-  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: "http://localhost/wangyang/ras_dss_to_csv.php" },
-  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: "http://localhost/wangyang/ras_run_all.php" },
+  { title: "แก้ไขวันที่ช่วงพยากรณ์",icon: <BeachAccess />, url: `${API_URL}ras_change_date.php` },
+  { title: "Compute Hec-Ras",icon: <WaterDrop />, url: `${API_URL}ras_compute.php` },
+  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: `${API_URL}ras_output_profiles.php` },
+  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: `${API_URL}ras_output_flow.php` },
 ];
 
 const RunHecRas: React.FC = () => {

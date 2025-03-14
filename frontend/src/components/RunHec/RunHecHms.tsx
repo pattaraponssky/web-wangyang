@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { Button, Card, CardContent, Typography, Grid } from "@mui/material";
 import { BeachAccess, WaterDrop, Cloud, Flood } from "@mui/icons-material";
 import axios from "axios"; 
+import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขช่วงวันที่พยากรณ์",icon: <BeachAccess />, url: "http://localhost/wangyang/hms_change_date.php" },
-  { title: "Hec-HMS Compute",icon: <WaterDrop />, url: "http://localhost/wangyang/hms_change_date.php" },
+  { title: "แก้ไขช่วงวันที่พยากรณ์",icon: <BeachAccess />, url: `${API_URL}hms_change_date.php` },
+  { title: "Hec-HMS Compute",icon: <WaterDrop />, url: `${API_URL}hms_compute.php` },
+  { title: "รันทั้งหมด",icon: <WaterDrop />, url: `${API_URL}hms_run_all.php` },
 ];
 
 const RunHecHms: React.FC = () => {
@@ -37,7 +39,7 @@ const RunHecHms: React.FC = () => {
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-        <Grid item xs={12} sm={6} lg={6} key={index}>
+        <Grid item xs={12} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>

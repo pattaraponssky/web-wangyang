@@ -2,6 +2,8 @@ export const formatThaiDate = (time: string): string => {
   const date = new Date(time);
 
   const yearBE = date.getFullYear() + 543; // แปลงเป็น พ.ศ.
+
+  // เดือนชื่อเต็ม
   // const monthNamesThai = [
   //   "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
   //   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
@@ -19,4 +21,6 @@ export const formatThaiDate = (time: string): string => {
 
   return `${day} ${month} ${yearBE} - ${hours}:${minutes}`;
 };
+
+export const API_URL = "http://localhost/code-xampp/wangyang/";
 
