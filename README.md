@@ -9,13 +9,6 @@
 - [TypeScript](https://www.typescriptlang.org/) - ภาษาโปรแกรมที่เสริมความปลอดภัยและโครงสร้างของ JavaScript
 - [MUI](https://mui.com/) - โปรแกรม UI ที่ช่วยให้การพัฒนาเว็บมีประสิทธิภาพ
 
-## Program Requirement (โปรแกรม)
-
-- **HEC-RAS 6.3**
-- **HEC-DSSVue**
-- **HEC-HMS 4.2.1**
-- **Python**
-- **Java (JDK 17)**
 
 ### การติดตั้งโปรแกรม
 
@@ -70,7 +63,15 @@ npm run build
 
 ---
 
-# HEC Setup Guide (การติดตั้งรัน HEC)
+# HEC Setup Guide (การติดตั้ง HEC)
+
+## Program Requirement (โปรแกรมที่ต้องการ)
+
+- **HEC-RAS 6.3**
+- **HEC-DSSVue**
+- **HEC-HMS 4.2.1**
+- **Python**
+- **Java (JDK 17)**
 
 ## Step 1: ติดตั้งโปรแกรม HEC ในตำแหน่งเริ่มต้น
 
