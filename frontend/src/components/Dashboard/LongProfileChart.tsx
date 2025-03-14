@@ -462,7 +462,7 @@ const LongProfileChart: React.FC = () => {
   return (
       <CardContent >
         {/* ชื่อหัวข้อกราฟ */}
-        <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
+        <Typography variant="h5" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B", justifySelf: "center" }}>
            รูปตัดตามยาวแม่น้ำ
         </Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 1, mb: 2 }}>

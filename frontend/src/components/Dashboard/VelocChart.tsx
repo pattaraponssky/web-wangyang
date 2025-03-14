@@ -96,7 +96,7 @@ const VelocLineChart: React.FC = () => {
     <CardContent>
       <Grid item>
         <Typography variant="h6" sx={{ fontWeight: 600, fontFamily: "Prompt", color: "#28378B", justifySelf: "center" }}>
-          ความเร็วการไหลของน้ำรายชั่วโมง
+          ความเร็วการไหลของน้ำ รายชั่วโมง
         </Typography>
       </Grid>
 

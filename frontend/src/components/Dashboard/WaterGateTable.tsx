@@ -122,7 +122,7 @@ const WaterLevelTable: React.FC = () => {
 
       }}>
       <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
-        {loading ? "กำลังโหลดข้อมูล..." : error ? "เกิดข้อผิดพลาด" : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำวังยาง"}
+        {loading ? "กำลังโหลดข้อมูล..." : error ? "เกิดข้อผิดพลาด" : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำเขื่อนวังยาง"}
       </Typography>
 
       <Table aria-label="water-level-table">
