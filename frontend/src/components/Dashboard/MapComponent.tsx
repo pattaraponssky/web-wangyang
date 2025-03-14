@@ -138,7 +138,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     JsonDataList.forEach((geoJsonData) => {
         if (geoJsonData && geoJsonData.features) {
             geoJsonData.features.forEach((feature: any) => {
-                const { MBASIN_T, MBASIN_E, AREA_SQKM, Area } = feature.properties;
+                const { MBASIN_T,Area } = feature.properties;
                 const geometryType = feature.geometry.type;
                 const coordinates = feature.geometry.coordinates;
 
