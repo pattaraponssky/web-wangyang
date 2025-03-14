@@ -163,7 +163,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                           <b>แม่น้ำ:</b> ${MBASIN_T}`,
                           // label: 'ขอบเขตพื้นที่ศึกษาวังยาง',
                           lineWidth: 3,
-                          lineColor: 'rgba(25, 25, 112, 0.5)',
+                          lineColor: 'rgba(0, 0, 0, 0.5)',
                           fillColor: "rgba(0, 255, 255,0.05)",
                         });
 

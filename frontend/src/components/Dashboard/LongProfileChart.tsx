@@ -462,8 +462,8 @@ const LongProfileChart: React.FC = () => {
   return (
       <CardContent >
         {/* ชื่อหัวข้อกราฟ */}
-        <Typography variant="h5" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B", justifySelf: "center" }}>
-           รูปตัดตามยาวแม่น้ำ
+        <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B", justifySelf: "center" }}>
+           รูปตัดตามยาวแม่น้ำพื้นที่ศึกษาโครงการวังยาง (เขื่อนมหาสารคาม - เขื่อนร้อยเอ็ด)
         </Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 1, mb: 2 }}>
           {/* ปุ่มเลื่อนไปวันก่อนหน้า */}

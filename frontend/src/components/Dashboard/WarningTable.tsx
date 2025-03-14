@@ -60,7 +60,7 @@ const FloodWarningTable: React.FC = () => {
         variant="h6"
         sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt",color:"#28378B" ,textAlign: "center"}}
       >
-        ตำแหน่งสำคัญและเกณฑ์การเฝ้าระวังและเตือนภัยพื้นที่ศึกษาวังยาง
+        ตำแหน่งสำคัญและเกณฑ์การเฝ้าระวังและเตือนภัยพื้นที่ศึกษาโครงการวังยาง
       </Typography>
       <Table sx={{ minWidth: isSmallScreen ? 333 : 1000, tableLayout: "auto" }}>
 

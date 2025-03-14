@@ -235,7 +235,7 @@ const getWaterLevelStatus = (station: string, elevation: number) => {
           }}
         >
           <Typography variant="body1" fontWeight="bold">
-            {selectedData.elevation.toFixed(2)} ม.
+            {selectedData.elevation.toFixed(2)} ม.มรก.
           </Typography>
           <Box
             sx={{
