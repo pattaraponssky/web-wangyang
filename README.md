@@ -8,10 +8,28 @@
 - [TypeScript](https://www.typescriptlang.org/) - ภาษาโปรแกรมที่เสริมความปลอดภัยและโครงสร้างของ JavaScript
 - [MUI](https://mui.com/) - โปรแกรม UI ที่ช่วยให้การพัฒนาเว็บมีประสิทธิภาพ
 
+## Program Requirement (โปรแกรม)
+- **HEC-RAS 6.3**
+- **HEC-DSSVue**
+- **HEC-HMS 4.2.1**
+- **Python**
+- **Java (JDK 17)**
+
+
 ### การติดตั้งโปรแกรม
+**Clone โปรเจกต์จาก GitHub**:
 ```sh
-npm create vite@latest web-wangyang --template react-ts
+git clone https://github.com/pattaraponssky/web-wangyang.git
 cd web-wangyang
+cd frontend
+```
+
+```sh
+cd web-wangyang
+cd frontend
+```
+
+```sh
 npm install
 ```
 
@@ -32,7 +50,6 @@ npm run dev
 ---
 
 # Auto HEC Setup Guide
-
 ## Step 1: ติดตั้งโปรแกรม HEC ในตำแหน่ง default
 1. **HEC-HMS 4.2.1**  
    ดาวน์โหลดและติดตั้ง HEC-HMS 4.2.1 ตามขั้นตอนที่แนะนำในเว็บไซต์ของ HEC:  
@@ -93,7 +110,7 @@ npm run dev
    /var/www/html/your_project_name
    ```
 
-## Step 6: ถ้าสร้างไฟล์ไม่ได้ ให้อนุญาตการสิทธิการสร้างไฟล์ให้โฟลเดอร์
+## Step 6: ถ้าสร้างไฟล์ csv ไม่ได้ ให้อนุญาตการสิทธิการสร้างไฟล์ให้โฟลเดอร์
 หากพบว่าไม่สามารถสร้างไฟล์ในโฟลเดอร์ได้ ให้ทำการอนุญาตสิทธิการสร้างไฟล์:
 - ใช้คำสั่ง `chmod` เพื่อให้สิทธิการเข้าถึงได้:
   ```bash
@@ -110,15 +127,5 @@ npm run dev
 sudo chmod -R 777 /var/www/html/your_project_name
 ```
 
-## Program Requirement
-- **HEC-RAS 6.3**
-- **HEC-DSSVue**
-- **HEC-HMS**
-- **Python**
-- **Java (JDK 17)**
-
 ## Additional Notes:
-- การตั้งค่าการอนุญาตการสร้างไฟล์ในโฟลเดอร์สำคัญมากสำหรับการทำงานของโค้ดในระบบ Unix-based (Linux/Mac) และในกรณีที่ไม่สามารถสร้างไฟล์ได้ ให้ใช้คำสั่ง `chmod -R 777` เพื่อให้สิทธิ์ที่เหมาะสม
-```
-
-สามารถบันทึกไฟล์นี้เป็น `.md` และใช้งานเพื่ออ้างอิงในการติดตั้งโปรเจกต์ได้เลยครับ!
+- 
