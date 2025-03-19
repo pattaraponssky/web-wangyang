@@ -114,7 +114,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     });
 
     if (map) {
-      map.location({ lat: 16.2219, lon: 103.34 }, true);
+      map.location({ lat: 16.804, lon: 100 }, true);
       map.zoom(11, true);
       setTimeout(() => addGeoJsonMarkers(), 500); // รอให้ map โหลดก่อน
       setTimeout(() => addTopoJsonMarkers(), 500); // รอให้ map โหลดก่อน
