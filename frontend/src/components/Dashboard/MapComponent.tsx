@@ -354,7 +354,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>`,
                 icon: { html: iconHtml },
-                size: { width: 700, height: 'auto' },
+                size: { width: 500, height: 'auto' },
                 data: {
                   properties: {
                     CodeStation: geoJsonData.name === 'Hydro Station' ? CodeStation : undefined,
@@ -376,14 +376,14 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                   const overlayElement = overlay.element();
                   const markerText = overlayElement.innerText;
                   const stationCode = stationNameMapping[markerText] || markerText;
-            
+              
                   if (!stationCode) {
                     console.warn("❌ ไม่พบรหัสสถานี");
                     return;
                   }
-            
+              
                   const chartContainer = document.getElementById(chartId);
-            
+              
                   // ถ้า chartContainer ไม่มีอยู่ ให้ไม่แสดงกราฟ
                   if (!chartContainer) return;
                   chartContainer.innerHTML = ''; 
@@ -406,7 +406,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                     const rainStation = rainData.find((s: any) => s.station_code === stationCode);
                     const flowStation = flowData.find((station: { stationcode: string; }) => station.stationcode === stationCode);
                     
-                    
                     // ถ้าไม่พบข้อมูลของสถานี ให้ไม่แสดงกราฟ
                     if (!rainStation && !flowStation) {
                       console.warn("❌ ไม่พบข้อมูลของสถานีนี้");
@@ -420,10 +419,10 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                     const labelsFlow = [];
                     for (let i = 7; i >= 1; i--) {
                       const date = new Date(today);
-                      date.setDate(today.getDate() + 1 - i);
+                      date.setDate(today.getDate() + 1 - i); // 7 วันก่อน โดยไม่รวมวันปัจจุบัน
                       labelsFlow.push(date.toISOString().split('T')[0]);
                     }
-
+              
                     const labelsRain = [];
                     for (let i = 7; i >= 1; i--) {
                       const date = new Date(today);
@@ -472,7 +471,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                           type: 'datetime',
                           min: new Date(labelsRain[0]).getTime(),
                           max: new Date(labelsRain[labelsRain.length - 1]).getTime(),
-                          labelsRain: {
+                          labels: {
                             datetimeUTC: false,
                             format: 'dd MMM',
                             style: { fontSize: '0.8rem' }
@@ -498,7 +497,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                           name: "ปริมาณน้ำท่า (ลบ.ม./วิ)",
                           data: flowValues,
                           type: 'line'
-                        }],                  
+                        }],
                         yaxis: {                          
                           title: { text: 'อัตราการไหล (ลบ.ม./วินาที)'},
                         },
@@ -507,7 +506,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                           type: 'datetime',
                           min: new Date(labelsFlow[0]).getTime(),
                           max: new Date(labelsFlow[labelsFlow.length - 1]).getTime(),
-                          labelsFlow: {
+                          labels: {
                             datetimeUTC: false,
                             format: 'dd MMM',
                             style: { fontSize: '0.8rem' }
@@ -525,6 +524,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                   }
                 }, 100);
               });
+              
             
               map.Overlays.add(marker);
               newMarkers.push(marker);
