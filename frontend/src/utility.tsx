@@ -45,5 +45,19 @@ export const formatThaiDateForTableGate = (time: string): string => {
   return `${dayStr} ${monthThai} ${yearBE} - ${hours}:${minutes}`;
 };
 
+export const nowThaiDate = () => {
+  const daysOfWeek = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+  const monthsOfYear = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+
+  const today = new Date();
+  const dayOfWeek = daysOfWeek[today.getDay()];
+  const dayOfMonth = today.getDate();
+  const month = monthsOfYear[today.getMonth()];
+  const year = today.getFullYear() + 543; // เพิ่ม 543 สำหรับปีพุทธศักราช
+
+  return `${dayOfWeek}ที่ ${dayOfMonth} ${month} ${year}`;
+};
+
+
 export const API_URL = "http://localhost/wangyang_backend/";
 

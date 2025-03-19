@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import ApexCharts from "apexcharts";
+import { nowThaiDate } from "../../utility";
 
 declare global {
   interface Window {
@@ -326,26 +327,34 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                                 geoJsonData.name === 'ProjectStation' ? Name : ""
                         }
                         </span>`,
-                detail: geoJsonData.name === 'DAM Station' ? `<span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${River} ${Basin} ${Detail}<br> </span> 
+                  detail: geoJsonData.name === 'DAM Station' ? 
+                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span> 
+                        <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${River || "ไม่มีข้อมูล"} ${Basin || "ไม่มีข้อมูล"} ${Detail || "ไม่มีรายละเอียด"}<br> </span> 
                         <span style="font-size:0.9rem; font-weight:bold;">ปริมาณกักเก็บ: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ล้าน ลบ.ม.</span> 
-                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` 
-                  : geoJsonData.name === 'Rain Station' ? `<span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail || "ไม่มีข้อมูล"} ล้าน ลบ.ม.</span> 
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>`                      
+                        : geoJsonData.name === 'Rain Station' ? 
+                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        <span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
-                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` 
-                  : geoJsonData.name === 'Hydro Station' ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>`
+                        : geoJsonData.name === 'Hydro Station' ? 
+                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        <span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${CodeStation}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
-                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` 
-                  : `<span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Name} </span><br>
-                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` ,
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>`
+                        : 
+                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        <span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>`,
                 icon: { html: iconHtml },
-                size: { width: 500, height: 'auto' },
+                size: { width: 700, height: 'auto' },
                 data: {
                   properties: {
                     CodeStation: geoJsonData.name === 'Hydro Station' ? CodeStation : undefined,
@@ -354,152 +363,173 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                   }
                 }
               });
-
-                const stationNameMapping: { [key: string]: string } = {
-                  "ลานจอดรถเครื่องจักรกลหนัก สชป.6": "สชป.6", 
-                  "StationB": "station_code_b"
-                  // เพิ่มการจับคู่ตามที่ต้องการ
-                };
-
-                // เพิ่มการสร้างกราฟสองอันแยกกันและแถบเลือก
-                map.Event.bind("overlayClick", function (overlay: any) {
-                  setTimeout(async () => {
-                    const overlayElement = overlay.element();
-                    const markerText = overlayElement.innerText;
-                    const stationCode = stationNameMapping[markerText] || markerText;
-                
-                    if (!stationCode) {
-                      console.warn("❌ ไม่พบรหัสสถานี");
+            
+              const stationNameMapping: { [key: string]: string } = {
+                "ลานจอดรถเครื่องจักรกลหนัก สชป.6": "สชป.6", 
+                "StationB": "station_code_b"
+                // เพิ่มการจับคู่ตามที่ต้องการ
+              };
+            
+              // เพิ่มการสร้างกราฟสองอันแยกกันและแถบเลือก
+              map.Event.bind("overlayClick", function (overlay: any) {
+                setTimeout(async () => {
+                  const overlayElement = overlay.element();
+                  const markerText = overlayElement.innerText;
+                  const stationCode = stationNameMapping[markerText] || markerText;
+            
+                  if (!stationCode) {
+                    console.warn("❌ ไม่พบรหัสสถานี");
+                    return;
+                  }
+            
+                  const chartContainer = document.getElementById(chartId);
+            
+                  // ถ้า chartContainer ไม่มีอยู่ ให้ไม่แสดงกราฟ
+                  if (!chartContainer) return;
+                  chartContainer.innerHTML = ''; 
+                  const rainChartContainer = document.createElement('div');
+                  const flowChartContainer = document.createElement('div');
+              
+                  // เพิ่มกราฟทั้งสองกราฟลงใน chartContainer
+                  chartContainer.appendChild(rainChartContainer);
+                  chartContainer.appendChild(flowChartContainer);
+              
+                  try {
+                    const [rainData, flowData] = await Promise.all([
+                      fetch("http://localhost/code-xampp/API/api_rain_hydro3.php").then(res => res.json()),
+                      fetch("http://localhost/code-xampp/API/api_flow_hydro3.php").then(res => res.json())
+                    ]);
+              
+                    console.log("rainData:", rainData);
+                    console.log("flowData:", flowData);
+              
+                    const rainStation = rainData.find((s: any) => s.station_code === stationCode);
+                    const flowStation = flowData.find((station: { stationcode: string; }) => station.stationcode === stationCode);
+                    
+                    
+                    // ถ้าไม่พบข้อมูลของสถานี ให้ไม่แสดงกราฟ
+                    if (!rainStation && !flowStation) {
+                      console.warn("❌ ไม่พบข้อมูลของสถานีนี้");
                       return;
                     }
-                
-                    const chartContainer = document.getElementById(chartId);
               
-                    // ถ้า chartContainer ไม่มีอยู่ ให้ไม่แสดงกราฟ
-                    if (!chartContainer) return;
-                    chartContainer.innerHTML = ''; 
-                    const rainChartContainer = document.createElement('div');
-                    const flowChartContainer = document.createElement('div');
-           
-                    // เพิ่มกราฟทั้งสองกราฟลงใน chartContainer
-                    chartContainer.appendChild(rainChartContainer);
-                    chartContainer.appendChild(flowChartContainer);
-                
-                    try {
-                      const [rainData, flowData] = await Promise.all([
-                        fetch("http://localhost/code-xampp/API/api_rain_hydro3.php").then(res => res.json()),
-                        fetch("http://localhost/code-xampp/API/api_flow_hydro3.php").then(res => res.json())
-                      ]);
-                
-                      console.log("rainData:", rainData);
-                      console.log("flowData:", flowData);
-                
-                      const rainStation = rainData.find((s: any) => s.station_code === stationCode);
-                      const flowStation = flowData.find((station: { stationcode: string; }) => station.stationcode === stationCode);
-                
-                      // ถ้าไม่พบข้อมูลของสถานี ให้ไม่แสดงกราฟ
-                      if (!rainStation && !flowStation) {
-                        console.warn("❌ ไม่พบข้อมูลของสถานีนี้");
-                        return;
-                      }
-                
-                      const today = new Date();
-                      const labels = [];
-                      for (let i = 7; i >= 1; i--) {
-                        const date = new Date(today);
-                        date.setDate(today.getDate() + 1 - i);
-                        labels.push(date.toISOString().split('T')[0]);
-                      }
-                
-                      const rainValues = rainStation ? [
-                        rainStation.rain_6_days_ago,
-                        rainStation.rain_5_days_ago,
-                        rainStation.rain_4_days_ago,
-                        rainStation.rain_3_days_ago,
-                        rainStation.rain_2_days_ago,
-                        rainStation.rain_1_day_ago
-                      ] : [];
-                
-                      const dateKeys = Object.keys(flowStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key));
-                      const flowValues = dateKeys.length > 0 ? dateKeys.slice(-7).map(key => flowStation[key]).reverse() : [];
-                
-                      // ถ้ามีข้อมูลน้ำฝน, แสดงกราฟน้ำฝน
-                      if (rainValues.length > 0) {
-                        const rainChart = new ApexCharts(rainChartContainer, {
-                          chart: {
-                            height: 200,
-                            fontFamily: 'Prompt',
-                            zoom: { enabled: false },
-                          },
-                          title: { text: "ปริมาณน้ำฝนย้อนหลัง 7 วัน", align: 'center' },
-                          series: [{
-                            name: "ปริมาณน้ำฝน (มม.)",
-                            data: rainValues,
-                            type: 'column'
-                          }],
-                          xaxis: {
-                            categories: labels,
-                            type: 'datetime',
-                            min: new Date(labels[0]).getTime(),
-                            max: new Date(labels[labels.length - 1]).getTime(),
-                            labels: {
-                              datetimeUTC: false,
-                              format: 'dd MMM',
-                              style: { fontSize: '0.8rem' }
-                            },
-                          },
-                          colors: ['#008FFB']
-                        });
-                        rainChart.render();
-                      } else {
-                        rainChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำฝนถ้าไม่มีข้อมูล
-                      }
-                
-                      // ถ้ามีข้อมูลน้ำท่า, แสดงกราฟน้ำท่า
-                      if (flowValues.length > 0) {
-                        const flowChart = new ApexCharts(flowChartContainer, {
-                          chart: {
-                            height: 200,
-                            fontFamily: 'Prompt',
-                            zoom: { enabled: false },
-                          },
-                          title: { text: "ปริมาณน้ำท่าย้อนหลัง 7 วัน", align: 'center' },
-                          series: [{
-                            name: "ปริมาณน้ำท่า (ลบ.ม./วิ)",
-                            data: flowValues,
-                            type: 'line'
-                          }],
-                          xaxis: {
-                            categories: labels,
-                            type: 'datetime',
-                            min: new Date(labels[0]).getTime(),
-                            max: new Date(labels[labels.length - 1]).getTime(),
-                            labels: {
-                              datetimeUTC: false,
-                              format: 'dd MMM',
-                              style: { fontSize: '0.8rem' }
-                            },
-                          },
-                          colors: ['#00E396']
-                        });
-                        flowChart.render();
-                      } else {
-                        flowChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าถ้าไม่มีข้อมูล
-                      }
-                
-                    } catch (error) {
-                      console.error("❌ ดึงข้อมูลสถานีล้มเหลว:", error);
+                    const dateKeys = flowStation ? Object.keys(flowStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key)) : [];
+                    const flowValues = dateKeys.length > 0 ? dateKeys.slice(-7).map(key => flowStation[key]).reverse() : [];
+              
+                    const today = new Date();
+                    const labelsFlow = [];
+                    for (let i = 7; i >= 1; i--) {
+                      const date = new Date(today);
+                      date.setDate(today.getDate() + 1 - i);
+                      labelsFlow.push(date.toISOString().split('T')[0]);
                     }
-                  }, 100);
-                });
-                
-                
 
-
-
+                    const labelsRain = [];
+                    for (let i = 7; i >= 1; i--) {
+                      const date = new Date(today);
+                      date.setDate(today.getDate() - i); // ลบวันที่ 1 วันทุกครั้ง
+                      labelsRain.push(date.toISOString().split('T')[0]); // เก็บแค่วันที่
+                    }
+              
+                    const rainValues = rainStation ? [
+                      rainStation.rain_7_days_ago,
+                      rainStation.rain_6_days_ago,
+                      rainStation.rain_5_days_ago,
+                      rainStation.rain_4_days_ago,
+                      rainStation.rain_3_days_ago,
+                      rainStation.rain_2_days_ago,
+                      rainStation.rain_1_day_ago
+                    ] : [];
+              
+                    console.log("rainValues:", rainValues);
+                    console.log("flowValues:", flowValues);
+                    
+                    // ถ้ามีข้อมูลน้ำฝน, แสดงกราฟน้ำฝน
+                    if (rainValues.length > 0) {
+                      const rainChart = new ApexCharts(rainChartContainer, {
+                        chart: {
+                          height: 200,
+                          fontFamily: 'Prompt',
+                          zoom: { enabled: false },
+                        },
+                        title: { text: "ปริมาณน้ำฝนย้อนหลัง 7 วัน", align: 'center' },
+                        series: [{
+                          name: "ปริมาณน้ำฝน (มม.)",
+                          data: rainValues,
+                          type: 'column'
+                        }],
+                        plotOptions: {
+                          bar: {
+                            borderRadius: 10,
+                            columnWidth: '50%',
+                          }
+                        },
+                        yaxis: {                          
+                          title: { text: 'ปริมาณน้ำฝน (มม.)' },
+                        },
+                        xaxis: {
+                          categories: labelsRain,
+                          type: 'datetime',
+                          min: new Date(labelsRain[0]).getTime(),
+                          max: new Date(labelsRain[labelsRain.length - 1]).getTime(),
+                          labelsRain: {
+                            datetimeUTC: false,
+                            format: 'dd MMM',
+                            style: { fontSize: '0.8rem' }
+                          },
+                        },
+                        colors: ['#008FFB']
+                      });
+                      rainChart.render();
+                    } else {
+                      rainChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำฝนถ้าไม่มีข้อมูล
+                    }
+              
+                    // ถ้ามีข้อมูลน้ำท่า, แสดงกราฟน้ำท่า
+                    if (flowValues.length > 0) {
+                      const flowChart = new ApexCharts(flowChartContainer, {
+                        chart: {
+                          height: 200,
+                          fontFamily: 'Prompt',
+                          zoom: { enabled: false },
+                        },
+                        title: { text: "ปริมาณน้ำท่าย้อนหลัง 7 วัน", align: 'center' },
+                        series: [{
+                          name: "ปริมาณน้ำท่า (ลบ.ม./วิ)",
+                          data: flowValues,
+                          type: 'line'
+                        }],                  
+                        yaxis: {                          
+                          title: { text: 'อัตราการไหล (ลบ.ม./วินาที)'},
+                        },
+                        xaxis: {
+                          categories: labelsFlow,
+                          type: 'datetime',
+                          min: new Date(labelsFlow[0]).getTime(),
+                          max: new Date(labelsFlow[labelsFlow.length - 1]).getTime(),
+                          labelsFlow: {
+                            datetimeUTC: false,
+                            format: 'dd MMM',
+                            style: { fontSize: '0.8rem' }
+                          },
+                        },
+                        colors: ['#00E396']
+                      });
+                      flowChart.render();
+                    } else {
+                      flowChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าถ้าไม่มีข้อมูล
+                    }
+              
+                  } catch (error) {
+                    console.error("❌ ดึงข้อมูลสถานีล้มเหลว:", error);
+                  }
+                }, 100);
+              });
+            
               map.Overlays.add(marker);
               newMarkers.push(marker);
             }
+            
           }
         });
       }
