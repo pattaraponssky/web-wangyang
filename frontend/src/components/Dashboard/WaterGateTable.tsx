@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import { formatThaiDate } from "../../utility";
+import {  formatThaiDateForTableGate } from "../../utility";
 
 interface DataWaterLevel {
   datetime: string;
@@ -149,7 +149,7 @@ const WaterLevelTable: React.FC = () => {
           ) : (
             data.map((row, index) => (
               <TableRow key={index}>
-                <TableCell sx={getCellStyle(index)}>{formatThaiDate(row.datetime)}</TableCell>
+                <TableCell sx={getCellStyle(index)}>{formatThaiDateForTableGate(row.datetime)}</TableCell>
                 <TableCell sx={getCellStyle(index)}>6</TableCell>
                 <TableCell sx={getCellStyle(index)}>
                   {parseFloat(row.gate_open.toFixed(2))}

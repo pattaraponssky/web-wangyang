@@ -16,6 +16,7 @@
     "@mui/material": "^6.4.5",
     "apexcharts": "^4.4.0",
     "axios": "^1.7.9",
+    "chart.js": "^4.4.8",
     "child_process": "^1.0.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.475.0",

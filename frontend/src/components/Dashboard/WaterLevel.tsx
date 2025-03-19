@@ -39,7 +39,7 @@ const WaterLevelChart: React.FC = () => {
             }
   
             const headers = Object.keys(rawData[0]);
-            console.log("CSV Headers:", headers);
+            // console.log("CSV Headers:", headers);
   
             const crossSectionIdx = headers.indexOf("Cross Section");
             const timeIdx = headers.indexOf("Profile");

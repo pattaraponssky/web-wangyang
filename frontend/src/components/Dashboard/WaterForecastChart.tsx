@@ -56,7 +56,9 @@ const WaterForecastChart: React.FC = () => {
             const dashedData = seriesItem.data.slice(72); // ข้อมูลตั้งแต่ 72 ขึ้นไป (เส้นปะ)
 
             const options: ApexOptions = {
-              chart: { id: `chart-${index}`, fontFamily: 'Prompt', type: 'line', height: 350 },
+              chart: { id: `chart-${index}`, fontFamily: 'Prompt', type: 'line', height: 350 , zoom: {
+                enabled: false, // ปิดการซูม
+              },},
               title: { text: `สถานีน้ำท่า ${seriesItem.name}`, align: 'center', style: { fontSize: '18px' } },
               stroke: { width: 5, curve: 'smooth', dashArray: [0, 8] }, // [0 = เส้นปกติ, 5 = เส้นปะ]
               xaxis: {
@@ -69,7 +71,7 @@ const WaterForecastChart: React.FC = () => {
               },
               tooltip: {
                 x: { format: 'dd MMM yyyy HH:mm' },
-                y: { formatter: (val: any) => `${Number(val.toFixed(2)).toLocaleString()} ล้าน ลบ.ม.` },
+                y: { formatter: (val: any) => `${Number(val.toFixed(2)).toLocaleString()} ลบ.ม./วินาที` },
               },
               
               annotations: {

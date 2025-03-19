@@ -1,20 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
+import ApexCharts from "apexcharts";
 import { feature } from "topojson-client";
+import { Zoom } from "@mui/material";
 
 declare global {
   interface Window {
     longdo: any;
   }
 }
-
 export let longdo: any;
 export let map: any;
+export let chartId: string;
 
 interface LongdoMapProps {
   id: string;
   mapKey: string;
   JsonPaths: string[];
-  topoJsonPaths?: string[];  // เพิ่ม property นี้
+  topoJsonPaths?: string[]; // เพิ่ม property นี้
   callback?: () => void;
 }
 
@@ -45,8 +47,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
 
     loadJsonFiles();
   }, [JsonPaths]);
-
-  
 
   // โหลด Longdo Map API
   useEffect(() => {
@@ -93,10 +93,14 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
   useEffect(() => {
     if (isMapReady) {
       console.log("กำลังเพิ่ม markers...");
+      map.location({ lat: 16.20222222, lon: 103.5280556 }, true);
+      map.zoom(11, true);
       addGeoJsonMarkers();
       addTopoJsonMarkers(); // เพิ่มการแสดงผลจาก TopoJSON
       addGeoJsonPolygons();
       addGeoJsonLines();
+      
+
     }
   }, [JsonDataList, isMapReady]);
 
@@ -106,155 +110,144 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
       console.error("แผนที่ไม่พร้อมหรือไม่พบข้อมูล longdo");
       return;
     }
-
+  
     longdo = window.longdo;
     map = new longdo.Map({
       placeholder: mapContainerRef.current,
       language: "th",
     });
-
-    if (map) {
-      map.location({ lat: 16.804, lon: 100 }, true);
-      map.zoom(11, true);
-      setTimeout(() => addGeoJsonMarkers(), 500); // รอให้ map โหลดก่อน
-      setTimeout(() => addTopoJsonMarkers(), 500); // รอให้ map โหลดก่อน
-      setTimeout(() => addGeoJsonPolygons(), 500); // รอให้ map โหลดก่อน
-      setTimeout(() => addGeoJsonLines(), 500); // รอให้ map โหลดก่อน
-      addGeoJsonLines
-      if (callback) callback();
-    } else {
-      console.error("ไม่สามารถสร้างแผนที่ได้");
-    }
   };
+
+
+
 
   const addGeoJsonPolygons = () => {
     if (!map) {
-        console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
-        return;
+      console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
+      return;
     }
 
     let newPolygons: any[] = []; // เก็บ Polygon ที่สร้างขึ้น
 
     JsonDataList.forEach((geoJsonData) => {
-        if (geoJsonData && geoJsonData.features) {
-            geoJsonData.features.forEach((feature: any) => {
-                const { MBASIN_T,Area } = feature.properties;
-                const geometryType = feature.geometry.type;
-                const coordinates = feature.geometry.coordinates;
+      if (geoJsonData && geoJsonData.features) {
+        geoJsonData.features.forEach((feature: any) => {
+          const { MBASIN_T, Area } = feature.properties;
+          const geometryType = feature.geometry.type;
+          const coordinates = feature.geometry.coordinates;
 
-                let polygonCoordinates: any[] = [];
+          let polygonCoordinates: any[] = [];
 
-                if (geometryType === "Polygon") {
-                    polygonCoordinates = coordinates[0].map((coord: any) => ({
-                        lat: coord[1],  // ค่าละติจูด
-                        lon: coord[0],  // ค่าลองจิจูด
-                    }));
-                } else if (geometryType === "MultiPolygon") {
-                    coordinates.forEach((polygon: any) => {
-                        polygonCoordinates = polygon[0].map((coord: any) => ({
-                            lat: coord[1],  // ค่าละติจูด
-                            lon: coord[0],  // ค่าลองจิจูด
-                        }));
+          if (geometryType === "Polygon") {
+            polygonCoordinates = coordinates[0].map((coord: any) => ({
+              lat: coord[1], // ค่าละติจูด
+              lon: coord[0], // ค่าลองจิจูด
+            }));
+          } else if (geometryType === "MultiPolygon") {
+            coordinates.forEach((polygon: any) => {
+              polygonCoordinates = polygon[0].map((coord: any) => ({
+                lat: coord[1], // ค่าละติจูด
+                lon: coord[0], // ค่าลองจิจูด
+              }));
 
-                        // เพิ่มแต่ละ Polygon แยกกัน
-                        const multiPolygon = new longdo.Polygon(polygonCoordinates, {
-                          title: `ขอบเขตพื้นที่ศึกษาวังยาง`,
-                          detail: `<b>ขนาดพื้นที่:</b> ${Area} ตร.กม.<br>
+              // เพิ่มแต่ละ Polygon แยกกัน
+              const multiPolygon = new longdo.Polygon(polygonCoordinates, {
+                title: `ขอบเขตพื้นที่ศึกษาวังสะตือ`,
+                detail: `<b>ขนาดพื้นที่:</b> ${Area} ตร.กม.<br>
                           <b>แม่น้ำ:</b> ${MBASIN_T}`,
-                          // label: 'ขอบเขตพื้นที่ศึกษาวังยาง',
-                          lineWidth: 3,
-                          lineColor: 'rgba(0, 0, 0, 0.5)',
-                          fillColor: "rgba(0, 255, 255,0.05)",
-                        });
+                lineWidth: 3,
+                lineColor: 'rgba(0, 0, 0, 0.5)',
+                fillColor: "rgba(0, 255, 255,0.05)",
+                visibleRange: { min: 0, max: 12 },
+              });
 
-                        map.Overlays.add(multiPolygon);
-                        newPolygons.push(multiPolygon);
-                    });
-                }
-
-                // ถ้าเป็น Polygon ปกติ (ไม่ใช่ MultiPolygon)
-                if (polygonCoordinates.length > 0) {
-                    const polygon = new longdo.Polygon(polygonCoordinates, {
-                        title: `พื้นที่: ${MBASIN_T}`,
-                        detail: `<b>ขนาดพื้นที่:</b> ${Area}  ตร.กม.`,
-                        lineColor: "blue",
-                        lineWidth: 2,
-                        fillColor: "rgba(0, 255, 255,0.05)",
-                    });
-
-                    map.Overlays.add(polygon);
-                    newPolygons.push(polygon);
-                }
+              map.Overlays.add(multiPolygon);
+              newPolygons.push(multiPolygon);
             });
-        }
+          }
+
+          // ถ้าเป็น Polygon ปกติ (ไม่ใช่ MultiPolygon)
+          if (polygonCoordinates.length > 0) {
+            const polygon = new longdo.Polygon(polygonCoordinates, {
+              title: `พื้นที่: ${MBASIN_T}`,
+              detail: `<b>ขนาดพื้นที่:</b> ${Area}  ตร.กม.`,
+              lineColor: "blue",
+              lineWidth: 2,
+              fillColor: "rgba(0, 255, 255,0.05)",
+              visibleRange: { min: 0, max: 12 },
+            });
+
+            map.Overlays.add(polygon);
+            newPolygons.push(polygon);
+          }
+        });
+      }
     });
 
     console.log("✅ Polygon ถูกเพิ่มลงในแผนที่เรียบร้อย");
-};
+  };
 
-
-const addGeoJsonLines = () => {
-  if (!map) {
+  const addGeoJsonLines = () => {
+    if (!map) {
       console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
       return;
-  }
+    }
 
-  let newPolylines: any[] = []; // เก็บเส้นที่สร้างขึ้น
+    let newPolylines: any[] = []; // เก็บเส้นที่สร้างขึ้น
 
-  JsonDataList.forEach((geoJsonData) => {
+    JsonDataList.forEach((geoJsonData) => {
       if (geoJsonData && geoJsonData.features) {
-          geoJsonData.features.forEach((feature: any) => {
-              const { name_en } = feature.properties;
-              const geometryType = feature.geometry.type;
-              const coordinates = feature.geometry.coordinates;
+        geoJsonData.features.forEach((feature: any) => {
+          const { name_en } = feature.properties;
+          const geometryType = feature.geometry.type;
+          const coordinates = feature.geometry.coordinates;
 
-              let lineCoordinates: any[] = [];
+          let lineCoordinates: any[] = [];
 
-              if (geometryType === "LineString") {
-                  lineCoordinates = coordinates.map((coord: any) => ({
-                      lat: coord[1],  // ละติจูด
-                      lon: coord[0],  // ลองจิจูด
-                  }));
-              } else if (geometryType === "MultiLineString") {
-                  coordinates.forEach((line: any) => {
-                      const polylineCoords = line.map((coord: any) => ({
-                          lat: coord[1],
-                          lon: coord[0],
-                      }));
+          if (geometryType === "LineString") {
+            lineCoordinates = coordinates.map((coord: any) => ({
+              lat: coord[1], // ละติจูด
+              lon: coord[0], // ลองจิจูด
+            }));
+          } else if (geometryType === "MultiLineString") {
+            coordinates.forEach((line: any) => {
+              const polylineCoords = line.map((coord: any) => ({
+                lat: coord[1],
+                lon: coord[0],
+              }));
 
-                      // เพิ่มแต่ละเส้น MultiLineString แยกกัน
-                      const multiPolyline = new longdo.Polyline(polylineCoords, {
-                          title: `แม่น้ำ: ${name_en}`,
-                          lineWidth: 3, // ความหนาของเส้น
-                          lineColor: "blue", // สีเส้น
-                          lineStyle: longdo.LineStyle.Solid, // รูปแบบเส้น (Solid = เส้นทึบ)
-                      });
+              // เพิ่มแต่ละเส้น MultiLineString แยกกัน
+              const multiPolyline = new longdo.Polyline(polylineCoords, {
+                title: `แม่น้ำ: ${name_en}`,
+                lineWidth: 3, // ความหนาของเส้น
+                lineColor: "blue", // สีเส้น
+                lineStyle: longdo.LineStyle.Solid, // รูปแบบเส้น (Solid = เส้นทึบ)
+              });
 
-                      map.Overlays.add(multiPolyline);
-                      newPolylines.push(multiPolyline);
-                  });
-              }
+              map.Overlays.add(multiPolyline);
+              newPolylines.push(multiPolyline);
+            });
+          }
 
-              // ถ้าเป็น LineString ปกติ (ไม่ใช่ MultiLineString)
-              if (lineCoordinates.length > 0) {
-                  const polyline = new longdo.Polyline(lineCoordinates, {
-                      title: `แม่น้ำ: ${name_en}`,
-                      lineWidth: 3,
-                      lineColor: "blue",
-                      lineStyle: longdo.LineStyle.Solid,
-                  });
+          // ถ้าเป็น LineString ปกติ (ไม่ใช่ MultiLineString)
+          if (lineCoordinates.length > 0) {
+            const polyline = new longdo.Polyline(lineCoordinates, {
+              title: `แม่น้ำ: ${name_en}`,
+              lineWidth: 3,
+              lineColor: "blue",
+              lineStyle: longdo.LineStyle.Solid,
+            });
 
-                  map.Overlays.add(polyline);
-                  newPolylines.push(polyline);
-              }
-          });
+            map.Overlays.add(polyline);
+            newPolylines.push(polyline);
+          }
+        });
       }
-  });
+    });
 
-  console.log("✅ เพิ่มเส้นแม่น้ำลงในแผนที่เรียบร้อย");
-};
+    console.log("✅ เพิ่มเส้นแม่น้ำลงในแผนที่เรียบร้อย");
+  };
 
-  
   // ฟังก์ชันเพิ่ม Marker จาก GeoJSON
   const addGeoJsonMarkers = () => {
     if (!map) {
@@ -271,60 +264,58 @@ const addGeoJsonLines = () => {
     JsonDataList.forEach((geoJsonData) => {
       if (geoJsonData && geoJsonData.features) {
         geoJsonData.features.forEach((feature: any) => {
-          const { lat, long, Name ,CodeStation  ,Code ,River  ,Basin  ,Detail ,Amphoe ,Province} = feature.properties;
+          const { lat, long, Name, CodeStation, Code, River, Basin, Detail, Amphoe, Province } = feature.properties;
           const position = {
-
             lat: lat || feature.geometry.coordinates[1],
             lon: long || feature.geometry.coordinates[0],
           };
 
           if (position.lat && position.lon) {
             let iconHtml = "";
+            let iconUrl = "";
 
-            if (geoJsonData.name === 'DAM Station') {
-              iconHtml = `
-                <div style="text-align:center;">
-                  <img src="./images/icons/reservoir_icon.png" style="width:24px; height:24px;"/>
-                  <div style="background-color:white; padding:2px; width:100px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                  ${feature.properties.Name}
-                  </div>
-                </div>`;
-            } else if (geoJsonData.name === 'Rain Station') {
-              iconHtml = `
-                <div style="text-align:center;">
-                  <img src="./images/icons/rain_station_icon.png" style="width:24px; height:24px;" />
-                  <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                    ${feature.properties.Code}
-                  </div>
-                </div>`;
-            } else if (geoJsonData.name === 'Hydro Station') {
-              iconHtml = `
-                <div style="text-align:center;">
-                  <img src="./images/icons/flow_station_icon.png" style="width:24px; height:24px;"/>
-                  <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                  ${feature.properties.CodeStation}
-                  </div>
-                </div>`;
-            } else if (geoJsonData.name === 'ProjectStation') {
-              iconHtml = `
-                <div style="text-align:center;">
-                  <img src="./images/icons/gate_icon.png" style="width:24px; height:24px;"/>
-                  <div style="background-color:white; width: 80px;padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
-                  ${feature.properties.Name}
-                  </div>
-                </div>`;
+            // เลือก icon และ iconUrl ตามประเภทสถานี
+            switch (geoJsonData.name) {
+              case 'DAM Station':
+                iconHtml = `<div style="text-align:center;">
+                              <img src="./images/icons/reservoir_icon.png" style="width:24px; height:24px;"/>
+                              <div style="background-color:white; padding:2px; width:100px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                                ${feature.properties.Name}
+                              </div>
+                            </div>`;
+                iconUrl = "./images/icons/reservoir_icon.png";
+                break;
+              case 'Rain Station':
+                iconHtml = `<div style="text-align:center;">
+                              <img src="./images/icons/rain_station_icon.png" style="width:24px; height:24px;" />
+                              <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                                ${feature.properties.Name}
+                              </div>
+                            </div>`;
+                iconUrl = "./images/icons/rain_station_icon.png";
+                break;
+              case 'Hydro Station':
+                iconHtml = `<div style="text-align:center;">
+                              <img src="./images/icons/flow_station_icon.png" style="width:24px; height:24px;"/>
+                              <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                                ${feature.properties.CodeStation}
+                              </div>
+                            </div>`;
+                iconUrl = "./images/icons/flow_station_icon.png";
+                break;
+              case 'ProjectStation':
+                iconHtml = `<div style="text-align:center;">
+                              <img src="./images/icons/gate_icon.png" style="width:24px; height:24px;"/>
+                              <div style="background-color:white; width: 80px;padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                                ${feature.properties.Name}
+                              </div>
+                            </div>`;
+                iconUrl = "./images/icons/gate_icon.png";
+                break;
             }
 
-            let iconUrl = "";
-              if (geoJsonData.name === 'DAM Station') {
-                iconUrl = "./images/icons/reservoir_icon.png";
-              } else if (geoJsonData.name === 'Rain Station') {
-                iconUrl = "./images/icons/rain_station_icon.png";
-              } else if (geoJsonData.name === 'Hydro Station') {
-                iconUrl = "./images/icons/flow_station_icon.png";
-              } else {
-                iconUrl = "./images/icons/gate_icon.png";
-              }
+            const chartId = `${geoJsonData.name}-${feature.properties.Code || feature.properties.Name || feature.properties.CodeStation}`;
+            console.log("chartId:", chartId);  // เพิ่มเพื่อดูว่า chartId ถูกตั้งค่าอย่างถูกต้อง
 
             if (iconHtml) {
               const marker = new longdo.Marker(position, {
@@ -332,125 +323,189 @@ const addGeoJsonLines = () => {
                         <span style="font-size:1.1rem; font-weight:bold; vertical-align:middle;"> 
                         ${
                           geoJsonData.name === 'DAM Station' ? Name :
-                          geoJsonData.name === 'Rain Station' ? Code :
-                          geoJsonData.name === 'Hydro Station' ? CodeStation :
-                          geoJsonData.name === 'ProjectStation' ? Name : ""
+                            geoJsonData.name === 'Rain Station' ? Code :
+                              geoJsonData.name === 'Hydro Station' ? CodeStation :
+                                geoJsonData.name === 'ProjectStation' ? Name : ""
                         }
                         </span>`,
                 detail: geoJsonData.name === 'DAM Station' ? `<span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${River} ${Basin} ${Detail}<br> </span> 
                         <span style="font-size:0.9rem; font-weight:bold;">ปริมาณกักเก็บ: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ล้าน ลบ.ม.</span>` 
-                        : geoJsonData.name === 'Rain Station' ? `<span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ล้าน ลบ.ม.</span> 
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` 
+                  : geoJsonData.name === 'Rain Station' ? `<span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>` 
-                        : geoJsonData.name === 'Hydro Station' ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` 
+                  : geoJsonData.name === 'Hydro Station' ? `<span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${CodeStation}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>` 
-                        : `<span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
-                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Name} </span><br>`
-                    ,
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` 
+                  : `<span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
+                        <span style="font-size:0.9rem; font-weight:bold; color:blue"> ${Name} </span><br>
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>` ,
                 icon: { html: iconHtml },
+                size: { width: 500, height: 'auto' },
+                data: {
+                  properties: {
+                    CodeStation: geoJsonData.name === 'Hydro Station' ? CodeStation : undefined,
+                    Code: geoJsonData.name === 'Rain Station' ? Code : undefined,
+                    Name: geoJsonData.name === 'DAM Station' || geoJsonData.name === 'ProjectStation' ? Name : undefined,
+                  }
+                }
               });
+
+                const stationNameMapping: { [key: string]: string } = {
+                  "ลานจอดรถเครื่องจักรกลหนัก สชป.6": "สชป.6", 
+                  "StationB": "station_code_b"
+                  // เพิ่มการจับคู่ตามที่ต้องการ
+                };
+
+                map.Event.bind("overlayClick", function (overlay : any) {
+                  setTimeout(async () => {
+                    const overlayElement = overlay.element(); // ใช้ method element() เพื่อดึง element ของ overlay              
+                    const markerText = overlayElement.innerText; // เข้าถึงค่า innerText
+                    const stationCode = stationNameMapping[markerText] || markerText; 
+                    if (!stationCode) {
+                      console.warn("❌ ไม่พบรหัสสถานี");
+                      return;
+                    }
+                    const chartContainer = document.getElementById(chartId);         
+                    
+                      if (chartContainer) {
+                        chartContainer.innerHTML = ""; // ล้าง Chart เก่า
+                
+                        try {
+                          const [rainData, flowData] = await Promise.all([
+                            fetch("http://localhost/code-xampp/API/api_rain_hydro3.php").then(res => res.json()),
+                            fetch("http://localhost/code-xampp/API/api_flow_hydro3.php").then(res => res.json())
+                          ]);
+                
+                          console.log("rainData:", rainData);
+                          console.log("flowData:", flowData);
+                          
+                          console.log(markerText);
+                          
+                          const rainStation = rainData.find((s: any) => s.station_code === stationCode);
+                          const flowStation = flowData.find((station: { stationcode: string; }) => station.stationcode === stationCode);
+                          
+                          if (!rainStation && !flowStation) {
+                            console.warn("❌ ไม่พบข้อมูลของสถานีนี้");
+                            return;
+                          }
+                
+                          const today = new Date();
+                          const labels = [];
+                          for (let i = 7; i >= 1; i--) {
+                            const date = new Date(today);
+                            date.setDate(today.getDate() - i); // ลบวันจากวันที่ปัจจุบัน
+                            labels.push(date.toISOString().split('T')[0]); // แสดงวันที่ในรูปแบบ YYYY-MM-DD
+                          }
+                          const rainValues = rainStation ? [
+                              rainStation.rain_7_days_ago,
+                              rainStation.rain_6_days_ago,
+                              rainStation.rain_5_days_ago,
+                              rainStation.rain_4_days_ago,
+                              rainStation.rain_3_days_ago,
+                              rainStation.rain_2_days_ago,
+                              rainStation.rain_1_day_ago
+                          ] : [];
+                
+                          const flowValues = flowStation ? Object.values(flowStation).slice(-7) : [];
+                          const series = [];
+                          
+                          if (rainValues.length > 0) {
+                            series.push({
+                              name: "ปริมาณน้ำฝน (มม.)",
+                              data: rainValues,
+                              type: 'column'  // เปลี่ยนเป็นคอลัมน์
+                            });
+                          }
+                        
+                          if (flowValues.length > 0) {
+                            series.push({
+                              name: "ปริมาณน้ำท่า (ลบ.ม./วิ)",
+                              data: flowValues,
+                              type: 'line'  // ใช้เป็นเส้น
+                            });
+                          }
+                        
+                          if (series.length > 0) {
+                            // สร้างกราฟเฉพาะเมื่อมี series
+                            const chart = new ApexCharts(chartContainer, {
+                              chart: { height: 200 , fontFamily: 'Prompt', zoom: {enabled: false,}},                      
+                              title: { text: "ปริมาณน้ำฝนและน้ำท่าย้อนหลัง 7 วัน" , align: 'center' },
+                           
+                              series: series,
+                              xaxis: {
+                                categories: labels,
+                                type: 'datetime',
+                                labels: { datetimeUTC: false, format: 'dd MMM', style: { fontSize: '0.8rem' } },
+                              },
+                              colors: ['#008FFB', '#00E396']
+                            });
+                        
+                            chart.render().then(() => console.log("✅ กราฟถูกสร้างเรียบร้อย"));
+                          
+                          }
+                        } catch (error) {
+                          console.error("❌ ดึงข้อมูลสถานีล้มเหลว:", error);
+                        }
+                      } 
+                    },
+                     100);
+                  });
+
               map.Overlays.add(marker);
               newMarkers.push(marker);
             }
-            
-              }
-            });
           }
         });
-        setMarkers(newMarkers); // อัปเดต state
-        console.log("เพิ่ม markers จาก GeoJSON เสร็จเรียบร้อย");
-      };
-
-      
-  // ฟังก์ชันเพิ่ม Marker จาก TopoJSON
-  const addTopoJsonMarkers = () => {
-    if (!map || JsonDataList.length === 0) {
-        console.log("แผนที่ยังไม่ถูกสร้างหรือไม่มีข้อมูล TopoJSON");
-        return;
-    }
-  
-    console.log("กำลังเพิ่ม markers จาก TopoJSON...");
-    let newMarkers: any[] = []; // เก็บ Marker ใหม่จาก TopoJSON
-  
-    JsonDataList.forEach((topoJsonData, index) => {
-        console.log(`กำลังประมวลผล TopoJSON object ที่ ${index + 1}`);
-        
-        if (topoJsonData && topoJsonData.objects) {
-            Object.values(topoJsonData.objects).forEach((object: any, objectIndex: number) => {
-                console.log(`กำลังประมวลผล object ที่ ${objectIndex + 1}`);
-                
-                if (object.type === 'GeometryCollection') {
-                    object.geometries.forEach((geometry: any, geometryIndex: number) => {
-                        console.log(`กำลังประมวลผล geometry ที่ ${geometryIndex + 1}`);
-                        
-                        if (geometry.type === 'Polygon' && geometry.arcs) {
-                            console.log("พบ Polygon geometry");
-                            
-                            // แปลง TopoJSON เป็น GeoJSON
-                            const geoJson = feature(topoJsonData, geometry); // แปลง geometry จาก TopoJSON เป็น GeoJSON
-                            console.log("Converted GeoJSON:", geoJson); // ตรวจสอบข้อมูล GeoJSON ที่แปลงแล้ว
-                            
-                            // ตรวจสอบว่า geoJson.properties มี lat และ long
-                            const { lat, lon, Name } = geoJson.properties || {};
-                            console.log(`Properties - lat: ${lat}, lon: ${lon}, Name: ${Name}`);
-  
-                            const position = {
-                                lat: lat || (Array.isArray(geoJson.geometry.coordinates[0]) && geoJson.geometry.coordinates[0][1]),
-                                lon: lon || (Array.isArray(geoJson.geometry.coordinates[0]) && geoJson.geometry.coordinates[0][0]),
-                            };
-                            
-                            if (position.lat && position.lon) {
-                                console.log("ตำแหน่งที่ตั้งของ polygon: ", position);
-                                
-                                // แสดงข้อมูลเป็น Polygon บนแผนที่
-                                const polygonCoordinates = Array.isArray(geoJson.geometry.coordinates[0])
-                                    ? geoJson.geometry.coordinates[0].map((coord: any) => ({
-                                        lat: coord[1],  // ค่าละติจูด
-                                        lon: coord[0],  // ค่าลองจิจูด
-                                    }))
-                                    : [];
-                                
-                                console.log("Polygon Coordinates: ", polygonCoordinates);
-                                
-                                const polygon = new longdo.Polygon(polygonCoordinates, {
-                                  title: 'ขอบเขตพื้นที่ศึกษาวังยาง', //Popup title
-                                  detail: 'โครงการ..รายละเอียด', //Popup 
-                                  // label: 'ขอบเขตพื้นที่ศึกษาวังยาง',
-                                  lineWidth: 5,
-                                  lineColor: 'rgba(25, 25, 112, 1)',
-                                  fillColor: "rgba(0, 255, 255,0.02)",
-                                  // visibleRange: { min: 7, max: 18 }, // ปรับระยะการมองเห็น
-                                });
-                                
-  
-                                console.log("เพิ่ม Polygon ลงในแผนที่");
-                                map.Overlays.add(polygon); // เพิ่ม Polygon ลงในแผนที่
-                                newMarkers.push(polygon);
-                            } else {
-                                console.log("ไม่พบตำแหน่ง lat, lon สำหรับ Polygon นี้");
-                            }
-                        }
-                    });
-                }
-            });
-        } else {
-            console.log("ไม่พบข้อมูลใน TopoJSON object หรือ object type ไม่ถูกต้อง");
-        }
+      }
     });
-  
+
     setMarkers(newMarkers); // อัปเดต state
-    console.log("เพิ่ม markers จาก TopoJSON เสร็จเรียบร้อย");
+    console.log("เพิ่ม markers จาก GeoJSON เสร็จเรียบร้อย");
 };
 
+  const addTopoJsonMarkers = () => {
+    if (!map) {
+      console.error("Map ยังไม่ถูกสร้างขึ้น");
+      return;
+    }
 
-  
+    JsonDataList.forEach((geoJsonData) => {
+      geoJsonData.features.forEach((feature: any) => {
+        const { MBASIN_T, Area } = feature.properties;
+        const coordinates = feature.geometry.coordinates[0];
 
-  return <div ref={mapContainerRef} id={id} style={{ width: "100%", height: "500px" }} />;
+        const marker = new longdo.Marker(
+          { lat: coordinates[1], lon: coordinates[0] },
+          {
+            title: `พื้นที่: ${MBASIN_T}`,
+            detail: `<b>ขนาดพื้นที่:</b> ${Area} ตร.กม.`,
+          }
+        );
+
+        map.Overlays.add(marker);
+        marker.onclick = () => {
+          console.log(`แสดงข้อมูล Marker: ${MBASIN_T}`);
+          marker.popup(`<b>พื้นที่:</b> ${MBASIN_T} <br> <b>ขนาดพื้นที่:</b> ${Area} ตร.กม.`);
+        };
+      });
+    });
+
+    console.log("✅ เพิ่ม Marker จาก TopoJSON เรียบร้อย");
+  };
+
+  return (
+    <div
+      ref={mapContainerRef}
+      style={{ width: "100%", height: "600px" }}
+    ></div>
+  );
 };
 
 export default LongdoMap;
