@@ -492,7 +492,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                           fontFamily: 'Prompt',
                           zoom: { enabled: false },
                         },
-                        title: { text: "ปริมาณน้ำท่าย้อนหลัง 7 วัน", align: 'center' },
+                        title: { text: "ปริมาณน้ำท่าย้ นหลัง 7 วัน", align: 'center' },
                         series: [{
                           name: "ปริมาณน้ำท่า (ลบ.ม./วิ)",
                           data: flowValues,

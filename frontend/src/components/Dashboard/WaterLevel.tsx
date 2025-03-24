@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
-import { formatThaiDate } from "../../utility";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import Chart from "react-apexcharts";
 
 interface WaterLevelData {
   time: string;
@@ -20,50 +20,37 @@ const stationMapping: Record<string, number> = {
 
 const WaterLevelChart: React.FC = () => {
   const [data, setData] = useState<WaterLevelData[]>([]);
+  const [secondData, setSecondData] = useState<WaterLevelData[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
 
-  const csvFilePath = "./ras-output/output_profile.csv";
-
   useEffect(() => {
-    fetch(csvFilePath)
+    // โหลดข้อมูลจากไฟล์ CSV แรก
+    fetch("./ras-output/output_profile.csv")
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
           complete: (result) => {
             const rawData: any[] = result.data;
-  
+
             if (!rawData.length) {
               console.error("Empty CSV data");
               return;
             }
-  
-            const headers = Object.keys(rawData[0]);
-            // console.log("CSV Headers:", headers);
-  
-            const crossSectionIdx = headers.indexOf("Cross Section");
-            const timeIdx = headers.indexOf("Profile");
-            const elevationIdx = headers.indexOf("Water Surface Elevation");
-  
-            if (crossSectionIdx === -1 || timeIdx === -1 || elevationIdx === -1) {
-              console.error("CSV format mismatch");
-              return;
-            }
-  
+
             const parsedData: WaterLevelData[] = rawData.map((row) => {
               const crossSection = Number(row["Cross Section"]?.trim());
               const time = row["Profile"]?.trim();
               const elevation = parseFloat(row["Water Surface Elevation"]);
-  
+
               const station = Object.keys(stationMapping).find(
                 (key) => stationMapping[key] === crossSection
               ) || "";
-  
+
               return { time, station, elevation };
             });
-  
+
             const filteredData = parsedData.filter((item) => item.station && item.time);
-  
             setData(filteredData);
             setSelectedIndex(0);
           },
@@ -72,196 +59,140 @@ const WaterLevelChart: React.FC = () => {
         });
       })
       .catch((error) => console.error("Error loading CSV:", error));
-  }, [csvFilePath]);
 
-  const formatDate = (time: string): string => {
-    if (!time) return ""; // ตรวจสอบค่าที่ว่าง
-  
-    const [day, month, yearAndTime] = time.split('/'); // แยก วัน/เดือน/ปี+เวลา
-    const [year, hours, minutes] = yearAndTime.split(/[:\s]/); // แยก ปี ชั่วโมง นาที
-  
-    const formattedDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`); // สร้าง Date object
-    
-    if (isNaN(formattedDate.getTime())) return "Invalid Date"; // ตรวจสอบว่า Date ถูกต้องไหม
-  
-    const yyyy = formattedDate.getFullYear();
-    const MM = String(formattedDate.getMonth() + 1).padStart(2, '0'); // เดือนต้องเริ่มที่ 1
-    const dd = String(formattedDate.getDate()).padStart(2, '0');
-    const HH = String(formattedDate.getHours()).padStart(2, '0');
-    const mm = String(formattedDate.getMinutes()).padStart(2, '0');
-  
-    return `${yyyy}-${MM}-${dd} ${HH}:${mm}`; // คืนค่าผลลัพธ์ในรูปแบบ yyyy-MM-dd HH:mm
+    // โหลดข้อมูลจากไฟล์ CSV ที่สอง
+    fetch("./ras-output/ground_station.csv")
+      .then((response) => response.text())
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          complete: (result) => {
+            const rawData: any[] = result.data;
+
+            if (!rawData.length) {
+              console.error("Empty CSV data");
+              return;
+            }
+
+            const parsedData: WaterLevelData[] = rawData.map((row) => {
+              const time = row["NO"]?.trim();
+              const e91 = parseFloat(row["E.91"]);
+              const e1 = parseFloat(row["E.1"]);
+              const e8A = parseFloat(row["E.8A"]);
+              const e66A = parseFloat(row["E.66A"]);
+              const e87 = parseFloat(row["E.87"]);
+
+              return [
+                { time, station: "E.91", elevation: e91 },
+                { time, station: "E.1", elevation: e1 },
+                { time, station: "E.8A", elevation: e8A },
+                { time, station: "E.66A", elevation: e66A },
+                { time, station: "E.87", elevation: e87 },
+              ];
+            }).flat();
+
+            setSecondData(parsedData); // ตั้งค่า secondData
+          },
+          header: true,
+          skipEmptyLines: true,
+        });
+      })
+      .catch((error) => console.error("Error loading second CSV:", error));
+  }, []);
+
+  // ข้อมูลที่กรองตามสถานีจากไฟล์แรก
+  const stationData = data.filter((item) => item.station === selectedStation);
+  const selectedData = stationData[selectedIndex] || { time: "", elevation: 0 };
+
+  // ข้อมูลที่กรองจากไฟล์ที่สองตามสถานีที่เลือก
+  const filteredSecondData = secondData.filter((item) => item.station === selectedStation);
+
+  // กำหนด options สำหรับกราฟ
+  const chartOptions = {
+    chart: {
+      type: "line", // เปลี่ยนเป็น Line เพื่อแสดงกราฟที่แสดงข้อมูลทั้งหมด
+      height: 350,
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: selectedData.elevation, // ค่า elevation ที่เลือก
+          borderColor: "#FF0000", // สีของเส้นแสดงตำแหน่ง
+          label: {
+            text: `Elevation: ${selectedData.elevation.toFixed(2)} m`,
+            style: {
+              color: "#FF0000",
+              background: "#fff",
+            },
+          },
+        },
+      ],
+    },
+    xaxis: {
+      categories: filteredSecondData.map((item) => item.time), // ใช้ time เป็นค่าแกน X
+    },
+    yaxis: {
+      title: { text: "ระดับน้ำ (ม.มรก.)" },
+      min: Math.min(...filteredSecondData.map((item) => item.elevation)) - 0.5,
+      max: Math.max(...filteredSecondData.map((item) => item.elevation)) + 0.5,
+    },
   };
 
-  const selectedData = data.filter((item) => item.station === selectedStation)[selectedIndex] || { time: "", elevation: 0 };
-  const timeList = data.filter((item) => item.station === selectedStation).map((item) => item.time);
-
-  const stationBackgrounds: Record<string, string> = {
-    "E.91": "./images/cross_section/E.91.png",
-    "E.1": "./images/cross_section/E.1.png",
-    "E.8A": "./images/cross_section/E.8A.png",
-    "E.66A": "./images/cross_section/E.66A.png",
-    "E.87": "./images/cross_section/E.87.png",
-  };
-
-  const backgroundImage = stationBackgrounds[selectedStation] || "./images/default.png";
-
-  const stationWaterLevels: Record<
-    string,
-    { min: number; max: number; warning: number; critical: number }
-  > = {
-    "E.91": { min: 141, max: 155, warning: 140, critical: 150 },
-    "E.1": { min: 136, max: 150, warning: 147, critical: 149 },
-    "E.8A": { min: 131, max: 148, warning: 145, critical: 147 },
-    "E.66A": { min: 132, max: 146, warning: 143, critical: 145 },
-    "E.87": { min: 130, max: 144, warning: 141, critical: 143 },
-  };
-
-const getWaterLevelStatus = (station: string, elevation: number) => {
-  const level = stationWaterLevels[station];
-  if (!level) return { text: "ไม่มีข้อมูล", color: "gray" };
-
-  if (elevation >= level.critical) return { text: "ระดับน้ำวิกฤต", color: "red" };
-  if (elevation >= level.warning) return { text: "ระดับน้ำเฝ้าระวัง", color: "orange" };
-  return { text: "ระดับน้ำปกติ", color: "green" };
-};
-
-
-
-  const waterLevelRange = stationWaterLevels[selectedStation];
-  const waterLevelPosition = waterLevelRange
-    ? ((selectedData.elevation - waterLevelRange.min) / (waterLevelRange.max - waterLevelRange.min)) * 100
-    : 0;
+  // กำหนด series สำหรับกราฟ
+  const chartSeries = [
+    {
+      name: selectedStation, // ใช้ชื่อสถานีที่เลือก
+      data: stationData.map((item) => item.elevation), // ข้อมูลระดับน้ำของสถานีที่เลือกจากไฟล์แรก
+      type: "line", // แสดงเป็นเส้น
+    },
+    {
+      name: selectedStation, // ใช้ชื่อสถานีที่เลือก
+      data: filteredSecondData.map((item) => item.elevation), // ข้อมูลระดับน้ำจากไฟล์ที่สองตามสถานีที่เลือก
+      type: "line", // แสดงเป็นเส้น
+    },
+  ];
 
   const handlePrevTime = () => {
     if (selectedIndex > 0) setSelectedIndex(selectedIndex - 1);
   };
 
   const handleNextTime = () => {
-    if (selectedIndex < timeList.length - 1) setSelectedIndex(selectedIndex + 1);
+    if (selectedIndex < stationData.length - 1) setSelectedIndex(selectedIndex + 1);
   };
-
 
   return (
     <CardContent>
-      <Typography variant="h6" sx={{ textAlign: "center", mb: 2, fontFamily: "Prompt", fontWeight: "bold",color:"#28378B" }}>
+      <Typography variant="h6" sx={{ textAlign: "center", mb: 2, fontWeight: "bold" }}>
         ระดับน้ำรายชั่วโมง สถานี {selectedStation}
       </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: 1, mb: 2 }}>
-        
-      <Button
-        variant="contained"
-        onClick={handlePrevTime}
-        disabled={selectedIndex === 0}
-        sx={{
-          fontFamily: "Prompt",
-          fontSize: { xs: "0.8rem", sm: "1rem" },
-          bgcolor: "#1976d2",
-          "&:hover": { bgcolor: "#115293" },
-          borderRadius: "20px",
-          paddingX: "16px",
-        }}
-      >
-        
-        <ArrowBack sx={{ fontSize: "1.5rem" }} />
-        ย้อนกลับ
-      </Button>
-
-        <Select value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)} sx={{ fontFamily: "Prompt", fontSize: { xs: "0.8rem", sm: "1rem" } }}>
-          {Object.keys(stationMapping).map((station) => (
-            <MenuItem key={station} value={station}>
-              {station}
-            </MenuItem>
-          ))}
-        </Select>
-
-        <Select value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))} sx={{ fontFamily: "Prompt", fontSize: { xs: "0.8rem", sm: "1rem" } }}>
-          {timeList.map((time, index) => (
-            <MenuItem key={time} value={index}>
-              {formatThaiDate(formatDate(time))}
-            </MenuItem>
-          ))}
-        </Select>
-
-        <Button
-          variant="contained"
-          onClick={handleNextTime}
-          disabled={selectedIndex >= timeList.length - 1}
-          sx={{
-            fontFamily: "Prompt",
-            fontSize: { xs: "0.8rem", sm: "1rem" },
-            bgcolor: "#1976d2",
-            "&:hover": { bgcolor: "#115293" },
-            borderRadius: "20px",
-            paddingX: "16px",
-          }}
-        >
-          ถัดไป
-          <ArrowForward sx={{ fontSize: "1.5rem" }} />
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2 }}>
+        <Button variant="contained" onClick={handlePrevTime} disabled={selectedIndex === 0}>
+          <ArrowBack /> ย้อนกลับ
         </Button>
 
+        <Select value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)}>
+          {Object.keys(stationMapping).map((station) => (
+            <MenuItem key={station} value={station}>{station}</MenuItem>
+          ))}
+        </Select>
+
+        <Select value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))}>
+          {stationData.map((item, index) => (
+            <MenuItem key={item.time} value={index}>{item.time}</MenuItem>
+          ))}
+        </Select>
+
+        <Button variant="contained" onClick={handleNextTime} disabled={selectedIndex >= stationData.length - 1}>
+          ถัดไป <ArrowForward />
+        </Button>
       </Box>
 
-      <Box sx={{ position: "relative", width: "100%", aspectRatio: "20/10" , height: {
-            xs: "auto",  // สำหรับขนาดจอเล็ก
-            sm: "auto",  // สำหรับขนาดจอปานกลาง
-            md: "auto",  // สำหรับขนาดจอใหญ่
-          },}}>
-        <img src={backgroundImage} alt={`Station ${selectedStation}`} style={{ width: "100%", height: "auto", objectFit: "cover"}} />
+      <Box sx={{ width: "100%", height: 350 }}>
+        <Chart options={chartOptions} series={chartSeries} type="line" height={350} />
+      </Box>
 
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: `${waterLevelPosition}%`,
-            left: 0,
-            width: "100%",
-            height: 5,
-            backgroundColor: "blue",
-            opacity: 0.8,
-          }}
-        />
-
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: `${waterLevelPosition + 5}%`,
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "white",
-            padding: "6px 8px",
-            borderRadius: "8px",
-            boxShadow: 3,
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="body1" fontWeight="bold">
-            {selectedData.elevation.toFixed(2)} ม.มรก.
-          </Typography>
-          <Box
-            sx={{
-              textAlign: "center",
-              p: 2,
-              borderRadius: 2,
-              backgroundColor: getWaterLevelStatus(selectedStation, selectedData.elevation).color,
-              color: "white",
-              fontWeight: "bold",
-            }}
-          >
-          {getWaterLevelStatus(selectedStation, selectedData.elevation).text}
-        </Box>
-        </Box>
-        <Box
-            sx={{
-              width: 0,
-              height: 0,
-              borderLeft: "10px solid transparent",
-              borderRight: "10px solid transparent",
-              borderTop: "10px solid black", // สามเหลี่ยมชี้ลง
-              margin: "-15px auto 0", // ปรับระยะห่างให้เหมาะสม
-            }}
-          />
-        </Box>
-     
+      <Typography variant="h6" textAlign="center" sx={{ mt: 2 }}>
+        ระดับน้ำปัจจุบัน: {selectedData.elevation.toFixed(2)} ม.มรก.
+      </Typography>
     </CardContent>
   );
 };
