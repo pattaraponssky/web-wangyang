@@ -24,6 +24,14 @@ const WaterLevelChart: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
 
+  const lastDataPoints = 35;
+
+  const fillData = (data: WaterLevelData[]) => {
+    if (data.length >= lastDataPoints) return data.slice(-lastDataPoints);
+    const missingCount = lastDataPoints - data.length;
+    return [...data, ...Array(missingCount).fill(data[data.length - 1] || { time: "", elevation: 0 })];
+  };
+
   useEffect(() => {
     // โหลดข้อมูลจากไฟล์ CSV แรก
     fetch("./ras-output/output_profile.csv")
@@ -61,7 +69,7 @@ const WaterLevelChart: React.FC = () => {
       .catch((error) => console.error("Error loading CSV:", error));
 
     // โหลดข้อมูลจากไฟล์ CSV ที่สอง
-    fetch("./ras-output/ground_station.csv")
+    fetch("./data/ground_station.csv")
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
@@ -102,7 +110,7 @@ const WaterLevelChart: React.FC = () => {
   // ข้อมูลที่กรองตามสถานีจากไฟล์แรก
   const stationData = data.filter((item) => item.station === selectedStation);
   const selectedData = stationData[selectedIndex] || { time: "", elevation: 0 };
-
+  const filledStationData = fillData(stationData);
   // ข้อมูลที่กรองจากไฟล์ที่สองตามสถานีที่เลือก
   const filteredSecondData = secondData.filter((item) => item.station === selectedStation);
 
@@ -121,7 +129,7 @@ const WaterLevelChart: React.FC = () => {
       yaxis: [
         {
           y: selectedData.elevation, // ค่า elevation ที่เลือก
-          borderColor: "#FF0000", // สีของเส้นแสดงตำแหน่ง
+          borderColor: "#000", // สีของเส้นแสดงตำแหน่ง
           label: {
             text: `ระดับน้ำ: ${selectedData.elevation.toFixed(2)} (ม.รทก.)`,
             style: {
@@ -134,7 +142,7 @@ const WaterLevelChart: React.FC = () => {
       ],
     },
     xaxis: {
-      categories: filteredSecondData.map((item) => item.time), // ใช้ time เป็นค่าแกน X
+      categories: filteredSecondData.slice(-lastDataPoints).map((item) => item.time),
       labels: {
         show: false // ไม่แสดงข้อความบนแกน X
       }
@@ -185,12 +193,11 @@ const WaterLevelChart: React.FC = () => {
       },
     },
   };
-
   // กำหนด series สำหรับกราฟ
   const chartSeries = [
     {
       name: 'ระดับน้ำ (ม.รทก.)', // ใช้ชื่อสถานีที่เลือก
-      data: stationData.slice(Math.max(stationData.length - 20, 0)).map((item) => item.elevation), // กรองข้อมูลให้แสดงแค่ 20 ค่า
+      data: filledStationData.map((item) => item.elevation),
       type: "area", // แสดงเป็นเส้น
     },
     {
