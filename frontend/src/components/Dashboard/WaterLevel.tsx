@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, Label } from "@mui/icons-material";
 import Chart from "react-apexcharts";
 
 interface WaterLevelData {
@@ -109,8 +109,13 @@ const WaterLevelChart: React.FC = () => {
   // กำหนด options สำหรับกราฟ
   const chartOptions = {
     chart: {
-      type: "line", // เปลี่ยนเป็น Line เพื่อแสดงกราฟที่แสดงข้อมูลทั้งหมด
-      height: 350,
+
+      type: "line" as const, // เปลี่ยนเป็น area เพื่อแสดงกราฟที่แสดงข้อมูลทั้งหมด
+      height: 400,
+      fontFamily: 'Prompt',
+      zoom: {
+        enabled: true, // ปิดการซูม
+      },
     },
     annotations: {
       yaxis: [
@@ -118,10 +123,11 @@ const WaterLevelChart: React.FC = () => {
           y: selectedData.elevation, // ค่า elevation ที่เลือก
           borderColor: "#FF0000", // สีของเส้นแสดงตำแหน่ง
           label: {
-            text: `Elevation: ${selectedData.elevation.toFixed(2)} m`,
+            text: `ระดับน้ำ: ${selectedData.elevation.toFixed(2)} (ม.รทก.)`,
             style: {
-              color: "#FF0000",
-              background: "#fff",
+              fontSize: '1rem',
+              fontWeight: 'bold', // ทำให้ตัวหนา
+              color: '#000',
             },
           },
         },
@@ -129,25 +135,68 @@ const WaterLevelChart: React.FC = () => {
     },
     xaxis: {
       categories: filteredSecondData.map((item) => item.time), // ใช้ time เป็นค่าแกน X
+      labels: {
+        show: false // ไม่แสดงข้อความบนแกน X
+      }
     },
     yaxis: {
-      title: { text: "ระดับน้ำ (ม.มรก.)" },
+      labels: {
+        formatter: function (val: any) {
+          return Number(Number(val).toFixed(2)).toLocaleString();
+        },
+        style: {
+          fontSize: '1.6vh',
+        },
+      },
+      title: {
+        text: 'ระดับ (ม.ทรก.)',
+        style: {
+          fontSize: '1.6vh',
+        },
+      },
       min: Math.min(...filteredSecondData.map((item) => item.elevation)) - 0.5,
       max: Math.max(...filteredSecondData.map((item) => item.elevation)) + 0.5,
+    },
+    stroke: {
+      width: [1, 1],
+      curve: "straight" as "straight",
+      dashArray: [0, 0, 8, 8],
+    },
+    colors: ["#007bff","#000000", "red", "green" ],
+    fill: {
+      
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.5,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100],
+        colorStops: [
+          [
+            { offset: 0, color: "#007bff", opacity: 1 }, // สีดำด้านบน
+            { offset: 100, color: "#007bff", opacity: 0.5 }, // สีเทาด้านล่าง
+          ],
+          [
+            { offset: 0, color: "#000000", opacity: 1 }, // สีดำด้านบน
+            { offset: 100, color: "#333333", opacity: 1 }, // สีเทาด้านล่าง
+          ],
+        ],
+      },
     },
   };
 
   // กำหนด series สำหรับกราฟ
   const chartSeries = [
     {
-      name: selectedStation, // ใช้ชื่อสถานีที่เลือก
-      data: stationData.map((item) => item.elevation), // ข้อมูลระดับน้ำของสถานีที่เลือกจากไฟล์แรก
-      type: "line", // แสดงเป็นเส้น
+      name: 'ระดับน้ำ (ม.รทก.)', // ใช้ชื่อสถานีที่เลือก
+      data: stationData.slice(Math.max(stationData.length - 20, 0)).map((item) => item.elevation), // กรองข้อมูลให้แสดงแค่ 20 ค่า
+      type: "area", // แสดงเป็นเส้น
     },
     {
-      name: selectedStation, // ใช้ชื่อสถานีที่เลือก
+      name: 'Ground (พื้นดิน)', // ใช้ชื่อสถานีที่เลือก
       data: filteredSecondData.map((item) => item.elevation), // ข้อมูลระดับน้ำจากไฟล์ที่สองตามสถานีที่เลือก
-      type: "line", // แสดงเป็นเส้น
+      type: "area", // แสดงเป็นเส้น
     },
   ];
 
@@ -161,13 +210,21 @@ const WaterLevelChart: React.FC = () => {
 
   return (
     <CardContent>
-      <Typography variant="h6" sx={{ textAlign: "center", mb: 2, fontWeight: "bold" }}>
+      <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B", justifySelf: "center" }}>
         ระดับน้ำรายชั่วโมง สถานี {selectedStation}
       </Typography>
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2 }}>
-        <Button variant="contained" onClick={handlePrevTime} disabled={selectedIndex === 0}>
+        <Button     sx={{
+              fontFamily: "Prompt",
+              fontSize: { xs: "0.8rem", sm: "1rem" },
+              bgcolor: "#1976d2",
+              "&:hover": { bgcolor: "#115293" },
+              borderRadius: "20px",
+              paddingX: "16px",
+            }} variant="contained" onClick={handlePrevTime} disabled={selectedIndex === 0}>
           <ArrowBack /> ย้อนกลับ
         </Button>
+        
 
         <Select value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)}>
           {Object.keys(stationMapping).map((station) => (
@@ -181,16 +238,24 @@ const WaterLevelChart: React.FC = () => {
           ))}
         </Select>
 
-        <Button variant="contained" onClick={handleNextTime} disabled={selectedIndex >= stationData.length - 1}>
+        <Button  sx={{
+              fontFamily: "Prompt",
+              fontSize: { xs: "0.8rem", sm: "1rem" },
+              bgcolor: "#1976d2",
+              "&:hover": { bgcolor: "#115293" },
+              borderRadius: "20px",
+              paddingX: "16px",
+            }}
+        variant="contained" onClick={handleNextTime} disabled={selectedIndex >= stationData.length - 1}>
           ถัดไป <ArrowForward />
         </Button>
       </Box>
 
-      <Box sx={{ width: "100%", height: 350 }}>
-        <Chart options={chartOptions} series={chartSeries} type="line" height={350} />
+      <Box sx={{ width: "100%", height: 400 }}>
+        <Chart options={chartOptions} series={chartSeries} type="line" height={400} />
       </Box>
 
-      <Typography variant="h6" textAlign="center" sx={{ mt: 2 }}>
+      <Typography variant="h6" textAlign="center" sx={{ mt: 2 ,fontFamily:"Prompt" ,color:"blue",fontWeight:"bold"}}>
         ระดับน้ำปัจจุบัน: {selectedData.elevation.toFixed(2)} ม.มรก.
       </Typography>
     </CardContent>

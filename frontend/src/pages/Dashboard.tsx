@@ -9,7 +9,7 @@ import ImageComponent from "../components/Dashboard/ImageComponent";
 import WaterGateTable from "../components/Dashboard/WaterGateTable";
 import WaterLevelChart from "../components/Dashboard/WaterLevel";
 import FloatingMenu from "../components/Dashboard/selectMenu";
-import VelocLineChart from "../components/Dashboard/VelocChart";
+
 
 const Dashboard: React.FC = () => {
   const mapKey = 'e75fee377b3d393b7a32576ce2b0229d'; // กำหนด Map API Key ของ Longdo
@@ -72,22 +72,10 @@ const Dashboard: React.FC = () => {
       <Box sx={BoxStyle} id="profile-chart">
         <LongProfileChart/>
       </Box>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6} sm={12}>
-          <Box id="water-level" sx={{...BoxStyle,height: {
-            xs: "auto",  // สำหรับขนาดจอเล็ก
-            sm: "auto",  // สำหรับขนาดจอปานกลาง
-            md: "60vh",  // สำหรับขนาดจอใหญ่
-          }}} >
+      <Box id="water-level" sx={{...BoxStyle}} >
           <WaterLevelChart />
-          </Box>
-        </Grid>
-        <Grid item xs={12} md={6} sm={12} >
-          <Box id="velocity-chart" sx={BoxStyle}>
-            <VelocLineChart />
-          </Box>
-        </Grid>
-      </Grid>
+        </Box>
+    
       <Box sx={BoxStyle} id="water-gate">
         <WaterGateTable/>
       </Box>

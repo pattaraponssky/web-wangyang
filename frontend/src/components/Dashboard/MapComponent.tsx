@@ -340,7 +340,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
-                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>`
+                        <div id="${chartId}" style="width: auto; height: auto; padding-top: 20px;"></div>
+                        `
                         : geoJsonData.name === 'Hydro Station' ? 
                         `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
@@ -447,7 +448,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                     if (rainValues.length > 0) {
                       const rainChart = new ApexCharts(rainChartContainer, {
                         chart: {
-                          height: 200,
+                          height: 220,
                           fontFamily: 'Prompt',
                           zoom: { enabled: false },
                         },
@@ -488,11 +489,11 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                     if (flowValues.length > 0) {
                       const flowChart = new ApexCharts(flowChartContainer, {
                         chart: {
-                          height: 200,
+                          height: 220,
                           fontFamily: 'Prompt',
                           zoom: { enabled: false },
                         },
-                        title: { text: "ปริมาณน้ำท่าย้ นหลัง 7 วัน", align: 'center' },
+                        title: { text: "ปริมาณน้ำท่าย้อนหลัง 7 วัน", align: 'center' },
                         series: [{
                           name: "ปริมาณน้ำท่า (ลบ.ม./วิ)",
                           data: flowValues,
