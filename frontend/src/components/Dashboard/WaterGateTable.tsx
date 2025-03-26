@@ -27,7 +27,7 @@ const getCellStyle = (index: number) => ({
   backgroundColor: index % 2 === 0 ? "#FAFAFA" : "#FFF",
   textAlign: "center",
   fontFamily: "Prompt",
-  fontSize: { xs: "0.6rem", sm: "0.7rem" , md: "0.8rem"},
+  fontSize: { xs: "0.7rem", sm: "0.8rem" , md: "1rem"},
 });
 
 const WaterLevelTable: React.FC = () => {

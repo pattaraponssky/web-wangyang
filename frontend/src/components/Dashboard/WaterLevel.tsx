@@ -3,6 +3,7 @@ import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
 import { ArrowBack, ArrowForward, Label } from "@mui/icons-material";
 import Chart from "react-apexcharts";
+import { formatThaiDate } from "../../utility";
 
 interface WaterLevelData {
   time: string;
@@ -119,7 +120,7 @@ const WaterLevelChart: React.FC = () => {
     chart: {
 
       type: "line" as const, // เปลี่ยนเป็น area เพื่อแสดงกราฟที่แสดงข้อมูลทั้งหมด
-      height: 400,
+      height: 450,
       fontFamily: 'Prompt',
       zoom: {
         enabled: true, // ปิดการซูม
@@ -233,15 +234,15 @@ const WaterLevelChart: React.FC = () => {
         </Button>
         
 
-        <Select value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)}>
+        <Select sx={{fontFamily:"Prompt"}} value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)}>
           {Object.keys(stationMapping).map((station) => (
             <MenuItem key={station} value={station}>{station}</MenuItem>
           ))}
         </Select>
 
-        <Select value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))}>
+        <Select sx={{fontFamily:"Prompt"}} value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))}>
           {stationData.map((item, index) => (
-            <MenuItem key={item.time} value={index}>{item.time}</MenuItem>
+            <MenuItem key={formatThaiDate(item.time)} value={index}>{formatThaiDate(item.time)}</MenuItem>
           ))}
         </Select>
 
@@ -258,8 +259,8 @@ const WaterLevelChart: React.FC = () => {
         </Button>
       </Box>
 
-      <Box sx={{ width: "100%", height: 400 }}>
-        <Chart options={chartOptions} series={chartSeries} type="line" height={400} />
+      <Box sx={{ width: "100%", height: 450 }}>
+        <Chart options={chartOptions} series={chartSeries} type="line" height={450} />
       </Box>
 
       <Typography variant="h6" textAlign="center" sx={{ mt: 2 ,fontFamily:"Prompt" ,color:"blue",fontWeight:"bold"}}>

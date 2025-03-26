@@ -20,7 +20,7 @@ const FloatingMenu: React.FC = () => {
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    }, 200); // รอให้เมนูปิดก่อนค่อยเลื่อน
+    }, 100); // รอให้เมนูปิดก่อนค่อยเลื่อน
   };
 
   return (
@@ -32,17 +32,16 @@ const FloatingMenu: React.FC = () => {
       >
         {anchorEl ? <ExpandLess /> : <ExpandMore />}
       </Fab>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={() => handleScrollTo("map")}>แผนที่ตำแหน่งสถานีสำคัญ</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("flood-warning")}>เกณฑ์การเฝ้าระวังและเตือนภัย</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("forecast-chart")}>ผลการพยากรณ์ปริมาณน้ำท่า</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("profile-chart")}>รูปตัดตามยาวแม่น้ำ</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("water-level")}>ระดับน้ำแต่ละสถานี</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("velocity-chart")}>ความเร็วการไหลของน้ำ</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("water-gate")}>ข้อเสนอแนะการเปิด-ปิด ปตร.</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("flood-map")}>แผนที่น้ำท่วม</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("diagrams-map")}>แผนผังลุ่มแม่น้ำชี</MenuItem>
-        <MenuItem onClick={() => handleScrollTo("report-chart")}>รายงานกราฟแสดงระดับน้ำ</MenuItem>
+      <Menu  anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("map")}>แผนที่ตำแหน่งสถานีสำคัญ</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("flood-warning")}>เกณฑ์การเฝ้าระวังและเตือนภัย</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("forecast-chart")}>ผลการพยากรณ์ปริมาณน้ำท่า</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("profile-chart")}>รูปตัดตามยาวแม่น้ำ</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("water-level")}>ระดับน้ำแต่ละสถานี</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("water-gate")}>ข้อเสนอแนะการเปิด-ปิด ปตร.</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("flood-map")}>แผนที่น้ำท่วม</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("diagrams-map")}>แผนผังลุ่มแม่น้ำชี</MenuItem>
+        <MenuItem sx={{fontFamily:"Prompt"}} onClick={() => handleScrollTo("report-chart")}>รายงานกราฟแสดงระดับน้ำ</MenuItem>
       </Menu>
     </>
   );
