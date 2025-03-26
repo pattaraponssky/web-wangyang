@@ -93,9 +93,9 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     if (isMapReady) {
       console.log("กำลังเพิ่ม markers...");
       map.location({ lat: 16.20222222, lon: 103.5280556 }, true);
-      map.zoom(11, true);
+      map.zoom(10, true);
       addGeoJsonMarkers();
-      addTopoJsonMarkers(); // เพิ่มการแสดงผลจาก TopoJSON
+      addTopoJsonMarkers();
       addGeoJsonPolygons();
       addGeoJsonLines();
       

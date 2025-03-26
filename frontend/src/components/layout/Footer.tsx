@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Typography, Container, Grid, Link, IconButton } from "@mui/material";
-import { Facebook, Twitter, Instagram, LinkedIn, LocationOn, Web } from "@mui/icons-material";
+import { Box, Typography, Container, Grid, Link,  } from "@mui/material";
+import {LocationOn } from "@mui/icons-material";
 
 const footerStyles = {
   fontFamily: "Prompt",
@@ -63,21 +63,6 @@ const Footer: React.FC = () => {
             <Typography variant="body1" gutterBottom sx={footerStyles}>
               เบอร์ติดต่อ: 02-241-0020 ถึง 29
             </Typography>
-            {/* Social Media Icons */}
-            {/* <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 1 }}>
-              <IconButton href="https://facebook.com" color="inherit" aria-label="Facebook">
-                <Facebook />
-              </IconButton>
-              <IconButton href="https://twitter.com" color="inherit" aria-label="Twitter">
-                <Twitter />
-              </IconButton>
-              <IconButton href="https://instagram.com" color="inherit" aria-label="Instagram">
-                <Instagram />
-              </IconButton>
-              <IconButton href="https://linkedin.com" color="inherit" aria-label="LinkedIn">
-                <LinkedIn />
-              </IconButton>
-            </Box> */}
 
             <Typography variant="body2" sx={{ marginTop: "1rem", color: "#ddd" }}>
               &copy; {new Date().getFullYear()} กรมชลประทาน. All rights reserved.
