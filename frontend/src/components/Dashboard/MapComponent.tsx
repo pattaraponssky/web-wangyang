@@ -47,6 +47,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     loadJsonFiles();
   }, [JsonPaths]);
 
+  
+
   // โหลด Longdo Map API
   useEffect(() => {
     const loadMapScript = () => {
@@ -248,11 +250,20 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
   };
 
   // ฟังก์ชันเพิ่ม Marker จาก GeoJSON
-  const addGeoJsonMarkers = () => {
+  const addGeoJsonMarkers = async () => {
   if (!map) {
       console.error("Map ยังไม่ถูกสร้างขึ้น");
       return;
     }
+    const [rainData, flowData ,eleData] = await Promise.all([
+      fetch("http://localhost/code-xampp/API/api_rain_hydro3.php").then(res => res.json()),
+      fetch("http://localhost/code-xampp/API/api_flow_hydro3.php").then(res => res.json()),
+      fetch("http://localhost/code-xampp/API/api_elevation_hydro3.php").then(res => res.json())
+    ]);
+
+    console.log("rainData:", rainData);
+    console.log("flowData:", flowData);
+    console.log("elevationData:", eleData);
 
     // ล้าง Marker เก่าทั้งหมด
     markers.forEach(marker => map.Overlays.remove(marker));
@@ -261,14 +272,15 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
     let newMarkers: any[] = []; // เก็บ Marker ใหม่
 
     JsonDataList.forEach((geoJsonData) => {
+      
       if (geoJsonData && geoJsonData.features) {
-        geoJsonData.features.forEach((feature: any) => {
+        geoJsonData.features.forEach(async (feature: any) => {
           const { lat, long, Name, CodeStation, Code, River, Basin, Detail, Amphoe, Province } = feature.properties;
           const position = {
             lat: lat || feature.geometry.coordinates[1],
             lon: long || feature.geometry.coordinates[0],
           };
-
+    
           if (position.lat && position.lon) {
             let iconHtml = "";
             let iconUrl = "";
@@ -316,6 +328,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
             const chartId = `${geoJsonData.name}-${feature.properties.Code || feature.properties.Name || feature.properties.CodeStation}`;
             console.log("chartId:", chartId);  // เพิ่มเพื่อดูว่า chartId ถูกตั้งค่าอย่างถูกต้อง
 
+      
             if (iconHtml) {
               const marker = new longdo.Marker(position, {
                 title: `<img src="${iconUrl}" style="width:25px; height:25px; vertical-align:middle; margin-right:5px" /> 
@@ -327,7 +340,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                                 geoJsonData.name === 'ProjectStation' ? Name : ""
                         }
                         </span>`,
-                  detail: geoJsonData.name === 'DAM Station' ? 
+                detail: geoJsonData.name === 'DAM Station' ? 
                         `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span> 
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${River || "ไม่มีข้อมูล"} ${Basin || "ไม่มีข้อมูล"} ${Detail || "ไม่มีรายละเอียด"}<br> </span> 
@@ -364,13 +377,12 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                   }
                 }
               });
-            
+          
               const stationNameMapping: { [key: string]: string } = {
                 "ลานจอดรถเครื่องจักรกลหนัก สชป.6": "สชป.6", 
                 "StationB": "station_code_b"
-                // เพิ่มการจับคู่ตามที่ต้องการ
               };
-            
+
               // เพิ่มการสร้างกราฟสองอันแยกกันและแถบเลือก
               map.Event.bind("overlayClick", function (overlay: any) {
                 setTimeout(async () => {
@@ -401,7 +413,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                 rainToggleButton.style.cursor = 'pointer';
                 rainToggleButton.style.borderRadius = '5px';
        
-
                 // **สร้างปุ่มกดแสดงกราฟน้ำท่า**
                 const flowToggleButton = document.createElement('button');
                 flowToggleButton.innerText = 'แสดงกราฟน้ำท่า';
@@ -413,47 +424,59 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                 flowToggleButton.style.cursor = 'pointer';
                 flowToggleButton.style.borderRadius = '5px';
 
+                const eleToggleButton = document.createElement('button');
+                eleToggleButton.innerText = 'แสดงกราฟระดับน้ำ';
+                eleToggleButton.style.margin = '5px';
+                eleToggleButton.style.padding = '5px 10px';
+                eleToggleButton.style.backgroundColor = '#ffa046';
+                eleToggleButton.style.color = 'white';
+                eleToggleButton.style.border = 'none';
+                eleToggleButton.style.cursor = 'pointer';
+                eleToggleButton.style.borderRadius = '5px';
+
                 // **สร้าง container สำหรับกราฟ**
                 const rainChartContainer = document.createElement('div');
-                rainChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำฝนตอนแรก
                 const flowChartContainer = document.createElement('div');
-                flowChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าตอนแรก
+                const eleChartContainer = document.createElement('div');
 
-                
-            
+                rainChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำฝนตอนแรก
+                flowChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าตอนแรก
+                eleChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าตอนแรก
+
                 chartContainer.appendChild(rainChartContainer);
                 chartContainer.appendChild(flowChartContainer);
-
-
-
+                chartContainer.appendChild(eleChartContainer);
               
-                  try {
-                    const [rainData, flowData] = await Promise.all([
-                      fetch("http://localhost/code-xampp/API/api_rain_hydro3.php").then(res => res.json()),
-                      fetch("http://localhost/code-xampp/API/api_flow_hydro3.php").then(res => res.json())
-                    ]);
-              
-                    console.log("rainData:", rainData);
-                    console.log("flowData:", flowData);
-              
+                  try {              
+          
                     const rainStation = rainData.find((s: any) => s.station_code === stationCode);
                     const flowStation = flowData.find((station: { stationcode: string; }) => station.stationcode === stationCode);
-                    
+                    const eleStation = eleData.find((station: { stationcode: string; }) => station.stationcode === stationCode);
                     // ถ้าไม่พบข้อมูลของสถานี ให้ไม่แสดงกราฟ
-                    if (!rainStation && !flowStation) {
+                    if (!rainStation && !flowStation && !eleStation) {
                       console.warn("❌ ไม่พบข้อมูลของสถานีนี้");
                       return;
                     }
               
-                    const dateKeys = flowStation ? Object.keys(flowStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key)) : [];
-                    const flowValues = dateKeys.length > 0 ? dateKeys.slice(-7).map(key => flowStation[key]).reverse() : [];
-              
+                    const dataKey = flowStation ? Object.keys(flowStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key)) : [];
+                    const flowValues = dataKey.length > 0 ? dataKey.slice(-7).map(key => flowStation[key]).reverse() : [];                                               
+                    const eleValues = dataKey.length > 0 ? dataKey.slice(-7).map(key => eleStation[key]).reverse() : [];
+             
+                    
+                    console.log(dataKey);
+
                     const today = new Date();
                     const labelsFlow = [];
                     for (let i = 7; i >= 1; i--) {
                       const date = new Date(today);
                       date.setDate(today.getDate() + 1 - i); // 7 วันก่อน โดยไม่รวมวันปัจจุบัน
                       labelsFlow.push(date.toISOString().split('T')[0]);
+                    }
+                    const labelsElevation = [];
+                    for (let i = 7; i >= 1; i--) {
+                      const date = new Date(today);
+                      date.setDate(today.getDate() + 1 - i); // 7 วันก่อน โดยไม่รวมวันปัจจุบัน
+                      labelsElevation.push(date.toISOString().split('T')[0]);
                     }
               
                     const labelsRain = [];
@@ -475,7 +498,9 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
               
                     console.log("rainValues:", rainValues);
                     console.log("flowValues:", flowValues);
-                    
+                    console.log("elevationValues:", eleValues);
+                   
+              
                     // ถ้ามีข้อมูลน้ำฝน, แสดงกราฟน้ำฝน
                     if (rainValues.length > 0) {
                       chartContainer.appendChild(rainToggleButton);
@@ -554,12 +579,46 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                     } else {
                       flowChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าถ้าไม่มีข้อมูล
                     }
-              
+
+                    if (eleValues.length > 0) {
+                      chartContainer.appendChild(eleToggleButton);
+                      const eleChart = new ApexCharts(eleChartContainer, {
+                        chart: {
+                          height: 160,
+                          fontFamily: 'Prompt',
+                          zoom: { enabled: false },
+                        },
+                        title: { text: "ระดับน้ำย้อนหลัง 7 วัน", align: 'center' },
+                        series: [{
+                          name: "ระดับน้ำ (ม.รทก.)",
+                          data: eleValues,
+                          type: 'line'
+                        }],
+                        yaxis: {                          
+                          title: { text: 'ระดับน้ำ (ม.รทก.)'},
+                        },
+                        xaxis: {
+                          categories: labelsElevation,
+                          type: 'datetime',
+                          min: new Date(labelsElevation[0]).getTime(),
+                          max: new Date(labelsElevation[labelsElevation.length - 1]).getTime(),
+                          labels: {
+                            datetimeUTC: false,
+                            format: 'dd MMM',
+                            style: { fontSize: '0.8rem' }
+                          },
+                        },
+                        colors: ['#ffa046']
+                      });
+                      eleChart.render();
+                    } else {
+                      eleChartContainer.style.display = 'none'; // ซ่อนกราฟน้ำท่าถ้าไม่มีข้อมูล
+                    }
 
                 // **Event สำหรับปุ่มแสดง/ซ่อนกราฟน้ำฝน**
                 rainToggleButton.addEventListener('click', () => {
                   flowChartContainer.style.display = 'none'; // ซ่อนน้ำท่า
-                  
+                  eleChartContainer.style.display = 'none'; // ซ่อนน้ำท่า
                       setTimeout(() => {
                           if (rainChartContainer.style.display === 'none') {
                               rainChartContainer.style.display = 'block';
@@ -571,7 +630,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                   
                 flowToggleButton.addEventListener('click', () => {
                     rainChartContainer.style.display = 'none'; // ซ่อนน้ำฝน
-                      
+                    eleChartContainer.style.display = 'none';
                       setTimeout(() => {
                           if (flowChartContainer.style.display === 'none') {
                               flowChartContainer.style.display = 'block';
@@ -581,17 +640,26 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                       }, 200); // หน่วงเวลา 100ms
                   });
 
+                  eleToggleButton.addEventListener('click', () => {
+                    flowChartContainer.style.display = 'none'; // ซ่อนน้ำท่า
+                    rainChartContainer.style.display = 'none';
+                        setTimeout(() => {
+                            if (eleChartContainer.style.display === 'none') {
+                                eleChartContainer.style.display = 'block';
+                            } else {
+                                eleChartContainer.style.display = 'none';
+                            }
+                        }, 200); // หน่วงเวลา 100ms
+                    });
+
                   } catch (error) {
                     console.error("❌ ดึงข้อมูลสถานีล้มเหลว:", error);
                   }
                 }, 100);
-              });
-              
-            
+              });            
               map.Overlays.add(marker);
               newMarkers.push(marker);
-            }
-            
+            }            
           }
         });
       }

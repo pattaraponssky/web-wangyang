@@ -18,13 +18,13 @@ const AboutUs: React.FC = () => {
             ช่องทางติดต่อ
           </Typography>
           <Typography variant="body2" sx={{ fontFamily: "Prompt" }}>
-            📍 ที่อยู่: กรุงเทพมหานคร, ประเทศไทย  
+            📍 811 ถ.สามเสน แขวงถนนนครไชยศรี เขตดุสิต กรุงเทพมหานคร 10300
           </Typography>
           <Typography variant="body2" sx={{ fontFamily: "Prompt" }}>
-            📞 โทรศัพท์: 02-123-4567  
+            📞 เบอร์ติดต่อ: 02-241-0020 ถึง 29
           </Typography>
           <Typography variant="body2" sx={{ fontFamily: "Prompt" }}>
-            📧 อีเมล: contact@example.com  
+            🌐  www.rid.go.th
           </Typography>
         </CardContent>
       </Card>
