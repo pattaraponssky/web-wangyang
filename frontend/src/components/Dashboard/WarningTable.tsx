@@ -3,12 +3,26 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typog
 
 // ข้อมูลจากตาราง
 const warningData = [
-  { id: 1, location: "สะพานปากสาน", subdistrict: "แม่สำ", district: "ศรีสัชนาลัย", province: "สุโขทัย", capacity: 942.38, depth: 10.25, leftBank: 80.27, rightBank: 78.96, canalBottom: 68.71, watch: 76.91, alert: 77.93, crisis: 78.96, maxLevel3Days: 74.37 },
-  { id: 2, location: "Y.14A", subdistrict: "แม่สำ", district: "ศรีสัชนาลัย", province: "สุโขทัย", capacity: 1781.69, depth: 12.77, leftBank: 77.81, rightBank: 75.60, canalBottom: 62.83, watch: 73.04, alert: 74.32, crisis: 75.60, maxLevel3Days: 67.63 },
-  { id: 3, location: "Y.3A", subdistrict: "เมืองสวรรคโลก", district: "สวรรคโลก", province: "สุโขทัย", capacity: 1074.21, depth: 9.35, leftBank: 59.12, rightBank: 61.91, canalBottom: 49.77, watch: 57.25, alert: 58.18, crisis: 59.12, maxLevel3Days: 56.08 },
-  { id: 4, location: "Y.33", subdistrict: "บางตาล", district: "ศรีสำโรง", province: "สุโขทัย", capacity: 637.56, depth: 12.65, leftBank: 56.43, rightBank: 56.36, canalBottom: 43.72, watch: 53.84, alert: 55.10, crisis: 56.36, maxLevel3Days: 52.37 },
-  { id: 5, location: "สะพานพระร่วง", subdistrict: "ธานี", district: "เมืองสุโขทัย", province: "สุโขทัย", capacity: 598.26, depth: 7.92, leftBank: 48.97, rightBank: 49.57, canalBottom: 41.05, watch: 47.39, alert: 48.18, crisis: 48.97, maxLevel3Days: 48.89 },
-  { id: 6, location: "Y.4", subdistrict: "ธานี", district: "เมืองสุโขทัย", province: "สุโขทัย", capacity: 444.22, depth: 9.12, leftBank: 51.57, rightBank: 51.48, canalBottom: 42.36, watch: 46.50, alert: 47.75, crisis: 48.70, maxLevel3Days: null },
+  { 
+    id: 1, location: "E.91", district: "โกสุมพิสัย", province: "มหาสารคาม", 
+    depth: 14.30, leftBank: 152.29, rightBank: 152.25, canalBottom: 137.95, 
+    watch: 149.30, alert: 150.80, crisis: 152.20, maxLevel3Days: 140.74 
+  },
+  { 
+    id: 2, location: "เขื่อนวังยาง", district: "ฆ้องชัย", province: "กาฬสินธุ์", 
+    depth: 10.80, leftBank: 142.00, rightBank: 142.00, canalBottom: 131.20, 
+    watch: 137.00, alert: 138.00, crisis: 139.00, maxLevel3Days: 137.31 
+  },
+  { 
+    id: 3, location: "E.66A", district: "จังหาร", province: "ร้อยเอ็ด", 
+    depth: 14.50, leftBank: 141.53, rightBank: 143.46, canalBottom: 127.03, 
+    watch: 138.60, alert: 140.00, crisis: 141.50, maxLevel3Days: 131.40 
+  },
+  { 
+    id: 4, location: "E.87", district: "กมลาไสย", province: "กาฬสินธุ์", 
+    depth: 10.46, leftBank: 139.95, rightBank: 139.98, canalBottom: 129.49, 
+    watch: 137.80, alert: 138.90, crisis: 139.90, maxLevel3Days: 132.13 
+  }
 ];
 
 
@@ -27,7 +41,7 @@ const FloodWarningTable: React.FC = () => {
     whiteSpace: "normal", // อนุญาตให้ขึ้นบรรทัดใหม่
     overflow: "hidden", 
     textOverflow: "ellipsis", // เพิ่ม ... เมื่อข้อความยาวเกิน
-    fontSize: { xs: "0.6rem", sm: "0.7rem" , md: "0.8rem"},
+    fontSize: { xs: "0.8rem", sm: "0.9rem" , md: "1rem"},
     padding: isSmallScreen ? "4px" : "8px",
   });
   
@@ -41,7 +55,7 @@ const FloodWarningTable: React.FC = () => {
     backgroundColor: "#F0F0F0",
     overflow: "hidden",
     textOverflow: "ellipsis", 
-    fontSize: { xs: "0.7rem", sm: "0.8rem" , md: "0.9rem"},
+    fontSize: { xs: "0.8rem", sm: "0.9rem" , md: "1rem"},
     padding: isSmallScreen ? "4px" : "8px", // ลด padding บนมือถือ
   };
   return (
@@ -73,12 +87,9 @@ const FloodWarningTable: React.FC = () => {
             <TableCell sx={cellHeaderStyle} rowSpan={2}>
               ตำแหน่งเตือนภัย
             </TableCell>
-            {!isSmallScreen && <TableCell sx={cellHeaderStyle} rowSpan={2}>ตำบล</TableCell>}
             {!isSmallScreen && !isMediumScreen && <TableCell sx={cellHeaderStyle} rowSpan={2}>อำเภอ</TableCell>}
             {!isSmallScreen && !isMediumScreen && <TableCell sx={cellHeaderStyle} rowSpan={2}>จังหวัด</TableCell>}
-            <TableCell sx={{minWidth:"100px",...cellHeaderStyle}} rowSpan={2}>
-              ความจุลำน้ำ<br/>(ลบ.ม./วินาที)
-            </TableCell>
+       
             <TableCell sx={{minWidth:"80px",...cellHeaderStyle}} rowSpan={2}>
               ความลึก<br/>(ม.)
             </TableCell>
@@ -117,10 +128,8 @@ const FloodWarningTable: React.FC = () => {
             <TableRow key={item.id}>
               <TableCell sx={getCellStyle(index)}>{item.id}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.location}</TableCell>
-              {!isSmallScreen && <TableCell sx={getCellStyle(index)}>{item.subdistrict}</TableCell>}
               {!isSmallScreen && !isMediumScreen && <TableCell sx={getCellStyle(index)}>{item.district}</TableCell>}
               {!isSmallScreen && !isMediumScreen && <TableCell sx={getCellStyle(index)}>{item.province}</TableCell>}
-              <TableCell sx={getCellStyle(index)}>{item.capacity.toLocaleString()}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.depth}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.leftBank}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.rightBank}</TableCell>

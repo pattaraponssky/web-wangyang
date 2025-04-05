@@ -130,13 +130,15 @@ const WaterLevelChart: React.FC = () => {
       yaxis: [
         {
           y: selectedData.elevation, // ค่า elevation ที่เลือก
-          borderColor: "#000", // สีของเส้นแสดงตำแหน่ง
+          borderColor: "#007bff", // สีของเส้นแสดงตำแหน่ง
           label: {
+            position:'center',
+            offsetY: -10,
             text: `ระดับน้ำ: ${selectedData.elevation.toFixed(2)} (ม.รทก.)`,
             style: {
               fontSize: '1rem',
               fontWeight: 'bold', // ทำให้ตัวหนา
-              color: '#000',
+     
             },
           },
         },
@@ -158,7 +160,7 @@ const WaterLevelChart: React.FC = () => {
         },
       },
       title: {
-        text: 'ระดับ (ม.ทรก.)',
+        text: 'ระดับ (ม.รทก.)',
         style: {
           fontSize: '1.6vh',
         },
@@ -171,26 +173,17 @@ const WaterLevelChart: React.FC = () => {
       curve: "straight" as "straight",
       dashArray: [0, 0, 8, 8],
     },
-    colors: ["#007bff","#000000", "red", "green" ],
+    colors: ["#007bff","#744111"],
     fill: {
-      
       gradient: {
         shade: "light",
         type: "vertical",
         shadeIntensity: 0.5,
-        opacityFrom: 1,
-        opacityTo: 1,
-        stops: [0, 100],
-        colorStops: [
-          [
-            { offset: 0, color: "#007bff", opacity: 1 }, // สีดำด้านบน
-            { offset: 100, color: "#007bff", opacity: 0.5 }, // สีเทาด้านล่าง
-          ],
-          [
-            { offset: 0, color: "#000000", opacity: 1 }, // สีดำด้านบน
-            { offset: 100, color: "#333333", opacity: 1 }, // สีเทาด้านล่าง
-          ],
-        ],
+        opacityFrom: 1, // ลดความทึบ
+        opacityTo: 1,   // ลดความทึบ
+        stops: [10, 90],  // ปรับช่วงของการไล่สี
+        inverseColors: false,
+        blendMode: "multiply"
       },
     },
   };

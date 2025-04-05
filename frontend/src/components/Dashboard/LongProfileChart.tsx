@@ -425,7 +425,7 @@ const LongProfileChart: React.FC = () => {
       curve: "straight" as "straight",
       dashArray: [0, 0, 8, 8],
     },
-    colors: ["#007bff","#000000", "red", "green" ],
+    colors: ["#007bff","#744111", "red", "green" ],
     fill: {
       
       gradient: {
@@ -441,8 +441,8 @@ const LongProfileChart: React.FC = () => {
             { offset: 100, color: "#007bff", opacity: 0.5 }, // สีเทาด้านล่าง
           ],
           [
-            { offset: 0, color: "#000000", opacity: 1 }, // สีดำด้านบน
-            { offset: 100, color: "#333333", opacity: 0.2 }, // สีเทาด้านล่าง
+            { offset: 0, color: "##744111", opacity: 1 }, // สีดำด้านบน
+            { offset: 100, color: "##744111", opacity: 0.2 }, // สีเทาด้านล่าง
           ],
         ],
       },

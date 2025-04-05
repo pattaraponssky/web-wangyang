@@ -87,10 +87,10 @@ const Dashboard: React.FC = () => {
         </Grid>
         <Grid item xs={12} md={6} sm={12} >
         <Box sx={BoxStyle} id="diagrams-map">
-          <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/03/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg" alt="" title={"แผนผังลุ่มแม่น้ำชี"} />
+          <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/04/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg" alt="" title={"แผนผังลุ่มแม่น้ำชี"} />
         </Box>
         <Box sx={BoxStyle} id="report-chart">
-          <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/03/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg" height={'100%'} width={'89%'} alt="" title={"รายงานกราฟแสดงระดับน้ำเขื่อนวังยาง"} />
+          <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/04/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg" height={'100%'} width={'89%'} alt="" title={"รายงานกราฟแสดงระดับน้ำเขื่อนวังยาง"} />
         </Box>
         </Grid>
       </Grid>
