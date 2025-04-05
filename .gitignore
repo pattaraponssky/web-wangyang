@@ -1,0 +1,5 @@
+# ไฟล์ระบบ macOS
+.DS_Store
+
+# ไฟล์ config ส่วนตัว
+.env
