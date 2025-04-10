@@ -25,14 +25,6 @@ const WaterLevelChart: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
 
-  const lastDataPoints = 35;
-
-  const fillData = (data: WaterLevelData[]) => {
-    if (data.length >= lastDataPoints) return data.slice(-lastDataPoints);
-    const missingCount = lastDataPoints - data.length;
-    return [...data, ...Array(missingCount).fill(data[data.length - 1] || { time: "", elevation: 0, station: selectedStation })];
-  };
-
   useEffect(() => {
     fetch("./ras-output/output_ras.csv")
       .then((response) => response.text())
