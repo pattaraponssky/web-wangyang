@@ -464,59 +464,65 @@ const LongProfileChart: React.FC = () => {
         <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B", justifySelf: "center" }}>
            รูปตัดตามยาวแม่น้ำพื้นที่ศึกษาโครงการวังยาง (เขื่อนมหาสารคาม - เขื่อนร้อยเอ็ด)
         </Typography>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2 }}>
-          {/* ปุ่มเลื่อนไปวันก่อนหน้า */}
-          <Button
-            variant="contained"
-            onClick={() => setSelectedDate(dates[currentIndex - 1])}
-            disabled={currentIndex <= 0}
-            sx={{
-              fontFamily: "Prompt",
-              fontSize: { xs: "0.8rem", sm: "1rem" },
-              bgcolor: "#1976d2",
-              "&:hover": { bgcolor: "#115293" },
-              borderRadius: "20px",
-              paddingX: "16px",
-            }}
-          >
-            
-            <ArrowBack sx={{ fontSize: "1.5rem" }} />
-            ย้อนกลับ
-          </Button>
-  
-          {/* Dropdown เลือกวันที่ */}
-          <Select
-            value={selectedDate || ""}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            sx={{ fontFamily: "Prompt" }}
-          >
-            {[...new Set(waterData.map((d) => d.Date))].sort().map((date) => (
-              <MenuItem key={date || ""} value={date || ""} sx={{ fontFamily: "Prompt" }}>
-                {formatThaiDate(date || "")}
-              </MenuItem>
-            ))}
-          </Select>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2, flexWrap: "wrap", alignItems: "center" }}>
+            {/* ปุ่มเลื่อนไปวันก่อนหน้า */}
+            <Button
+              variant="contained"
+              onClick={() => setSelectedDate(dates[currentIndex - 1])}
+              disabled={currentIndex <= 0}
+              sx={{
+                fontFamily: "Prompt",
+                fontSize: { xs: "0.8rem", sm: "1rem" },
+                bgcolor: "#1976d2",
+                "&:hover": { bgcolor: "#115293" },
+                borderRadius: "20px",
+                paddingX: "16px",
+                width: { xs: "100%", sm: "auto" }, // ให้ปุ่มเต็มหน้าจอในขนาดเล็ก
+                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดหน้าจอเล็ก
+              }}
+            >
+              <ArrowBack sx={{ fontSize: "1.5rem" }} />
+              ย้อนกลับ
+            </Button>
 
-  
-          {/* ปุ่มเลื่อนไปวันถัดไป */}
-          <Button
-          variant="contained"
-          onClick={() => setSelectedDate(dates[currentIndex + 1])}
-          disabled={currentIndex >= dates.length - 1}
-          sx={{
-            fontFamily: "Prompt",
-            fontSize: { xs: "0.8rem", sm: "1rem" },
-            bgcolor: "#1976d2",
-            "&:hover": { bgcolor: "#115293" },
-            borderRadius: "20px",
-            paddingX: "16px",
-          }}
-        >
-          ถัดไป
-          <ArrowForward sx={{ fontSize: "1.5rem" }} />
-        </Button>
-          
-        </Box>  
+            {/* Dropdown เลือกวันที่ */}
+            <Select
+              value={selectedDate || ""}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              sx={{
+                fontFamily: "Prompt",
+                width: { xs: "100%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
+                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+              }}
+            >
+              {[...new Set(waterData.map((d) => d.Date))].sort().map((date) => (
+                <MenuItem key={date || ""} value={date || ""} sx={{ fontFamily: "Prompt" }}>
+                  {formatThaiDate(date || "")}
+                </MenuItem>
+              ))}
+            </Select>
+
+            {/* ปุ่มเลื่อนไปวันถัดไป */}
+            <Button
+              variant="contained"
+              onClick={() => setSelectedDate(dates[currentIndex + 1])}
+              disabled={currentIndex >= dates.length - 1}
+              sx={{
+                fontFamily: "Prompt",
+                fontSize: { xs: "0.8rem", sm: "1rem" },
+                bgcolor: "#1976d2",
+                "&:hover": { bgcolor: "#115293" },
+                borderRadius: "20px",
+                paddingX: "16px",
+                width: { xs: "100%", sm: "auto" }, // ให้ปุ่มเต็มหน้าจอในขนาดเล็ก
+                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+              }}
+            >
+              ถัดไป
+              <ArrowForward sx={{ fontSize: "1.5rem" }} />
+            </Button>
+          </Box>
+ 
 
         <Box>
           <ReactApexChart options={chartOptions} series={chartSeries} type="line" height={600} />

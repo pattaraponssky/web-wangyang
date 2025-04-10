@@ -173,26 +173,74 @@ const WaterLevelChart: React.FC = () => {
       <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color: "#28378B" }}>
         ระดับน้ำรายชั่วโมง สถานี {selectedStation}
       </Typography>
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2 }}>
-        <Button sx={{ fontFamily: "Prompt", fontSize: { xs: "0.8rem", sm: "1rem" }, bgcolor: "#1976d2", "&:hover": { bgcolor: "#115293" }, borderRadius: "20px", paddingX: "16px" }}
-          variant="contained" onClick={() => setSelectedIndex((prev) => Math.max(prev - 1, 0))} disabled={selectedIndex === 0}>
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2, flexWrap: "wrap", alignItems: "center" }}>
+        <Button
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },  // ปรับขนาดฟอนต์ตามขนาดหน้าจอ
+            bgcolor: "#1976d2",
+            "&:hover": { bgcolor: "#115293" },
+            borderRadius: "20px",
+            paddingX: "16px",
+            width: { xs: "100%", sm: "auto" }, // ปรับขนาดปุ่มให้เต็มหน้าจอในขนาดเล็ก
+            mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+          }}
+          variant="contained"
+          onClick={() => setSelectedIndex((prev) => Math.max(prev - 1, 0))}
+          disabled={selectedIndex === 0}
+        >
           <ArrowBack /> ย้อนกลับ
         </Button>
-        <Select sx={{ fontFamily: "Prompt" }} value={selectedStation} onChange={(e) => setSelectedStation(e.target.value)}>
+        
+        <Select
+          sx={{
+            fontFamily: "Prompt",
+            width: { xs: "100%", sm: "auto" },  // ปรับให้ Select ขยายเต็มหน้าจอในขนาดเล็ก
+            marginBottom: { xs: 2, sm: 0 },  // เพิ่ม margin ในขนาดเล็ก
+          }}
+          value={selectedStation}
+          onChange={(e) => setSelectedStation(e.target.value)}
+        >
           {Object.keys(stationMapping).map((station) => (
             <MenuItem key={station} value={station}>{station}</MenuItem>
           ))}
         </Select>
-        <Select sx={{ fontFamily: "Prompt" }} value={selectedIndex} onChange={(e) => setSelectedIndex(Number(e.target.value))}>
+        
+        <Select
+          sx={{
+            fontFamily: "Prompt",
+            width: { xs: "100%", sm: "auto" },  // ปรับให้ Select ขยายเต็มหน้าจอในขนาดเล็ก
+            marginBottom: { xs: 2, sm: 0 },  // เพิ่ม margin ในขนาดเล็ก
+          }}
+          value={selectedIndex}
+          onChange={(e) => setSelectedIndex(Number(e.target.value))}
+        >
           {stationData.map((item, index) => (
-            <MenuItem key={formatThaiDate(item.time || '')} value={index}>{formatThaiDate(item.time || '')}</MenuItem>
+            <MenuItem key={formatThaiDate(item.time || '')} value={index}>
+              {formatThaiDate(item.time || '')}
+            </MenuItem>
           ))}
         </Select>
-        <Button sx={{ fontFamily: "Prompt", fontSize: { xs: "0.8rem", sm: "1rem" }, bgcolor: "#1976d2", "&:hover": { bgcolor: "#115293" }, borderRadius: "20px", paddingX: "16px" }}
-          variant="contained" onClick={() => setSelectedIndex((prev) => Math.min(prev + 1, stationData.length - 1))} disabled={selectedIndex >= stationData.length - 1}>
+        
+        <Button
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" }, // ปรับขนาดฟอนต์ตามขนาดหน้าจอ
+            bgcolor: "#1976d2",
+            "&:hover": { bgcolor: "#115293" },
+            borderRadius: "20px",
+            paddingX: "16px",
+            width: { xs: "100%", sm: "auto" }, // ปรับขนาดปุ่มให้เต็มหน้าจอในขนาดเล็ก
+            mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+          }}
+          variant="contained"
+          onClick={() => setSelectedIndex((prev) => Math.min(prev + 1, stationData.length - 1))}
+          disabled={selectedIndex >= stationData.length - 1}
+        >
           ถัดไป <ArrowForward />
         </Button>
       </Box>
+
       <Box sx={{ width: "100%", height: 450 }}>
         <Chart options={chartOptions} series={chartSeries} type="line" height={450} />
       </Box>
