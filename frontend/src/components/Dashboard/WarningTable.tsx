@@ -9,17 +9,27 @@ const warningData = [
     watch: 149.30, alert: 150.80, crisis: 152.20, maxLevel3Days: 140.74 
   },
   { 
-    id: 2, location: "เขื่อนวังยาง", district: "ฆ้องชัย", province: "กาฬสินธุ์", 
+    id: 2, location: "E.1", district: "โกสุมพิสัย", province: "มหาสารคาม", 
+    depth: 13.06, leftBank: 148.79, rightBank: 148.99, canalBottom: 135.73, 
+    watch: 146.10, alert: 147.40, crisis: 148.70, maxLevel3Days: '' 
+  },
+  { 
+    id: 3, location: "E.8A", district: "เมือง", province: "มหาสารคาม", 
+    depth: 16.29, leftBank: 148.95, rightBank: 148.69, canalBottom: 132.40, 
+    watch: 145.40, alert: 147.00, crisis: 148.00, maxLevel3Days: ''
+  },
+  { 
+    id: 4, location: "เขื่อนวังยาง", district: "ฆ้องชัย", province: "กาฬสินธุ์", 
     depth: 10.80, leftBank: 142.00, rightBank: 142.00, canalBottom: 131.20, 
     watch: 137.00, alert: 138.00, crisis: 139.00, maxLevel3Days: 137.31 
   },
   { 
-    id: 3, location: "E.66A", district: "จังหาร", province: "ร้อยเอ็ด", 
+    id: 5, location: "E.66A", district: "จังหาร", province: "ร้อยเอ็ด", 
     depth: 14.50, leftBank: 141.53, rightBank: 143.46, canalBottom: 127.03, 
     watch: 138.60, alert: 140.00, crisis: 141.50, maxLevel3Days: 131.40 
   },
   { 
-    id: 4, location: "E.87", district: "กมลาไสย", province: "กาฬสินธุ์", 
+    id: 6, location: "E.87", district: "กมลาไสย", province: "กาฬสินธุ์", 
     depth: 10.46, leftBank: 139.95, rightBank: 139.98, canalBottom: 129.49, 
     watch: 137.80, alert: 138.90, crisis: 139.90, maxLevel3Days: 132.13 
   }
@@ -130,13 +140,13 @@ const FloodWarningTable: React.FC = () => {
               <TableCell sx={getCellStyle(index)}>{item.location}</TableCell>
               {!isSmallScreen && !isMediumScreen && <TableCell sx={getCellStyle(index)}>{item.district}</TableCell>}
               {!isSmallScreen && !isMediumScreen && <TableCell sx={getCellStyle(index)}>{item.province}</TableCell>}
-              <TableCell sx={getCellStyle(index)}>{item.depth}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.leftBank}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.rightBank}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.canalBottom}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.watch}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.alert}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.crisis}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.depth.toFixed(2)}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.leftBank.toFixed(2)}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.rightBank.toFixed(2)}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.canalBottom.toFixed(2)}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.watch.toFixed(2)}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.alert.toFixed(2)}</TableCell>
+              <TableCell sx={getCellStyle(index)}>{item.crisis.toFixed(2)}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.maxLevel3Days !== null ? item.maxLevel3Days : "-"}</TableCell>
             </TableRow>
           ))}
