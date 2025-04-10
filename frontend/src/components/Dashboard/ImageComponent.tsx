@@ -7,9 +7,10 @@ interface ImageProps {
   title: string;
   width?: string | number;
   height?: string | number;
+  fallbackSrc?: string;
 }
 
-const ImageComponent: React.FC<ImageProps> = ({ src, alt, title, width, height }) => {
+const ImageComponent: React.FC<ImageProps> = ({ src, alt, title, width, height, fallbackSrc }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const openDialog = () => {
@@ -25,6 +26,11 @@ const ImageComponent: React.FC<ImageProps> = ({ src, alt, title, width, height }
     }
   };
 
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    // ใช้ fallbackSrc ถ้ามี หรือใช้ src เดิมหากไม่มี fallbackSrc
+    e.currentTarget.src = fallbackSrc || ""; // ใช้ fallbackSrc หรือค่าเริ่มต้นเป็น string ว่าง
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", fontFamily: "Prompt", maxWidth: "100%" }}>
       <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
@@ -34,6 +40,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src, alt, title, width, height }
         src={src}
         alt={alt}
         onClick={openDialog} // คลิกเพื่อเปิดรูปขยาย
+        onError={handleError}
         style={{
           width: width ? width : "100%",
           height: height ? height : "auto",

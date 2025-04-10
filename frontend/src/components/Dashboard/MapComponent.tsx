@@ -458,12 +458,11 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                       return;
                     }
               
-                    const dataKey = flowStation ? Object.keys(flowStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key)) : [];
-                    const flowValues = dataKey.length > 0 ? dataKey.slice(-7).map(key => flowStation[key]).reverse() : [];                                               
-                    const eleValues = dataKey.length > 0 ? dataKey.slice(-7).map(key => eleStation[key]).reverse() : [];
+                    const dataKeyFlow = flowStation ? Object.keys(flowStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key)) : [];
+                    const dataKeyEle = eleStation ? Object.keys(eleStation).filter(key => /\d{2}\/\d{2}\/\d{4}/.test(key)) : [];
+                    const flowValues = dataKeyFlow.length > 0 ? dataKeyFlow.slice(-7).map(key => flowStation[key]).reverse() : [];                                               
+                    const eleValues = dataKeyEle.length > 0 ? dataKeyEle.slice(-7).map(key => eleStation[key]).reverse() : [];
              
-                    
-                    console.log(dataKey);
 
                     const today = new Date();
                     const labelsFlow = [];
