@@ -94,7 +94,7 @@ const Dashboard: React.FC = () => {
         </Box>
         </Grid>
       </Grid>
-      <Box sx={BoxStyle} id="water-gate">
+      <Box sx={BoxStyle} id="report">
       <ImageComponent src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/04/3.3.1.jpg" fallbackSrc="./images/สรุปเขื่อนวังยาง.jpg" height={'100%'} width={'100%'} alt="" title={"รายงานระดับน้ำเขื่อนวังยาง"} />
       </Box>
       <FloatingMenu />

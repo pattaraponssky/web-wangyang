@@ -37,8 +37,8 @@ const WaterLevelTable: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch("./ras-output/output_profile.csv").then(res => res.text()),
-      fetch("./ras-output/output_gate.csv").then(res => res.text()) // โหลดไฟล์ที่สอง
+      fetch("./ras-output/output_ras.csv").then(res => res.text()),
+      fetch("./ras-output/gate_output.csv").then(res => res.text()) // โหลดไฟล์ที่สอง
     ])
       .then(([csvText1, csvText2]) => {
         const parsedData: DataWaterLevel[] = [];
@@ -49,12 +49,12 @@ const WaterLevelTable: React.FC = () => {
             if (result.data.length > 0) {
               try {
                 result.data.forEach((row: any) => {
-                  const crossSection = parseInt(row[2], 10);
-                  const datetime = row[3];
-                  const waterSurfaceElevation = parseFloat(row[4]);
-                  const flowRate = parseFloat(row[5]);
+                  const crossSection = parseInt(row[1], 10);
+                  const datetime = row[0];
+                  const waterSurfaceElevation = parseFloat(row[2]);
+                
 
-                  if (crossSection === 62029 || crossSection === 61985) {
+                  if (crossSection === 62665 || crossSection === 61985) {
                     let existingData = parsedData.find(d => d.datetime === datetime);
 
                     if (!existingData) {
@@ -62,11 +62,11 @@ const WaterLevelTable: React.FC = () => {
                       parsedData.push(existingData);
                     }
 
-                    if (crossSection === 62029) {
+                    if (crossSection === 62665) {
                       existingData.gate_water_upper = waterSurfaceElevation;
                     } else if (crossSection === 61985) {
                       existingData.gate_water_lower = waterSurfaceElevation;
-                      existingData.flow_rate = flowRate;
+         
                     }
                   }
                 });
@@ -84,15 +84,17 @@ const WaterLevelTable: React.FC = () => {
             if (result.data.length > 0) {
               try {
                 result.data.forEach((row: any) => {
-                  const datetime = row[0]; // คอลัมน์วันเวลา
-                  const gateOpen = parseFloat(row[2]); // ค่าที่ต้องการ
-                  
+                  const datetime = row[0]?.trim(); // ตรวจสอบและ trim เวลาจากไฟล์
+                  const gateOpen = parseFloat(row[1]);
+                  const flowRate = parseFloat(row[2]);
+        
                   let existingData = parsedData.find(d => d.datetime === datetime);
                   if (existingData) {
-                    existingData.gate_open = gateOpen; // เพิ่มค่า gate_open
+                    existingData.gate_open = gateOpen;
+                    existingData.flow_rate = flowRate; // ✅ เปลี่ยนตรงนี้
                   }
                 });
-
+        
                 setData(parsedData);
                 setLoading(false);
               } catch (err) {
@@ -102,6 +104,7 @@ const WaterLevelTable: React.FC = () => {
           },
           skipEmptyLines: true,
         });
+        
       })
       .catch(() => {
         setError("Error loading CSV files");

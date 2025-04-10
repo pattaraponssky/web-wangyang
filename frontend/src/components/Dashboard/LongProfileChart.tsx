@@ -8,7 +8,7 @@ import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
 const LongProfileChart: React.FC = () => {
   const [data, setData] = useState<{ Ground: number; LOB: number; ROB: number; KM: number; WaterLevel?: number }[]>([]);
-  const [waterData, setWaterData] = useState<{ NO: number; CrossSection: number; Date: string | null; WaterLevel: number }[]>([]);
+  const [waterData, setWaterData] = useState<{CrossSection: number; Date: string | null; WaterLevel: number }[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const dates = [...new Set(waterData.map((d) => d.Date))].sort();
   const currentIndex = dates.indexOf(selectedDate);
@@ -36,7 +36,7 @@ const LongProfileChart: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetch("./ras-output/output_profile.csv")
+    fetch("./ras-output/output_ras.csv")
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
@@ -45,7 +45,7 @@ const LongProfileChart: React.FC = () => {
   
             // แปลงข้อมูล CSV ระดับน้ำเป็นอ็อบเจ็กต์
             let parsedWaterData = rawData.slice(1).map((row: any) => {
-              const rawDate = row[3]?.trim();
+              const rawDate = row[0]?.trim();
               let formattedDate = null;
   
               if (rawDate) {
@@ -57,10 +57,9 @@ const LongProfileChart: React.FC = () => {
               }
   
               return {
-                NO: parseInt(row[0]),
-                CrossSection: parseInt(row[2]),
+                CrossSection: parseInt(row[1]),
                 Date: formattedDate,
-                WaterLevel: parseFloat(row[4])
+                WaterLevel: parseFloat(row[2])
               };
             });
   
@@ -189,7 +188,7 @@ const LongProfileChart: React.FC = () => {
           },
         },
               {
-                  x: 137, // ตำแหน่ง x
+                  x: 125, // ตำแหน่ง x
                   borderColor: '#000',
                   borderWidth: 0,
                   label: {                
