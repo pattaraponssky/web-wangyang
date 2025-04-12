@@ -11,6 +11,15 @@ interface WaterLevelData {
   elevation: number;
 }
 
+const warningLevels: Record<string, { watch: number; alert: number; crisis: number }> = {
+  "E.91": { watch: 149.30, alert: 150.80, crisis: 152.20 },
+  "E.1": { watch: 146.10, alert: 147.30, crisis: 148.70 },
+  "E.8A": { watch: 145.40, alert: 147.00, crisis: 148.00 },
+  "E.66A": { watch: 138.60, alert: 140.00, crisis: 141.50 },
+  "E.87": { watch: 137.80, alert: 138.90, crisis: 139.90 },
+};
+
+
 const stationMapping: Record<string, number> = {
   "E.91": 184715,
   "E.1": 151870,
@@ -24,6 +33,7 @@ const WaterLevelChart: React.FC = () => {
   const [secondData, setSecondData] = useState<WaterLevelData[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
+  const Levels = warningLevels[selectedStation];
 
   useEffect(() => {
     fetch("./ras-output/output_ras.csv")
@@ -95,17 +105,81 @@ const WaterLevelChart: React.FC = () => {
       zoom: { enabled: true },
     },
     annotations: {
-      yaxis: [{
-        y: selectedData.elevation,
-        borderColor: "#007bff",
-        label: {
-          position: 'center',
-          offsetY: -10,
-          text: `ระดับน้ำ: ${selectedData.elevation.toFixed(2)} (ม.รทก.)`,
-          style: { fontSize: '1rem', fontWeight: 'bold' },
+      yaxis: [
+        {
+          y: Levels.alert,
+          borderWidth: 0,
+          label: {
+            position: 'right',
+            offsetX: -10,
+            text: `ตลิ่งขวา`,
+            style: { fontSize: '0.8rem', fontWeight: 'bold' },
+          },
         },
-      }],
-    },
+        {
+          y: Levels.alert,
+          borderWidth: 0,
+          label: {
+            position: 'left',
+            offsetX: 55,
+            text: `ตลิ่งซ้าย`,
+            style: { fontSize: '0.8rem', fontWeight: 'bold' },
+          },
+        },
+        {
+          y: selectedData.elevation,
+          borderColor: "#007bff",
+          label: {
+            position: 'center',
+            offsetY: -10,
+            text: `ระดับน้ำ: ${selectedData.elevation.toFixed(2)} (ม.รทก.)`,
+            style: { fontSize: '1rem', fontWeight: 'bold' },
+          },
+        },
+        {
+          y: Levels.watch,
+          borderColor: "#FFA500",
+          label: {
+            position: 'center',
+            offsetY: -5,
+            text: `เฝ้าระวัง: ${Levels.watch.toFixed(2)} ม.รทก.`,
+            style: {
+              color: "#000",
+              background: "#FFA500",
+              fontWeight: "bold",
+            },
+          },
+        },
+        {
+          y: Levels.alert,
+          borderColor: "#FFD700",
+          label: {
+            position: 'center',
+            offsetY: -5,
+            text: `เตือนภัย: ${Levels.alert.toFixed(2)} ม.รทก.`,
+            style: {
+              color: "#000",
+              background: "#FFD700",
+              fontWeight: "bold",
+            },
+          },
+        },
+        {
+          y: Levels.crisis,
+          borderColor: "#FF0000",
+          label: {
+            position: 'center',
+            offsetY: -5,
+            text: `วิกฤต: ${Levels.crisis.toFixed(2)} ม.รทก.`,
+            style: {
+              color: "#fff",
+              background: "#FF0000",
+              fontWeight: "bold",
+            },
+          },
+        },
+      ],
+    },    
     xaxis: {
       categories: categories,
       labels: { show: false }
