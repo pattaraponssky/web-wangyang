@@ -24,7 +24,9 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
   const [JsonDataList, setJsonDataList] = useState<any[]>([]);
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [markers, setMarkers] = useState<any[]>([]);
-
+  console.log(callback);
+  console.log(id);
+  
   // โหลดไฟล์ GeoJSON
   useEffect(() => {
     const loadJsonFiles = async () => {
@@ -256,9 +258,9 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
       return;
     }
     const [rainData, flowData ,eleData] = await Promise.all([
-      fetch("http://localhost/code-xampp/API/api_rain_hydro3.php").then(res => res.json()),
-      fetch("http://localhost/code-xampp/API/api_flow_hydro3.php").then(res => res.json()),
-      fetch("http://localhost/code-xampp/API/api_elevation_hydro3.php").then(res => res.json())
+      fetch("http://localhost/wangyang/API/api_rain_hydro3.php").then(res => res.json()),
+      fetch("http://localhost/wangyang/API/api_flow_hydro3.php").then(res => res.json()),
+      fetch("http://localhost/wangyang/API/api_elevation_hydro3.php").then(res => res.json())
     ]);
 
     console.log("rainData:", rainData);
@@ -326,8 +328,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
             }
 
             const chartId = `${geoJsonData.name}-${feature.properties.Code || feature.properties.Name || feature.properties.CodeStation}`;
-            console.log("chartId:", chartId);  // เพิ่มเพื่อดูว่า chartId ถูกตั้งค่าอย่างถูกต้อง
-
+            // console.log("chartId:", chartId);  // เพิ่มเพื่อดูว่า chartId ถูกตั้งค่าอย่างถูกต้อง
       
             if (iconHtml) {
               const marker = new longdo.Marker(position, {
@@ -495,9 +496,9 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }
                       rainStation.rain_1_day_ago
                     ] : [];
               
-                    console.log("rainValues:", rainValues);
-                    console.log("flowValues:", flowValues);
-                    console.log("elevationValues:", eleValues);
+                    // console.log("rainValues:", rainValues);
+                    // console.log("flowValues:", flowValues);
+                    // console.log("elevationValues:", eleValues);
                    
               
                     // ถ้ามีข้อมูลน้ำฝน, แสดงกราฟน้ำฝน
