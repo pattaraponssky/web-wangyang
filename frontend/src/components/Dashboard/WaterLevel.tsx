@@ -112,6 +112,7 @@ const WaterLevelChart: React.FC = () => {
           label: {
             position: 'right',
             offsetX: -10,
+            offsetY: -10,
             text: `ตลิ่งขวา`,
             style: { fontSize: '0.8rem', fontWeight: 'bold' },
           },
@@ -122,6 +123,7 @@ const WaterLevelChart: React.FC = () => {
           label: {
             position: 'left',
             offsetX: 55,
+            offsetY: -10,
             text: `ตลิ่งซ้าย`,
             style: { fontSize: '0.8rem', fontWeight: 'bold' },
           },
@@ -129,6 +131,7 @@ const WaterLevelChart: React.FC = () => {
         {
           y: selectedData.elevation,
           borderColor: "#007bff",
+          borderWidth: 0,
           label: {
             position: 'center',
             offsetY: -10,
@@ -138,20 +141,25 @@ const WaterLevelChart: React.FC = () => {
         },
         {
           y: Levels.watch,
-          borderColor: "#FFA500",
+          borderWidth: 2,
+          strokeDashArray: 0,
+          borderColor: "green",
           label: {
             position: 'center',
             offsetY: -5,
             text: `เฝ้าระวัง: ${Levels.watch.toFixed(2)} ม.รทก.`,
             style: {
-              color: "#000",
-              background: "#FFA500",
+              color: "#fff",
+              background: "green",
               fontWeight: "bold",
+              fontSize: '0.8rem'
             },
           },
         },
         {
           y: Levels.alert,
+          borderWidth: 2,
+          strokeDashArray: 0,
           borderColor: "#FFD700",
           label: {
             position: 'center',
@@ -161,11 +169,14 @@ const WaterLevelChart: React.FC = () => {
               color: "#000",
               background: "#FFD700",
               fontWeight: "bold",
+              fontSize: '0.8rem'
             },
           },
         },
         {
           y: Levels.crisis,
+          borderWidth: 2,
+          strokeDashArray: 0,
           borderColor: "#FF0000",
           label: {
             position: 'center',
@@ -175,6 +186,7 @@ const WaterLevelChart: React.FC = () => {
               color: "#fff",
               background: "#FF0000",
               fontWeight: "bold",
+              fontSize: '0.8rem'
             },
           },
         },
@@ -192,11 +204,11 @@ const WaterLevelChart: React.FC = () => {
     yaxis: {
       labels: {
         formatter: (val: any) => Number(val).toFixed(0),
-        style: { fontSize: '1.6vh' },
+        style: { fontSize: '1rem' },
       },
       title: {
         text: 'ระดับ (ม.รทก.)',
-        style: { fontSize: '1.6vh' },
+        style: { fontSize: '1rem' },
       },
       min: Math.min(...filteredSecondData.map((item) => item.elevation)) - 0.5,
       max: Math.max(...filteredSecondData.map((item) => item.elevation)) + 0.5,
@@ -206,7 +218,7 @@ const WaterLevelChart: React.FC = () => {
       curve: "straight" as const,
       dashArray: [0, 0, 8, 8],
     },
-    colors: ["#007bff", "#744111"],
+    colors: [ "#007bff","#744111"],
     fill: {
       gradient: {
         shade: "light",

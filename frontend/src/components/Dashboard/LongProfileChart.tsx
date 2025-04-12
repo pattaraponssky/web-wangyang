@@ -421,7 +421,7 @@ const LongProfileChart: React.FC = () => {
     },
     stroke: {
       width: [2, 0, 5, 5],
-      curve: "straight" as "straight",
+      curve: "smooth" as "smooth" ,
       dashArray: [0, 0, 8, 8],
     },
     colors: ["#007bff","#744111", "red", "green" ],
