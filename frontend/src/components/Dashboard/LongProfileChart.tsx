@@ -130,13 +130,13 @@ const LongProfileChart: React.FC = () => {
           return Number(Number(val).toFixed(2)).toLocaleString();
         },
         style: {
-          fontSize: '1.6vh',
+          fontSize: '1rem',
         },
       },
       title: {
         text: 'ระดับ (ม.ทรก.)',
         style: {
-          fontSize: '1.6vh',
+          fontSize: '1rem',
         },
       },
     },
@@ -421,7 +421,7 @@ const LongProfileChart: React.FC = () => {
     },
     stroke: {
       width: [2, 0, 5, 5],
-      curve: "smooth" as "smooth" ,
+      curve: "straight" as "straight",
       dashArray: [0, 0, 8, 8],
     },
     colors: ["#007bff","#744111", "red", "green" ],
