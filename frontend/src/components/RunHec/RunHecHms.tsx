@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Button, Card, CardContent, Typography, Grid } from "@mui/material";
-import { BeachAccess, WaterDrop, Cloud, } from "@mui/icons-material";
+import { BeachAccess, WaterDrop, } from "@mui/icons-material";
 import axios from "axios"; 
 import { API_URL } from "../../utility";
 
 const cardData = [
   { title: "แก้ไขช่วงวันที่พยากรณ์",icon: <BeachAccess />, url: `${API_URL}hms_change_date.php` },
   { title: "Hec-HMS Compute",icon: <WaterDrop />, url: `${API_URL}hms_compute.php` },
-  { title: "รันทั้งหมด",icon: <Cloud />, url: `${API_URL}hms_run_all.php` },
 ];
 
 const RunHecHms: React.FC = () => {

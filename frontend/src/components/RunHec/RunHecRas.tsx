@@ -9,6 +9,8 @@ const cardData = [
   { title: "Compute Hec-Ras",icon: <WaterDrop />, url: `${API_URL}ras_compute.php` },
   { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: `${API_URL}ras_output_profiles.php` },
   { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: `${API_URL}ras_output_flow.php` },
+  { title: "ดึงข้อมูลประตูระบายน้ำ",icon: <WaterDrop />, url: `${API_URL}ras_output_gate.php` },
+  { title: "สั่งทำงานทั้งหมด",icon: <Cloud />, url: `${API_URL}run_all.php` },
 ];
 
 const RunHecRas: React.FC = () => {
@@ -40,7 +42,7 @@ const RunHecRas: React.FC = () => {
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-        <Grid item xs={12} sm={6} lg={3} key={index}>
+        <Grid item xs={12} sm={6} lg={2} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>
