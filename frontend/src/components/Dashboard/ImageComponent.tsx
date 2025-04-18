@@ -32,7 +32,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src, alt, title, width, height, 
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", fontFamily: "Prompt", maxWidth: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", padding: "20px", fontFamily: "Prompt", maxWidth: "100%" }}>
       <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
         {title}
       </Typography>

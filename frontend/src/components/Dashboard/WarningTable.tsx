@@ -82,7 +82,7 @@ const FloodWarningTable: React.FC = () => {
     >
       <Typography
         variant="h6"
-        sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt",color:"#28378B" ,textAlign: "center"}}
+        sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt",color:"#28378B" }}
       >
        ตำแหน่งสำคัญ เกณฑ์การเฝ้าระวังและเตือนภัยพื้นที่ศึกษาโครงการวังยาง
       </Typography>

@@ -21,10 +21,11 @@ const WaterForecastChart: React.FC = () => {
             const data = result.data;
 
             const seriesData = [
-              { name: 'E.66A', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.66A']) || 0]) },
               { name: 'E.91', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.91']) || 0]) },
               { name: 'E.1', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.1']) || 0]) },
               { name: 'E.8A', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.8A']) || 0]) },
+              { name: 'เขื่อนวังยาง', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['WY']) || 0]) },
+              { name: 'E.66A', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.66A']) || 0]) },
               { name: 'E.87', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.87']) || 0]) },
             ];
 
@@ -45,7 +46,7 @@ const WaterForecastChart: React.FC = () => {
 
   return (
     <Box >
-      <Typography variant="h6" sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt", textAlign: "center" ,color:"#28378B"}}>
+      <Typography variant="h6" sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt" ,color:"#28378B"}}>
         ผลการพยากรณ์ปริมาณน้ำท่าตำแหน่งสำคัญ 7 วัน ล่วงหน้า
       </Typography>
 
@@ -90,7 +91,7 @@ const WaterForecastChart: React.FC = () => {
             };
 
             return (
-              <Grid item xs={12} sm={index === 0 ? 12 : 6} key={index}>
+              <Grid item xs={12} sm={6} key={index}>
                 <Card sx={{ borderRadius: 2, boxShadow: 3, my: 2, paddingTop: '10px' }}>
                   <ReactApexChart
                     options={options}

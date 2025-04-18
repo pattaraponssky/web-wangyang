@@ -15,6 +15,7 @@ const warningLevels: Record<string, { watch: number; alert: number; crisis: numb
   "E.91": { watch: 149.30, alert: 150.80, crisis: 152.20 },
   "E.1": { watch: 146.10, alert: 147.30, crisis: 148.70 },
   "E.8A": { watch: 145.40, alert: 147.00, crisis: 148.00 },
+  "WY": { watch: 137.40, alert: 138.00, crisis: 139.00 },
   "E.66A": { watch: 138.60, alert: 140.00, crisis: 141.50 },
   "E.87": { watch: 137.80, alert: 138.90, crisis: 139.90 },
 };
@@ -24,6 +25,7 @@ const stationMapping: Record<string, number> = {
   "E.91": 184715,
   "E.1": 151870,
   "E.8A": 112911,
+  "WY": 62093,
   "E.66A": 51452,
   "E.87": 3636,
 };
@@ -81,6 +83,7 @@ const WaterLevelChart: React.FC = () => {
               { station: "E.91", elevation: parseFloat(row["E.91"]), time: row["NO"]?.trim() },
               { station: "E.1", elevation: parseFloat(row["E.1"]), time: row["NO"]?.trim() },
               { station: "E.8A", elevation: parseFloat(row["E.8A"]), time: row["NO"]?.trim() },
+              { station: "WY", elevation: parseFloat(row["WY"]), time: row["NO"]?.trim() },
               { station: "E.66A", elevation: parseFloat(row["E.66A"]), time: row["NO"]?.trim() },
               { station: "E.87", elevation: parseFloat(row["E.87"]), time: row["NO"]?.trim() },
             ]);
@@ -248,9 +251,13 @@ const WaterLevelChart: React.FC = () => {
 
   return (
     <CardContent>
-      <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color: "#28378B" }}>
-        ระดับน้ำรายชั่วโมง สถานี {selectedStation}
-      </Typography>
+    <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color: "#28378B" }}>
+      ระดับน้ำรายชั่วโมง สถานี{" "}
+      <Box component="span" sx={{ color: "red" }}>
+        {selectedStation}
+      </Box>
+    </Typography>
+
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2, flexWrap: "wrap", alignItems: "center" }}>
         <Button
           sx={{

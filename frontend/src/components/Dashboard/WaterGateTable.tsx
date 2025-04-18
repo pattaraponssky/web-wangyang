@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
-import {  formatThaiDateForTableGate } from "../../utility";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Select,
+  MenuItem,
+  Box,
+} from "@mui/material";
+import { formatThaiDateForTableGate, ThaiDate } from "../../utility";
 
 interface DataWaterLevel {
   datetime: string;
   gate_water_upper: number;
   gate_water_lower: number;
   flow_rate: number;
-  gate_open: number; // เพิ่มค่า gate_open
+  gate_open: number;
 }
 
 const HeaderCellStyle = {
@@ -18,7 +29,7 @@ const HeaderCellStyle = {
   textAlign: "center",
   backgroundColor: "rgb(1, 87, 155)",
   color: "white",
-  fontSize: { xs: "0.7rem", sm: "0.8rem" , md: "1rem"},
+  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" },
 };
 
 const getCellStyle = (index: number) => ({
@@ -27,23 +38,28 @@ const getCellStyle = (index: number) => ({
   backgroundColor: index % 2 === 0 ? "#FAFAFA" : "#FFF",
   textAlign: "center",
   fontFamily: "Prompt",
-  fontSize: { xs: "0.7rem", sm: "0.8rem" , md: "1rem"},
+  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" },
 });
+
+const formatOnlyDate = (datetime: string) => {
+  return datetime.split(" ")[0];
+};
 
 const WaterLevelTable: React.FC = () => {
   const [data, setData] = useState<DataWaterLevel[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("ทั้งหมด");
 
   useEffect(() => {
     Promise.all([
-      fetch("./ras-output/output_ras.csv").then(res => res.text()),
-      fetch("./ras-output/gate_output.csv").then(res => res.text()) // โหลดไฟล์ที่สอง
+      fetch("./ras-output/output_ras.csv").then((res) => res.text()),
+      fetch("./ras-output/gate_output.csv").then((res) => res.text()),
     ])
       .then(([csvText1, csvText2]) => {
         const parsedData: DataWaterLevel[] = [];
 
-        // พาร์สไฟล์ CSV ที่หนึ่ง
+        // พาร์สไฟล์ CSV แรก
         Papa.parse(csvText1, {
           complete: (result) => {
             if (result.data.length > 0) {
@@ -52,13 +68,18 @@ const WaterLevelTable: React.FC = () => {
                   const crossSection = parseInt(row[1], 10);
                   const datetime = row[0];
                   const waterSurfaceElevation = parseFloat(row[2]);
-                
 
                   if (crossSection === 62665 || crossSection === 61985) {
-                    let existingData = parsedData.find(d => d.datetime === datetime);
+                    let existingData = parsedData.find((d) => d.datetime === datetime);
 
                     if (!existingData) {
-                      existingData = { datetime, gate_water_upper: 0, gate_water_lower: 0, flow_rate: 0, gate_open: 0 };
+                      existingData = {
+                        datetime,
+                        gate_water_upper: 0,
+                        gate_water_lower: 0,
+                        flow_rate: 0,
+                        gate_open: 0,
+                      };
                       parsedData.push(existingData);
                     }
 
@@ -66,7 +87,6 @@ const WaterLevelTable: React.FC = () => {
                       existingData.gate_water_upper = waterSurfaceElevation;
                     } else if (crossSection === 61985) {
                       existingData.gate_water_lower = waterSurfaceElevation;
-         
                     }
                   }
                 });
@@ -84,17 +104,17 @@ const WaterLevelTable: React.FC = () => {
             if (result.data.length > 0) {
               try {
                 result.data.forEach((row: any) => {
-                  const datetime = row[0]?.trim(); // ตรวจสอบและ trim เวลาจากไฟล์
+                  const datetime = row[0]?.trim();
                   const gateOpen = parseFloat(row[1]);
                   const flowRate = parseFloat(row[2]);
-        
-                  let existingData = parsedData.find(d => d.datetime === datetime);
+
+                  let existingData = parsedData.find((d) => d.datetime === datetime);
                   if (existingData) {
                     existingData.gate_open = gateOpen;
-                    existingData.flow_rate = flowRate; // ✅ เปลี่ยนตรงนี้
+                    existingData.flow_rate = flowRate;
                   }
                 });
-        
+
                 setData(parsedData);
                 setLoading(false);
               } catch (err) {
@@ -104,7 +124,6 @@ const WaterLevelTable: React.FC = () => {
           },
           skipEmptyLines: true,
         });
-        
       })
       .catch(() => {
         setError("Error loading CSV files");
@@ -112,68 +131,118 @@ const WaterLevelTable: React.FC = () => {
       });
   }, []);
 
+  const uniqueDates = Array.from(new Set(data.map((row) => formatOnlyDate(row.datetime))));
+  uniqueDates.sort();
+
+  const filteredData =
+    selectedDate === "ทั้งหมด"
+      ? data
+      : data.filter((row) => formatOnlyDate(row.datetime) === selectedDate);
+
   return (
-    <TableContainer sx={{  justifySelf: "center",
+    <TableContainer
+      sx={{
+        justifySelf: "center",
         maxWidth: {
           xs: "90%",
           sm: "90%",
           md: "80%",
         },
-        overflowX: "auto", // ให้ Scroll ได้ในมือถือ
+        overflowX: "auto",
         paddingBottom: 3,
         paddingTop: 2,
+        maxHeight:"100%",
+      }}
+    >
+      
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
+          justifyContent: "space-between",
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontFamily: "Prompt",
+            fontWeight: "bold",
+            color: "#28378B",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {loading
+            ? "กำลังโหลดข้อมูล..."
+            : error
+            ? "เกิดข้อผิดพลาด"
+            : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำเขื่อนวังยาง"}
+        </Typography>
 
-      }}>
-      <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
-        {loading ? "กำลังโหลดข้อมูล..." : error ? "เกิดข้อผิดพลาด" : "ข้อเสนอแนะการเปิด-ปิดประตูระบายน้ำเขื่อนวังยาง"}
-      </Typography>
-
+        <Select
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          displayEmpty
+          sx={{
+            fontFamily: "Prompt",
+            minWidth: 200,
+            backgroundColor: "#fff",
+            height: 50,
+          }}
+        >
+          <MenuItem value="ทั้งหมด">ทั้งหมด</MenuItem>
+          {uniqueDates.map((date, index) => (
+            <MenuItem key={index} value={date}>
+              {ThaiDate(date)}
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>
       <Table aria-label="water-level-table">
-        <TableHead sx={{backgroundColors:"#99CCFF"}}>
+        <TableHead>
           <TableRow>
-            <TableCell sx={{...HeaderCellStyle,minWidth:{sm:"20%",md:"15%",lg:"auto"}}}>วัน-เวลา</TableCell>
+            <TableCell sx={{ ...HeaderCellStyle, minWidth: { sm: "20%", md: "15%", lg: "auto" } }}>
+              วัน-เวลา
+            </TableCell>
             <TableCell sx={HeaderCellStyle}>จำนวนบาน</TableCell>
-            <TableCell sx={HeaderCellStyle}>ระยะเปิดบาน<br/>(ม.)</TableCell> {/* เพิ่มคอลัมน์ */}
-            <TableCell sx={HeaderCellStyle}>ระดับน้ำเหนือ<br/>(ม.รทก.)</TableCell>
-            <TableCell sx={HeaderCellStyle}>ระดับน้ำท้าย<br/>(ม.รทก.)</TableCell>
-            <TableCell sx={HeaderCellStyle}>อัตราการไหล<br/>(ลบ.ม./วินาที)</TableCell>
-            
+            <TableCell sx={HeaderCellStyle}>ระยะเปิดบาน<br />(ม.)</TableCell>
+            <TableCell sx={HeaderCellStyle}>ระดับน้ำเหนือ<br />(ม.รทก.)</TableCell>
+            <TableCell sx={HeaderCellStyle}>ระดับน้ำท้าย<br />(ม.รทก.)</TableCell>
+            <TableCell sx={HeaderCellStyle}>อัตราการไหล<br />(ลบ.ม./วินาที)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={6} align="center">กำลังโหลดข้อมูล...</TableCell> {/* เปลี่ยน colSpan เป็น 6 */}
+              <TableCell colSpan={6} align="center">
+                กำลังโหลดข้อมูล...
+              </TableCell>
             </TableRow>
           ) : error ? (
             <TableRow>
-              <TableCell colSpan={6} align="center">{error}</TableCell> {/* เปลี่ยน colSpan เป็น 6 */}
+              <TableCell colSpan={6} align="center">
+                {error}
+              </TableCell>
             </TableRow>
           ) : (
-            data.map((row, index) => (
+            filteredData.map((row, index) => (
               <TableRow key={index}>
-                <TableCell sx={getCellStyle(index)}>{formatThaiDateForTableGate(row.datetime)}</TableCell>
+                <TableCell sx={getCellStyle(index)}>
+                  {formatThaiDateForTableGate(row.datetime)}
+                </TableCell>
                 <TableCell sx={getCellStyle(index)}>6</TableCell>
-                <TableCell sx={getCellStyle(index)}>
-                  {parseFloat(row.gate_open.toFixed(2))}
-                </TableCell>
-                <TableCell sx={getCellStyle(index)}>
-                  {parseFloat(row.gate_water_upper.toFixed(2))}
-                </TableCell>
-                <TableCell sx={getCellStyle(index)}>
-                  {parseFloat(row.gate_water_lower.toFixed(2))}
-                </TableCell>
-                <TableCell sx={getCellStyle(index)}>
-                  {parseFloat(row.flow_rate.toFixed(2))}
-                </TableCell>
+                <TableCell sx={getCellStyle(index)}>{row.gate_open.toFixed(2)}</TableCell>
+                <TableCell sx={getCellStyle(index)}>{row.gate_water_upper.toFixed(2)}</TableCell>
+                <TableCell sx={getCellStyle(index)}>{row.gate_water_lower.toFixed(2)}</TableCell>
+                <TableCell sx={getCellStyle(index)}>{row.flow_rate.toFixed(2)}</TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
     </TableContainer>
-
-
   );
 };
 

@@ -22,6 +22,27 @@ export const formatThaiDate = (time: string): string => {
   return `${day} ${month} ${yearBE} - ${hours}:${minutes}`;
 };
 
+export const ThaiDate = (time: string): string => {
+  
+  // แปลงจาก "06/11/2024 07:00" (DD/MM/YYYY HH:mm) เป็น "2024-11-06T07:00:00"
+  const [datePart] = time.split(" ");
+  const [day, month, year] = datePart.split("/").map(Number);
+  const formattedTime = `${year}-${month.toString().padStart(2, '0')}-${day.toString()}`;
+
+  const date = new Date(formattedTime);
+
+  const yearBE = date.getFullYear() + 543; // แปลงเป็น พ.ศ.
+  const monthNamesThai = [
+    "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+  ];
+
+  const monthThai = monthNamesThai[date.getMonth()]; // เปลี่ยนชื่อตัวแปรเพื่อป้องกันปัญหา
+  const dayStr = date.getDate().toString().padStart(2, '0');
+
+  return `${dayStr} ${monthThai} ${yearBE}`;
+};
+
 export const formatThaiDateForTableGate = (time: string): string => {
   
   // แปลงจาก "06/11/2024 07:00" (DD/MM/YYYY HH:mm) เป็น "2024-11-06T07:00:00"
