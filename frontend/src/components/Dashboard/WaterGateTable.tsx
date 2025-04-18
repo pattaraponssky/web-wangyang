@@ -23,13 +23,15 @@ interface DataWaterLevel {
 }
 
 const HeaderCellStyle = {
+  position: "sticky",
+  top: {xs: 115 ,md: 60},
   border: "1px solid #ddd",
   fontFamily: "Prompt",
   fontWeight: "bold",
   textAlign: "center",
   backgroundColor: "rgb(1, 87, 155)",
   color: "white",
-  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" },
+  fontSize: { xs: "0.8rem", sm: "0.8rem", md: "1rem" },
 };
 
 const getCellStyle = (index: number) => ({
@@ -38,7 +40,7 @@ const getCellStyle = (index: number) => ({
   backgroundColor: index % 2 === 0 ? "#FAFAFA" : "#FFF",
   textAlign: "center",
   fontFamily: "Prompt",
-  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" },
+  fontSize: { xs: "0.8rem", sm: "0.8rem", md: "1rem" },
 });
 
 const formatOnlyDate = (datetime: string) => {
@@ -131,6 +133,8 @@ const WaterLevelTable: React.FC = () => {
       });
   }, []);
 
+  
+
   const uniqueDates = Array.from(new Set(data.map((row) => formatOnlyDate(row.datetime))));
   uniqueDates.sort();
 
@@ -150,19 +154,24 @@ const WaterLevelTable: React.FC = () => {
         },
         overflowX: "auto",
         paddingBottom: 3,
-        paddingTop: 2,
-        maxHeight:"100%",
+     
+        maxHeight: selectedDate === "ทั้งหมด" ? "90vh" : "auto",
+        overflowY: selectedDate === "ทั้งหมด" ? "auto" : "unset",
       }}
     >
       
       <Box
         sx={{
+          backgroundColor: "#fff",
+          position: "sticky",
+          top: 0,
+          zIndex: 1, 
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "flex-start", md: "center" },
+          alignItems: { md: "center" },
           justifyContent: "space-between",
           gap: 2,
-          mb: 2,
+          paddingY: 1,
         }}
       >
         <Typography
@@ -203,7 +212,7 @@ const WaterLevelTable: React.FC = () => {
       <Table aria-label="water-level-table">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ ...HeaderCellStyle, minWidth: { sm: "20%", md: "15%", lg: "auto" } }}>
+            <TableCell sx={{ ...HeaderCellStyle, minWidth: { sm: "25%", md: "15%", lg: "auto" } }}>
               วัน-เวลา
             </TableCell>
             <TableCell sx={HeaderCellStyle}>จำนวนบาน</TableCell>
