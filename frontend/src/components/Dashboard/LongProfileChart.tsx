@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
 import ReactApexChart from "react-apexcharts";
 import { Box, Button, CardContent, MenuItem, Select, Typography} from "@mui/material";
-import { formatThaiDate } from "../../utility";
+import { formatThaiDate, formatThaiDay } from "../../utility";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
 
@@ -10,8 +10,10 @@ const LongProfileChart: React.FC = () => {
   const [data, setData] = useState<{ Ground: number; LOB: number; ROB: number; KM: number; WaterLevel?: number }[]>([]);
   const [waterData, setWaterData] = useState<{CrossSection: number; Date: string | null; WaterLevel: number }[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const dates = [...new Set(waterData.map((d) => d.Date))].sort();
-  const currentIndex = dates.indexOf(selectedDate);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const dates = [...new Set(waterData.map((d) => d.Date?.split(" ")[0]))].sort();
+  const currentIndex = dates.indexOf(selectedDate ?? "");
+  
   useEffect(() => {
     // โหลดไฟล์ CSV หลัก
     fetch("./data/longProfile.csv")
@@ -74,34 +76,47 @@ const LongProfileChart: React.FC = () => {
   
   useEffect(() => {
     if (waterData.length > 0) {
-      // ตั้งค่า selectedDate เป็นวันที่แรกใน waterData
-      const firstDate = [...new Set(waterData.map((d) => d.Date))].sort()[0];
-      setSelectedDate(firstDate);
+      // ตั้งค่า selectedDate และ selectedTime เมื่อข้อมูลโหลดเสร็จ
+      const firstDateTime = [...new Set(waterData.map((d) => d.Date))].sort()[0];
+      if (firstDateTime) {
+        const [datePart, timePart] = firstDateTime.split(" ");
+        setSelectedDate(datePart);
+        setSelectedTime(timePart);
+      }
     }
   }, [waterData]);
+  
+
+  const uniqueDays = [...new Set(waterData.map(d => d.Date?.split(" ")[0]))].sort();
+  const uniqueTimes = [...new Set(
+    waterData
+      .filter(d => d.Date?.startsWith(selectedDate || ""))
+      .map(d => d.Date?.split(" ")[1])
+  )].sort();
+  
 
   // ฟังก์ชันที่จะทำการกรองข้อมูลตาม selectedNO
-  const filteredWaterData = waterData.filter((d) => d.Date === selectedDate);
+  const fullSelectedDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : null;
+  const filteredWaterData = waterData.filter((d) => d.Date === fullSelectedDateTime);
   filteredWaterData.reverse();
+
 
   // การกรองและการปรับข้อมูลหลักเมื่อเลือก NO ใหม่
   useEffect(() => {
     setData((prevData) => {
-      if (prevData.length === 0) return prevData;
-
+      if (prevData.length === 0 || filteredWaterData.length === 0) return prevData;
       const maxKM = Math.max(...prevData.map((d) => d.KM));
       const minKM = Math.min(...prevData.map((d) => d.KM));
       const waterDataLength = filteredWaterData.length;
-
+  
       return prevData.map((d) => {
         const normalized = (d.KM - minKM) / (maxKM - minKM);
         const waterIndex = Math.round((1 - normalized) * (waterDataLength - 1));
         const waterLevel = filteredWaterData[waterIndex]?.WaterLevel ?? null;
-        const date = filteredWaterData[waterIndex]?.Date ?? null;
-        return { ...d, WaterLevel: waterLevel, Date: date };
+        return { ...d, WaterLevel: waterLevel };
       });
     });
-  }, [selectedDate, waterData]);
+  }, [selectedDate, selectedTime, waterData]);
 
  
 
@@ -449,14 +464,15 @@ const LongProfileChart: React.FC = () => {
   };
   
 
-  const chartSeries = [
-    { name: "Water Level (ระดับผิวน้ำ)", type: "area",  data: data.map((d) => d.WaterLevel ?? null) },
-    { name: "Ground (ท้ายคลอง)", type: "area",data: data.map((d) => d.Ground) },
-    { name: "LOB (ตลิ่งซ้าย)", data: data.map((d) => d.LOB) },
-    { name: "ROB (ตลิ่งขวา)", data: data.map((d) => d.ROB) },
-     // แสดงข้อมูลระดับน้ำ
-  ];
-  
+  const chartSeries = useMemo(() => {
+    return [
+      { name: "Water Level (ระดับผิวน้ำ)", type: "area", data: data.map((d) => d.WaterLevel ?? null) },
+      { name: "Ground (ท้ายคลอง)", type: "area", data: data.map((d) => d.Ground) },
+      { name: "LOB (ตลิ่งซ้าย)", data: data.map((d) => d.LOB) },
+      { name: "ROB (ตลิ่งขวา)", data: data.map((d) => d.ROB) }
+    ];
+  }, [data]);
+
 
   return (
       <CardContent >
@@ -468,7 +484,7 @@ const LongProfileChart: React.FC = () => {
             {/* ปุ่มเลื่อนไปวันก่อนหน้า */}
             <Button
               variant="contained"
-              onClick={() => setSelectedDate(dates[currentIndex - 1])}
+              onClick={() => setSelectedDate(dates[currentIndex - 1] ?? '')}
               disabled={currentIndex <= 0}
               sx={{
                 fontFamily: "Prompt",
@@ -488,16 +504,36 @@ const LongProfileChart: React.FC = () => {
             {/* Dropdown เลือกวันที่ */}
             <Select
               value={selectedDate || ""}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(e) => {
+                setSelectedDate(e.target.value);
+      
+              }}
               sx={{
                 fontFamily: "Prompt",
                 width: { xs: "100%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
                 mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
               }}
             >
-              {[...new Set(waterData.map((d) => d.Date))].sort().map((date) => (
-                <MenuItem key={date || ""} value={date || ""} sx={{ fontFamily: "Prompt" }}>
-                  {formatThaiDate(date || "")}
+               {uniqueDays.map((day) => (
+                  <MenuItem key={day} value={day}>
+                    {formatThaiDay(day)}
+                  </MenuItem>
+                ))}
+            </Select>
+
+            <Select
+              value={selectedTime || ""}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              disabled={!selectedDate}
+              sx={{
+                fontFamily: "Prompt",
+                width: { xs: "100%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
+                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+              }}
+            >
+              {uniqueTimes.map((time) => (
+                <MenuItem key={time} value={time}>
+                  {time}
                 </MenuItem>
               ))}
             </Select>
@@ -505,7 +541,7 @@ const LongProfileChart: React.FC = () => {
             {/* ปุ่มเลื่อนไปวันถัดไป */}
             <Button
               variant="contained"
-              onClick={() => setSelectedDate(dates[currentIndex + 1])}
+              onClick={() => setSelectedDate(dates[currentIndex + 1] ?? '')}
               disabled={currentIndex >= dates.length - 1}
               sx={{
                 fontFamily: "Prompt",

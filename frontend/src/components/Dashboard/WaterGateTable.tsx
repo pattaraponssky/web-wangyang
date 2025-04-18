@@ -212,7 +212,7 @@ const WaterLevelTable: React.FC = () => {
       <Table aria-label="water-level-table">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ ...HeaderCellStyle, minWidth: { sm: "25%", md: "15%", lg: "auto" } }}>
+            <TableCell sx={{ ...HeaderCellStyle, minWidth: { sm: "20%", md: "15%", lg: "auto" } }}>
               วัน-เวลา
             </TableCell>
             <TableCell sx={HeaderCellStyle}>จำนวนบาน</TableCell>
