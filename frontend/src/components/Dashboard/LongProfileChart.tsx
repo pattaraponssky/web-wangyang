@@ -516,7 +516,7 @@ const LongProfileChart: React.FC = () => {
             >
                {uniqueDays.map((day) => (
                   <MenuItem key={day} value={day}>
-                    {formatThaiDay(day)}
+                    {formatThaiDay(day || "")}
                   </MenuItem>
                 ))}
             </Select>
