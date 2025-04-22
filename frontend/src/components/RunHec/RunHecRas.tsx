@@ -5,20 +5,22 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขวันที่ช่วงพยากรณ์ (HEC-RAS)",icon: <BeachAccess />, url: `${API_URL}run/ras_change_date.php` },
-  { title: "จำลองสถาณการณ์น้ำ (HEC-RAS)",icon: <WaterDrop />, url: `${API_URL}run/ras_compute.php` },
-  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: `${API_URL}run/ras_output_profiles.php` },
-  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: `${API_URL}run/ras_output_flow.php` },
-  { title: "ดึงข้อมูลประตูระบายน้ำ",icon: <WaterDrop />, url: `${API_URL}run/ras_output_gate.php` },
-  { title: "รันสคริปต์ทั้งหมด (HEC-RAS)",icon: <Flood />, url: `${API_URL}run/ras_all.php` },
+  { title: "แก้ไขวันที่ช่วงพยากรณ์ (HEC-RAS)",icon: <BeachAccess />, url: `${API_URL}ras_change_date.php` },
+  { title: "จำลองสถาณการณ์น้ำ (HEC-RAS)",icon: <WaterDrop />, url: `${API_URL}ras_compute.php` },
+  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: `${API_URL}ras_output_profiles.php` },
+  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: `${API_URL}ras_output_flow.php` },
+  { title: "ดึงข้อมูลประตูระบายน้ำ",icon: <WaterDrop />, url: `${API_URL}ras_output_gate.php` },
+  { title: "รันสคริปต์ทั้งหมด (HEC-RAS)",icon: <Flood />, url: `${API_URL}ras_all.php` },
 ];
 
 const RunHecRas: React.FC = () => {
   const [messages, setMessages] = useState<{ [key: number]: string }>({});
-
+  const [loading, setLoading] = useState<{ [key: number]: boolean }>({});
   // ฟังก์ชันรันไฟล์ PHP ตาม URL ของแต่ละ Card
   const handleRunPhpFile = async (index: number, url: string) => {
+    setLoading((prev) => ({ ...prev, [index]: true })); // เริ่มโหลด
     try {
+      
       const response = await axios.post(url);
 
       // ตรวจสอบผลลัพธ์ที่ได้รับจาก PHP
@@ -26,11 +28,13 @@ const RunHecRas: React.FC = () => {
         setMessages((prev) => ({ ...prev, [index]: "❌ Run Script Error "}));
         // setMessages((prev) => ({ ...prev, [index]: "❌ Error: " + response.data.error }));
       } else {
-        setMessages((prev) => ({ ...prev, [index]: "✅ Run Script Success "}));
+        setMessages((prev) => ({ ...prev, [index]: "✅ Run Success"}));
         // setMessages((prev) => ({ ...prev, [index]: "✅ Success: " + response.data.message }));
       }
     } catch (error) {
       setMessages((prev) => ({ ...prev, [index]: "❌ Error executing PHP script: " + error }));
+    } finally {
+      setLoading((prev) => ({ ...prev, [index]: false })); // หยุดโหลด
     }
   };
 
@@ -54,6 +58,7 @@ const RunHecRas: React.FC = () => {
                 color="primary"
                 sx={{ marginTop: 2,width:"100%" }}
                 onClick={() => handleRunPhpFile(index, card.url)}
+                disabled={loading[index]} 
                 >
                 รันคำสั่ง
               </Button>

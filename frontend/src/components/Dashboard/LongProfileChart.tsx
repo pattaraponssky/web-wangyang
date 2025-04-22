@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
 import ReactApexChart from "react-apexcharts";
 import { Box, Button, CardContent, MenuItem, Select, Typography} from "@mui/material";
-import { formatThaiDate, formatThaiDay } from "../../utility";
+import { formatThaiDay } from "../../utility";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
 

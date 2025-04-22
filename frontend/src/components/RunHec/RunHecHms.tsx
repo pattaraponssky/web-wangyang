@@ -5,16 +5,17 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขช่วงวันที่พยากรณ์ (HEC-HMS)",icon: <BeachAccess />, url: `${API_URL}run/hms_change_date.php` },
-  { title: "จำลองปริมาณน้ำท่า (HEC-HMS Compute)",icon: <WaterDrop />, url: `${API_URL}run/hms_compute.php` },
-  { title: "รันสคริปต์ทั้งหมด (HEC-HMS)",icon: <Flood />, url: `${API_URL}run/hms_run.php` },
+  { title: "แก้ไขช่วงวันที่พยากรณ์ (HEC-HMS)",icon: <BeachAccess />, url: `${API_URL}hms_change_date.php` },
+  { title: "จำลองปริมาณน้ำท่า (HEC-HMS Compute)",icon: <WaterDrop />, url: `${API_URL}hms_compute.php` },
+  { title: "รันสคริปต์ทั้งหมด (HEC-HMS)",icon: <Flood />, url: `${API_URL}hms_run.php` },
 ];
 
 const RunHecHms: React.FC = () => {
   const [messages, setMessages] = useState<{ [key: number]: string }>({});
-
+  const [loading, setLoading] = useState<{ [key: number]: boolean }>({});
   // ฟังก์ชันรันไฟล์ PHP ตาม URL ของแต่ละ Card
   const handleRunPhpFile = async (index: number, url: string) => {
+    setLoading((prev) => ({ ...prev, [index]: true })); // เริ่มโหลด
     try {
       const response = await axios.post(url);
 
@@ -23,11 +24,13 @@ const RunHecHms: React.FC = () => {
         setMessages((prev) => ({ ...prev, [index]: "❌ Run Script Error "}));
         // setMessages((prev) => ({ ...prev, [index]: "❌ Error: " + response.data.error }));
       } else {
-        setMessages((prev) => ({ ...prev, [index]: "✅ Run Script Success "}));
+        setMessages((prev) => ({ ...prev, [index]: "✅ Run Success"}));
         // setMessages((prev) => ({ ...prev, [index]: "✅ Success: " + response.data.message }));
       }
     } catch (error) {
       setMessages((prev) => ({ ...prev, [index]: "❌ Error executing PHP script: " + error }));
+    }finally {
+      setLoading((prev) => ({ ...prev, [index]: false })); // หยุดโหลด
     }
   };
 
@@ -51,6 +54,7 @@ const RunHecHms: React.FC = () => {
                 color="primary"
                 sx={{ marginTop: 2,width:"100%" }}
                 onClick={() => handleRunPhpFile(index, card.url)}
+                disabled={loading[index]} 
                 >
                 รันคำสั่ง
               </Button>

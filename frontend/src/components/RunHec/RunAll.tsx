@@ -5,15 +5,17 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "รันสคริปต์ทั้งหมด",icon: <WaterDrop />, url: `${API_URL}run/run_all.php` },
-  { title: "สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",icon: <Flood />, url: `${API_URL}run/gate_json.php` },
+  { title: "รันสคริปต์ทั้งหมด",icon: <WaterDrop />, url: `${API_URL}run_all.php` },
+  { title: "สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",icon: <Flood />, url: `${API_URL}gate_json.php` },
 ];
 
 const RunAll: React.FC = () => {
   const [messages, setMessages] = useState<{ [key: number]: string }>({});
+  const [loading, setLoading] = useState<{ [key: number]: boolean }>({});
 
   // ฟังก์ชันรันไฟล์ PHP ตาม URL ของแต่ละ Card
   const handleRunPhpFile = async (index: number, url: string) => {
+    setLoading((prev) => ({ ...prev, [index]: true })); // เริ่มโหลด
     try {
       const response = await axios.post(url);
 
@@ -22,12 +24,15 @@ const RunAll: React.FC = () => {
         setMessages((prev) => ({ ...prev, [index]: "❌ Run Script Error "}));
         // setMessages((prev) => ({ ...prev, [index]: "❌ Error: " + response.data.error }));
       } else {
-        setMessages((prev) => ({ ...prev, [index]: "✅ Run Script Success "}));
+        setMessages((prev) => ({ ...prev, [index]: "✅ Run Success"}));
         // setMessages((prev) => ({ ...prev, [index]: "✅ Success: " + response.data.message }));
       }
     } catch (error) {
       setMessages((prev) => ({ ...prev, [index]: "❌ Error executing PHP script: " + error }));
+    } finally {
+      setLoading((prev) => ({ ...prev, [index]: false })); // หยุดโหลด
     }
+    
   };
 
   return (
@@ -50,6 +55,7 @@ const RunAll: React.FC = () => {
                 color="primary"
                 sx={{ marginTop: 2,width:"100%" }}
                 onClick={() => handleRunPhpFile(index, card.url)}
+                disabled={loading[index]} 
                 >
                 รันคำสั่ง
               </Button>
