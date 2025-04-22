@@ -21,10 +21,10 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setShowForecast(true), 500),
+      setTimeout(() => setShowForecast(true), 1000),
       setTimeout(() => setShowProfile(true), 1000),
-      setTimeout(() => setShowWaterLevel(true), 1500),
-      setTimeout(() => setShowGate(true), 2000),
+      setTimeout(() => setShowWaterLevel(true), 1000),
+      setTimeout(() => setShowGate(true), 1000),
     ];
 
     return () => timers.forEach(clearTimeout);

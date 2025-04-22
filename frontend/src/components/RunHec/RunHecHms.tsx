@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Button, Card, CardContent, Typography, Grid } from "@mui/material";
-import { BeachAccess, WaterDrop, } from "@mui/icons-material";
+import { BeachAccess, Flood, WaterDrop, } from "@mui/icons-material";
 import axios from "axios"; 
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขช่วงวันที่พยากรณ์",icon: <BeachAccess />, url: `${API_URL}hms_change_date.php` },
-  { title: "Hec-HMS Compute",icon: <WaterDrop />, url: `${API_URL}hms_compute.php` },
+  { title: "แก้ไขช่วงวันที่พยากรณ์ (HEC-HMS)",icon: <BeachAccess />, url: `${API_URL}run/hms_change_date.php` },
+  { title: "จำลองปริมาณน้ำท่า (HEC-HMS Compute)",icon: <WaterDrop />, url: `${API_URL}run/hms_compute.php` },
+  { title: "รันสคริปต์ทั้งหมด (HEC-HMS)",icon: <Flood />, url: `${API_URL}run/hms_run.php` },
 ];
 
 const RunHecHms: React.FC = () => {
@@ -33,7 +34,7 @@ const RunHecHms: React.FC = () => {
   return (
   <div>
        <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
-        ขั้นตอนที่ 2 แปลงข้อมูลน้ำฝนเป็นน้ำท่า (Hec-HMS)
+        ขั้นตอนที่ 2 แปลงข้อมูลน้ำฝนเป็นน้ำท่า (HEC-HMS)
       </Typography>
     <Grid container spacing={3}>
 

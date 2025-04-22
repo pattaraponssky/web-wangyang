@@ -3,6 +3,7 @@ import { Box, Grid } from "@mui/material";
 import RunCreateDss from "../components/RunHec/RunCreateDss";
 import RunHecHms from "../components/RunHec/RunHecHms";
 import RunHecRas from "../components/RunHec/RunHecRas";
+import RunAll from "../components/RunHec/RunAll";
 
 const BoxStyle = {
     // maxWidth: "90%",
@@ -31,6 +32,9 @@ const HecRun: React.FC = () => {
     </Grid>
       <Box sx={BoxStyle}>
         <RunHecRas />
+      </Box>
+      <Box sx={BoxStyle}>
+        <RunAll />
       </Box>
     </Box>
   );

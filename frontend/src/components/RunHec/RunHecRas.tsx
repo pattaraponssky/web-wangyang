@@ -5,12 +5,12 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขวันที่ช่วงพยากรณ์",icon: <BeachAccess />, url: `${API_URL}ras_change_date.php` },
-  { title: "Compute Hec-Ras",icon: <WaterDrop />, url: `${API_URL}ras_compute.php` },
-  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: `${API_URL}ras_output_profiles.php` },
-  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: `${API_URL}ras_output_flow.php` },
-  { title: "ดึงข้อมูลประตูระบายน้ำ",icon: <WaterDrop />, url: `${API_URL}ras_output_gate.php` },
-  { title: "สั่งทำงานทั้งหมด",icon: <Cloud />, url: `${API_URL}run_all.php` },
+  { title: "แก้ไขวันที่ช่วงพยากรณ์ (HEC-RAS)",icon: <BeachAccess />, url: `${API_URL}run/ras_change_date.php` },
+  { title: "จำลองสถาณการณ์น้ำ (HEC-RAS)",icon: <WaterDrop />, url: `${API_URL}run/ras_compute.php` },
+  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ",icon: <Cloud />, url: `${API_URL}run/ras_output_profiles.php` },
+  { title: "ดึงข้อมูลอัตราการไหล",icon: <Flood />, url: `${API_URL}run/ras_output_flow.php` },
+  { title: "ดึงข้อมูลประตูระบายน้ำ",icon: <WaterDrop />, url: `${API_URL}run/ras_output_gate.php` },
+  { title: "รันสคริปต์ทั้งหมด (HEC-RAS)",icon: <Flood />, url: `${API_URL}run/ras_all.php` },
 ];
 
 const RunHecRas: React.FC = () => {
@@ -37,12 +37,12 @@ const RunHecRas: React.FC = () => {
   return (
   <div>
        <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
-        ขั้นตอนที่ 3 รันโมเดล (Hec-Ras)
+        ขั้นตอนที่ 3 จำลองสถานการณ์น้ำ (HEC-RAS)
       </Typography>
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-        <Grid item xs={12} sm={6} lg={2} key={index}>
+        <Grid item xs={12} sm={12} lg={4} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>

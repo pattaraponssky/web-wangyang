@@ -5,7 +5,7 @@ import { API_URL } from "../../utility";
 import axios from "axios";
 
 const cardData = [
-  { title: "ดาวน์โหลดกริดฝนพยากรณ์", icon: <BeachAccess />, url: `${API_URL}dowload_rain_grid.php` },
+  { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)", icon: <BeachAccess />, url: `${API_URL}dowload_rain_grid.php` },
   { title: "สร้างไฟล์ input-hms.txt", icon: <WaterDrop />, url: `${API_URL}write_input_txt.php` },
   { title: "สร้างไฟล์ input-hms.dss", icon: <Flood />, url: `${API_URL}write_input_dss.php` },
 ];
