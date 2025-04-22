@@ -55,7 +55,6 @@ const RunCreateText: React.FC = () => {
                 >
                   {loading[index] ? <CircularProgress size={24} color="inherit" /> : "รันคำสั่ง"}
                 </Button>
-
                 <Typography variant="body1" sx={{ textAlign: "center", marginTop: 2, color: messages[index]?.includes("Error") ? "red" : "green" }}>
                   {messages[index]}
                 </Typography>

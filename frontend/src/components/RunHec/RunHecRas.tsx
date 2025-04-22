@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, CardContent, Typography, Grid } from "@mui/material";
+import { Button, Card, CardContent, Typography, Grid, CircularProgress } from "@mui/material";
 import { BeachAccess, WaterDrop, Cloud, Flood } from "@mui/icons-material";
 import axios from "axios"; 
 import { API_URL } from "../../utility";
@@ -60,7 +60,7 @@ const RunHecRas: React.FC = () => {
                 onClick={() => handleRunPhpFile(index, card.url)}
                 disabled={loading[index]} 
                 >
-                รันคำสั่ง
+                {loading[index] ? <CircularProgress size={24} color="inherit" /> : "รันคำสั่ง"}
               </Button>
               <Typography variant="body1" sx={{ textAlign:"center",marginTop: 2, color: messages[index]?.includes("Error") ? "red" : "green" }}>
                 {messages[index]} {/* แสดงข้อความผลลัพธ์แยกแต่ละ Card */}
