@@ -436,7 +436,7 @@ const LongProfileChart: React.FC = () => {
     },
     stroke: {
       width: [2, 0, 5, 5],
-      curve: "straight" as "straight",
+      curve: "monotoneCubic" as "monotoneCubic",
       dashArray: [0, 0, 8, 8],
     },
     colors: ["#007bff","#744111", "red", "green" ],
@@ -469,7 +469,7 @@ const LongProfileChart: React.FC = () => {
       { name: "Water Level (ระดับผิวน้ำ)", type: "area", data: data.map((d) => d.WaterLevel ?? null) },
       { name: "Ground (ท้ายคลอง)", type: "area", data: data.map((d) => d.Ground) },
       { name: "LOB (ตลิ่งซ้าย)", data: data.map((d) => d.LOB) },
-      { name: "ROB (ตลิ่งขวา)", data: data.map((d) => d.ROB) }
+      { name: "ROB (ตลิ่งขวา)", data: data.map((d) => d.ROB) },
     ];
   }, [data]);
 

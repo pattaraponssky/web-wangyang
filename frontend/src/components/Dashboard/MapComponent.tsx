@@ -100,8 +100,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths }) => {
       addTopoJsonMarkers();
       addGeoJsonPolygons();
       addGeoJsonLines();
-      
-
     }
   }, [JsonDataList, isMapReady]);
 

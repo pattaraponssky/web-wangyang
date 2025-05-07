@@ -9,10 +9,27 @@ import ImageComponent from "../components/Dashboard/ImageComponent";
 import WaterGateTable from "../components/Dashboard/WaterGateTable";
 import WaterLevelChart from "../components/Dashboard/WaterLevel";
 import FloatingMenu from "../components/Dashboard/selectMenu";
+import Papa from "papaparse";
+
+
+interface WaterLevelData {
+  time: string;
+  station: string;
+  elevation: number;
+}
+
+const stationMapping: Record<string, number> = {
+  "E.91": 184715,
+  "E.1": 151870,
+  "E.8A": 112911,
+  "WY": 62093,
+  "E.66A": 51452,
+  "E.87": 3636,
+};
 
 const Dashboard: React.FC = () => {
   const mapKey = 'e75fee377b3d393b7a32576ce2b0229d';
-
+  const [maxElevations, setMaxElevations] = useState<Record<string, number>>({});
   // สถานะสำหรับ delay การแสดงผล
   const [showForecast, setShowForecast] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -20,11 +37,66 @@ const Dashboard: React.FC = () => {
   const [showGate, setShowGate] = useState(false);
 
   useEffect(() => {
+    fetch("./ras-output/output_ras.csv")
+      .then((response) => response.text())
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (result) => {
+            const rawData: any[] = result.data;
+            const parsedData: WaterLevelData[] = rawData
+              .map((row) => {
+                const rawTime = row["Date"]?.trim();
+                const crossSection = Number(row["Cross Section"]?.trim());
+                const elevation = parseFloat(row["Water_Elevation"]);
+                const station = Object.keys(stationMapping).find(
+                  (key) => stationMapping[key] === crossSection
+                ) || "";
+
+                let time = "";
+                if (rawTime) {
+                  const [datePart, timePart] = rawTime.split(" ");
+                  const [day, month, year] = datePart.split("/").map(Number);
+                  const isoDateStr = `${year.toString().padStart(4, "0")}-${month
+                    .toString()
+                    .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                  time = `${isoDateStr}T${timePart}`;
+                }
+
+                return { time, station, elevation };
+              })
+              .filter((item) => item.station && item.time);
+
+            const stationMaxMap: Record<string, number> = {};
+            const latestTime = new Date(Math.max(...parsedData.map((d) => new Date(d.time).getTime())));
+            const threeDaysAgo = new Date(latestTime);
+            threeDaysAgo.setDate(latestTime.getDate() - 6);
+            // console.log("Latest Time:", latestTime);
+            // console.log("threeDaysAgo Time:", threeDaysAgo);
+            Object.keys(stationMapping).forEach((station) => {
+              const stationData = parsedData.filter(
+                (d) => d.station === station && new Date(d.time) >= threeDaysAgo
+              );
+              const maxElevation = Math.max(...stationData.map((d) => d.elevation));
+              if (!isNaN(maxElevation)) {
+                stationMaxMap[station] = maxElevation;
+              }
+            });
+
+            setMaxElevations(stationMaxMap);
+          },
+        });
+      });
+  }, []);
+
+
+  useEffect(() => {
     const timers = [
       setTimeout(() => setShowForecast(true), 1000),
       setTimeout(() => setShowProfile(true), 1000),
       setTimeout(() => setShowWaterLevel(true), 1000),
-      setTimeout(() => setShowGate(true), 1000),
+      setTimeout(() => setShowGate(true), 2000),
     ];
 
     return () => timers.forEach(clearTimeout);
@@ -73,7 +145,8 @@ const Dashboard: React.FC = () => {
       </Box>
 
       <Box sx={{ ...BoxStyle }} id="flood-warning">
-        <FloodWarningTable />
+      <FloodWarningTable maxLevels={maxElevations} />
+
       </Box>
 
       <Box sx={{ ...BoxStyle, padding: "20px" }} id="forecast-chart">

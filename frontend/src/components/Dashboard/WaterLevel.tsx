@@ -251,8 +251,8 @@ const WaterLevelChart: React.FC = () => {
       max: Math.max(...filteredSecondData.map((item) => item.elevation)) + 0.5,
     },
     stroke: {
-      width: [1, 1],
-      curve: "straight" as const,
+      width: [1, 3],
+      curve: "monotoneCubic" as const,
       dashArray: [0, 0, 8, 8],
     },
     colors: [ "#007bff","#744111"],

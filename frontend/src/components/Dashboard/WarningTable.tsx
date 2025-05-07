@@ -6,38 +6,40 @@ const warningData = [
   { 
     id: 1, location: "E.91", district: "โกสุมพิสัย", province: "มหาสารคาม", 
     depth: 14.30, leftBank: 152.29, rightBank: 152.25, canalBottom: 137.95, 
-    watch: 149.30, alert: 150.80, crisis: 152.20, maxLevel3Days: 140.74 
+    watch: 149.30, alert: 150.80, crisis: 152.20, maxLevel7Days: 140.74 
   },
   { 
     id: 2, location: "E.1", district: "โกสุมพิสัย", province: "มหาสารคาม", 
     depth: 13.06, leftBank: 148.79, rightBank: 148.99, canalBottom: 135.73, 
-    watch: 146.10, alert: 147.40, crisis: 148.70, maxLevel3Days: '' 
+    watch: 146.10, alert: 147.40, crisis: 148.70, maxLevel7Days: '' 
   },
   { 
     id: 3, location: "E.8A", district: "เมือง", province: "มหาสารคาม", 
     depth: 16.29, leftBank: 148.95, rightBank: 148.69, canalBottom: 132.40, 
-    watch: 145.40, alert: 147.00, crisis: 148.00, maxLevel3Days: ''
+    watch: 145.40, alert: 147.00, crisis: 148.00, maxLevel7Days: ''
   },
   { 
-    id: 4, location: "เขื่อนวังยาง", district: "ฆ้องชัย", province: "กาฬสินธุ์", 
+    id: 4, location: "WY", district: "ฆ้องชัย", province: "กาฬสินธุ์", 
     depth: 10.80, leftBank: 142.00, rightBank: 142.00, canalBottom: 131.20, 
-    watch: 137.00, alert: 138.00, crisis: 139.00, maxLevel3Days: 137.31 
+    watch: 137.00, alert: 138.00, crisis: 139.00, maxLevel7Days: 137.31 
   },
   { 
     id: 5, location: "E.66A", district: "จังหาร", province: "ร้อยเอ็ด", 
     depth: 14.50, leftBank: 141.53, rightBank: 143.46, canalBottom: 127.03, 
-    watch: 138.60, alert: 140.00, crisis: 141.50, maxLevel3Days: 131.40 
+    watch: 138.60, alert: 140.00, crisis: 141.50, maxLevel7Days: 131.40 
   },
   { 
     id: 6, location: "E.87", district: "กมลาไสย", province: "กาฬสินธุ์", 
     depth: 10.46, leftBank: 139.95, rightBank: 139.98, canalBottom: 129.49, 
-    watch: 137.80, alert: 138.90, crisis: 139.90, maxLevel3Days: 132.13 
+    watch: 137.80, alert: 138.90, crisis: 139.90, maxLevel7Days: 132.13 
   }
 ];
 
+interface FloodWarningTableProps {
+  maxLevels: Record<string, number>;
+}
 
-
-const FloodWarningTable: React.FC = () => {
+const FloodWarningTable: React.FC<FloodWarningTableProps> = ({ maxLevels }) => {
   const isSmallScreen = useMediaQuery("(max-width: 600px)"); // เช็คว่าหน้าจอเล็กไหม
   const isMediumScreen = useMediaQuery("(max-width: 900px)"); 
   
@@ -116,7 +118,7 @@ const FloodWarningTable: React.FC = () => {
               เกณฑ์เฝ้าระวัง (ม.รทก.)
             </TableCell>
             <TableCell sx={{minWidth:"100px",...cellHeaderStyle}} rowSpan={2}>
-              ระดับน้ำสูงสุด 3 วัน<br/>(ม.รทก.)
+              ระดับน้ำสูงสุด 7 วัน<br/>(ม.รทก.)
             </TableCell>
           </TableRow>
           <TableRow>
@@ -147,7 +149,7 @@ const FloodWarningTable: React.FC = () => {
               <TableCell sx={getCellStyle(index)}>{item.watch.toFixed(2)}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.alert.toFixed(2)}</TableCell>
               <TableCell sx={getCellStyle(index)}>{item.crisis.toFixed(2)}</TableCell>
-              <TableCell sx={getCellStyle(index)}>{item.maxLevel3Days !== null ? item.maxLevel3Days : "-"}</TableCell>
+              <TableCell sx={getCellStyle(index)}> {maxLevels[item.location] != null ? maxLevels[item.location].toFixed(2) : "-"}</TableCell>
             </TableRow>
           ))}
         </TableBody>
