@@ -510,8 +510,7 @@ const LongProfileChart: React.FC = () => {
               }}
               sx={{
                 fontFamily: "Prompt",
-                width: { xs: "100%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
-                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+                width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
               }}
             >
                {uniqueDays.map((day) => (
@@ -527,8 +526,7 @@ const LongProfileChart: React.FC = () => {
               disabled={!selectedDate}
               sx={{
                 fontFamily: "Prompt",
-                width: { xs: "100%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
-                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+                width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
               }}
             >
               {uniqueTimes.map((time) => (

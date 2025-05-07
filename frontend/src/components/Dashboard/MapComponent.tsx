@@ -19,14 +19,12 @@ interface LongdoMapProps {
   callback?: () => void;
 }
 
-const LongdoMap: React.FC<LongdoMapProps> = ({ id, mapKey, JsonPaths, callback }) => {
+const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [JsonDataList, setJsonDataList] = useState<any[]>([]);
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [markers, setMarkers] = useState<any[]>([]);
-  console.log(callback);
-  console.log(id);
-  
+    
   // โหลดไฟล์ GeoJSON
   useEffect(() => {
     const loadJsonFiles = async () => {

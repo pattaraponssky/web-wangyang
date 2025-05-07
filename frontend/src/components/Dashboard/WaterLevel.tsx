@@ -327,7 +327,11 @@ const WaterLevelChart: React.FC = () => {
         
         {/* เลือกวันที่ */}
           <Select
-            sx={{ fontFamily: "Prompt", width: "auto"}}
+              sx={{
+                fontFamily: "Prompt",
+                width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
+              }}
+            
             value={selectedDate}
             onChange={(e) => {
               setSelectedDate(e.target.value);
@@ -344,7 +348,10 @@ const WaterLevelChart: React.FC = () => {
           {/* เลือกเวลาในวันที่ที่เลือก */}
           {selectedDate && (
             <Select
-              sx={{ fontFamily: "Prompt", width: "auto"}}
+            sx={{
+              fontFamily: "Prompt",
+              width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
+            }}
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
             >
