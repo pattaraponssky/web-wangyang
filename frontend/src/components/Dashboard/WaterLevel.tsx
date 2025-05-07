@@ -3,7 +3,7 @@ import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import Chart from "react-apexcharts";
-import { formatThaiDate } from "../../utility";
+import { formatThaiDay } from "../../utility";
 
 interface WaterLevelData {
   time: string;
@@ -35,6 +35,8 @@ const WaterLevelChart: React.FC = () => {
   const [secondData, setSecondData] = useState<WaterLevelData[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("");
   const Levels = warningLevels[selectedStation];
 
   useEffect(() => {
@@ -57,7 +59,7 @@ const WaterLevelChart: React.FC = () => {
               if (rawTime) {
                 const [datePart, timePart] = rawTime.split(" ");
                 const [day, month, year] = datePart.split("/").map(Number);
-                const isoDateStr = new Date(year, month - 1, day).toISOString().split("T")[0]; // YYYY-MM-DD
+                const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;                
                 time = `${isoDateStr}T${timePart}`; // เพื่อความแม่นยำ (เช่น 2025-04-03T06:00)
               }
             
@@ -93,13 +95,45 @@ const WaterLevelChart: React.FC = () => {
       });
   }, []);
 
+  
   const stationData = data.filter((item) => item.station === selectedStation);
-  const selectedData = stationData[selectedIndex] || { time: "", elevation: 0, station: selectedStation };
+  const selectedData = data.find((item) => item.station === selectedStation && item.time === selectedTime)
+  || { time: "", elevation: 0, station: selectedStation };
+
 
   const filteredSecondData = secondData.filter((item) => item.station === selectedStation);
   const categories = filteredSecondData.map(item => item.time || "");
+  // ดึงข้อมูลเฉพาะของสถานีที่เลือก
 
+  // จัดกลุ่มข้อมูลตามวันที่ (YYYY-MM-DD)
+  const groupedByDate: Record<string, WaterLevelData[]> = stationData.reduce((acc, item) => {
+    const date = item.time.split("T")[0];
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(item);
+    return acc;
+  }, {} as Record<string, WaterLevelData[]>);
 
+  const availableDates = Object.keys(groupedByDate);
+
+  useEffect(() => {
+    if (availableDates.length) {
+      // ถ้า selectedDate ปัจจุบันยังคงอยู่ใน availableDates
+      const validDate = availableDates.includes(selectedDate) ? selectedDate : availableDates[0];
+      setSelectedDate(validDate);
+  
+      // หาเวลาทั้งหมดในวันที่นั้น
+      const timesInDate = groupedByDate[validDate]?.map((item) => item.time) || [];
+  
+      // ถ้า selectedTime ปัจจุบันยังคงอยู่ใน timesInDate
+      const validTime = timesInDate.includes(selectedTime) ? selectedTime : timesInDate[0];
+      setSelectedTime(validTime);
+    } else {
+      setSelectedDate("");
+      setSelectedTime("");
+    }
+  }, [availableDates, selectedStation]); // 👈 ยังใช้ dependency เดิม
+  
+  
   const chartOptions = {
     chart: {
       type: "line" as const,
@@ -291,21 +325,40 @@ const WaterLevelChart: React.FC = () => {
           ))}
         </Select>
         
-        <Select
-          sx={{
-            fontFamily: "Prompt",
-            width: { xs: "100%", sm: "auto" },  // ปรับให้ Select ขยายเต็มหน้าจอในขนาดเล็ก
-            marginBottom: { xs: 2, sm: 0 },  // เพิ่ม margin ในขนาดเล็ก
-          }}
-          value={selectedIndex}
-          onChange={(e) => setSelectedIndex(Number(e.target.value))}
-        >
-          {stationData.map((item, index) => (
-            <MenuItem key={formatThaiDate(item.time || '')} value={index}>
-              {formatThaiDate(item.time || '')}
-            </MenuItem>
-          ))}
-        </Select>
+        {/* เลือกวันที่ */}
+          <Select
+            sx={{ fontFamily: "Prompt", width: "auto"}}
+            value={selectedDate}
+            onChange={(e) => {
+              setSelectedDate(e.target.value);
+              setSelectedTime(""); // reset เวลาเมื่อเปลี่ยนวัน
+            }}
+          >
+            {availableDates.map((date) => (
+              <MenuItem key={date} value={date}>
+                {formatThaiDay(date)}
+              </MenuItem>
+            ))}
+          </Select>
+
+          {/* เลือกเวลาในวันที่ที่เลือก */}
+          {selectedDate && (
+            <Select
+              sx={{ fontFamily: "Prompt", width: "auto"}}
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+            >
+              {groupedByDate[selectedDate]?.map((item) => {
+                const timeOnly = item.time.split("T")[1];
+                return (
+                  <MenuItem key={item.time} value={item.time}>
+                    {timeOnly}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          )}
+
         
         <Button
           sx={{

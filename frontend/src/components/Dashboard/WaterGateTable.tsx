@@ -136,7 +136,8 @@ const WaterLevelTable: React.FC = () => {
   
 
   const uniqueDates = Array.from(new Set(data.map((row) => formatOnlyDate(row.datetime))));
-  uniqueDates.sort();
+  uniqueDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
 
   const filteredData =
     selectedDate === "ทั้งหมด"

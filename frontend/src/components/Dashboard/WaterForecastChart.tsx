@@ -10,7 +10,7 @@ const WaterForecastChart: React.FC = () => {
 
   useEffect(() => {
     const csvFilePath = './ras-output/sta_flow.csv';
-
+  
     fetch(csvFilePath)
       .then((response) => response.text())
       .then((csvData) => {
@@ -19,22 +19,33 @@ const WaterForecastChart: React.FC = () => {
           skipEmptyLines: true,
           complete: (result) => {
             const data = result.data;
+              
+                      // ดึงข้อมูลตั้งแต่ 7 วันที่แล้ว เวลา 07:00
+            const now = new Date();
+            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 7, 0, 0).getTime();
 
+            const filteredData = data.filter((item: any) => {
+              const timestamp = convertToTimestamp(item.DateTime);
+              return timestamp && timestamp >= startTime;
+            });
+
+  
             const seriesData = [
-              { name: 'E.91', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.91']) || 0]) },
-              { name: 'E.1', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.1']) || 0]) },
-              { name: 'E.8A', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.8A']) || 0]) },
-              { name: 'เขื่อนวังยาง', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['WY']) || 0]) },
-              { name: 'E.66A', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.66A']) || 0]) },
-              { name: 'E.87', data: data.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.87']) || 0]) },
+              { name: 'E.91', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.91']) || 0]) },
+              { name: 'E.1', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.1']) || 0]) },
+              { name: 'E.8A', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.8A']) || 0]) },
+              { name: 'เขื่อนวังยาง', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['WY']) || 0]) },
+              { name: 'E.66A', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.66A']) || 0]) },
+              { name: 'E.87', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.87']) || 0]) },
             ];
-
+  
             setChartData(seriesData);
           },
         });
       })
       .catch((error) => console.error('Error fetching the CSV file:', error));
   }, []);
+  
 
   const convertToTimestamp = (dateTimeStr: string) => {
     if (!dateTimeStr) return null;
