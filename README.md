@@ -2,7 +2,7 @@
 
 โปรแกรมเว็บไซต์พยากรณ์น้ำในพื้นที่วังยาง เพื่อติดตามและติดตั้งระดับน้ำและโอกาสต่างๆ ที่สามารถดูได้
 
-## เทคโนโลยีที่ใช้
+### เทคโนโลยีที่ใช้
 
 - [Vite](https://vitejs.dev/) - เครื่องมือสร้างเว็บไซต์ที่เน้นไปที่ React
 - [React](https://react.dev/) - เฟรมเวิร์คแบบ UI ที่พัฒนาโดย Facebook
@@ -50,36 +50,37 @@ npm run build
 
 **จะได้ไฟล์เว็บไซต์ในโฟลเดอร์ dist นำทั้งหมดไปวางในโฟลเดอร์ server ได้เลย**
 
-## โครงสร้างสำคัญ
+### โครงสร้างสำคัญ
 
 - **src/components** - เมนูของคอมโพเนนต์
 - **src/pages** - หน้าเพจ
 - **src/assets** - สำหรับเก็บกราฟิกและภาพ
 - **src/public** - สำหรับเก็บไฟล์ข้อมูลที่ใช้ในโปรเจกต์
 
-## เพิ่มเติม
+### เพิ่มเติม
 
-- ไฟล์ Utility.tsx ตั้งค่า API URL สำหรับการเชื่อมต่อกับ API ภายนอก
+- ไฟล์ Utility.tsx ตั้งค่า API URL สำหรับการเชื่อมต่อกับ API ภายนอก และ format วันที่
 
 ---
 
 # HEC Setup Guide (การติดตั้ง HEC)
 
-## Program Requirement (โปรแกรมที่ต้องการ)
+### Program Requirement (โปรแกรมที่ต้องการ)
 
 - **HEC-RAS 6.3**
-- **HEC-DSSVue**
+- **HEC-DSSVue 3.3.29**
 - **HEC-HMS 4.2.1**
 - **Python**
 - **Java (JDK 17)**
+- **Xampp**
 
-## Step 1: ติดตั้งโปรแกรม HEC ในตำแหน่งเริ่มต้น
+### Step 1: ติดตั้งโปรแกรม HEC ในตำแหน่งเริ่มต้น
 
 1. **HEC-HMS 4.2.1**  
    ดาวน์โหลดและติดตั้ง HEC-HMS 4.2.1 ตามขั้นตอนที่แนะนำในเว็บไซต์ของ HEC:  
    [HEC-HMS](https://www.hec.usace.army.mil/software/hec-hms/)
 
-2. **HEC-DSSVue**  
+2. **HEC-DSSVue 3.3.29**  
    ดาวน์โหลดและติดตั้ง HEC-DSSVue ตามขั้นตอนที่แนะนำในเว็บไซต์ของ HEC:  
    [HEC-DSSVue](https://www.hec.usace.army.mil/software/dssvue/)
 
@@ -87,7 +88,7 @@ npm run build
    ดาวน์โหลดและติดตั้ง HEC-RAS 6.3 ตามขั้นตอนที่แนะนำในเว็บไซต์ของ HEC:  
    [HEC-RAS](https://www.hec.usace.army.mil/software/hec-ras/)
 
-## Step 2: ติดตั้ง Java JDK Version 17
+### Step 2: ติดตั้ง Java JDK Version 17
 
 1. ดาวน์โหลด **Java JDK 17** จาก [Oracle JDK Downloads](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html)
 
@@ -109,7 +110,7 @@ npm run build
 
        2. ใช้คำสั่ง `source ~/.bashrc` หรือ `source ~/.zshrc` เพื่อโหลดการตั้งค่าใหม่
 
-## Step 3: ติดตั้ง Python และไลบรารีที่จำเป็น
+### Step 3: ติดตั้ง Python และไลบรารีที่จำเป็น
 
 1. ดาวน์โหลดและติดตั้ง **Python** จาก [Python.org](https://www.python.org/downloads/)
 
@@ -125,24 +126,37 @@ npm run build
    pip install pywin32
    ```
 
-## Step 4: นำโฟลเดอร์ `sti_wangyang` ไปไว้ในตำแหน่งไดรฟ์ `D:/`
+##### หรือสามารถติดตั้งผ่าน Visual Studio Code ได้เลยโดยติดตั้ง Extension Python
 
-1. คัดลอกโฟลเดอร์ `sti_wangyang` ไปยังไดรฟ์ `D:/`
+### Step 4: ติดตั้ง XAMPP (Apache Server + PHP + MySQL)
+
+1. ดาวน์โหลด XAMPP เวอร์ชันล่าสุดจากเว็บไซต์ทางการ
+2. ติดตั้งโปรแกรม
+3. เปิด XAMPP Control Panel แล้วกด Start ที่ Apache server
+4. ตรวจสอบว่า Apache ทำงาน เข้าเว็บ http://localhost/ บนเบราว์เซอร์
+
+
+### Step 5: นำโฟลเดอร์ `sti_wangyang` ไปไว้ในตำแหน่งไดรฟ์ `C:/`
+
+1. คัดลอกโฟลเดอร์ `sti_wangyang` ไปยังไดรฟ์ `C:/`
 2. โครงสร้างโฟลเดอร์ควรมีลักษณะเช่นนี้:
 
    ```
-   D:/sti_wangyang
+   C:/sti_wangyang
    ```
 
-## Step 5: นำโฟลเดอร์โค้ดไปไว้ใน Apache Server
+### Step 6: นำโฟลเดอร์โค้ดไปไว้ใน Apache Server
 
 1. คัดลอกโฟลเดอร์โค้ดไปยังโฟลเดอร์ของ Apache server (เช่น `/var/www/html/` สำหรับ Linux หรือ `C:/xampp/htdocs/` สำหรับ Windows)
 
 2. โครงสร้างโฟลเดอร์ควรมีลักษณะเช่นนี้:
 
    ```
-   /var/www/html/your_project_name
+   C:/xampp/htdocs/website
+   C:/xampp/htdocs/wangyang/API
+   C:/xampp/htdocs/wangyang/hec_api
    ```
+
 
 ## Additional Notes: 
 
