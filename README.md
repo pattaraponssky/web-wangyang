@@ -130,7 +130,7 @@ npm run build
 
 ### Step 4: ติดตั้ง XAMPP (Apache Server + PHP + MySQL)
 
-1. ดาวน์โหลด XAMPP เวอร์ชันล่าสุดจากเว็บไซต์ทางการ
+1. ดาวน์โหลด XAMPP เวอร์ชันล่าสุดจากเว็บไซต์ทางการ : [XAMPP](https://www.apachefriends.org/download.html)
 2. ติดตั้งโปรแกรม
 3. เปิด XAMPP Control Panel แล้วกด Start ที่ Apache server
 4. ตรวจสอบว่า Apache ทำงาน เข้าเว็บ http://localhost/ บนเบราว์เซอร์

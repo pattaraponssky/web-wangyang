@@ -18,6 +18,12 @@ interface WaterLevelData {
   elevation: number;
 }
 
+interface waterData {
+  CrossSection: number;
+  Date: string | null;
+  WaterLevel: number;
+}
+
 const stationMapping: Record<string, number> = {
   "E.91": 184715,
   "E.1": 151870,
@@ -30,11 +36,42 @@ const stationMapping: Record<string, number> = {
 const Dashboard: React.FC = () => {
   const mapKey = 'e75fee377b3d393b7a32576ce2b0229d';
   const [maxElevations, setMaxElevations] = useState<Record<string, number>>({});
+  const [data, setData] = useState<WaterLevelData[]>([]);
+  const [waterData, setWaterData] = useState<waterData[]>([]);
   // สถานะสำหรับ delay การแสดงผล
   const [showForecast, setShowForecast] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showWaterLevel, setShowWaterLevel] = useState(false);
   const [showGate, setShowGate] = useState(false);
+  const [rainData, setRainData] = useState(null);
+  const [flowData, setFlowData] = useState(null);
+  const [eleData, setEleData] = useState(null);
+
+  useEffect(() => {
+    const safeFetch = async (url: string) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return await res.json();
+      } catch (error) {
+        console.warn(`❌ Failed to fetch ${url}:`, error);
+        return null;
+      }
+    };
+
+    const loadAll = async () => {
+      const [rain, flow, ele] = await Promise.all([
+        safeFetch("http://localhost/wangyang/API/api_rain_hydro3.php"),
+        safeFetch("http://localhost/wangyang/API/api_flow_hydro3.php"),
+        safeFetch("http://localhost/wangyang/API/api_elevation_hydro3.php"),
+      ]);
+      setRainData(rain);
+      setFlowData(flow);
+      setEleData(ele);
+    };
+
+    loadAll();
+  }, []);
 
   useEffect(() => {
     fetch("./ras-output/output_ras.csv")
@@ -45,35 +82,55 @@ const Dashboard: React.FC = () => {
           skipEmptyLines: true,
           complete: (result) => {
             const rawData: any[] = result.data;
-            const parsedData: WaterLevelData[] = rawData
-              .map((row) => {
-                const rawTime = row["Date"]?.trim();
-                const crossSection = Number(row["Cross Section"]?.trim());
-                const elevation = parseFloat(row["Water_Elevation"]);
-                const station = Object.keys(stationMapping).find(
-                  (key) => stationMapping[key] === crossSection
-                ) || "";
-
-                let time = "";
-                if (rawTime) {
-                  const [datePart, timePart] = rawTime.split(" ");
-                  const [day, month, year] = datePart.split("/").map(Number);
-                  const isoDateStr = `${year.toString().padStart(4, "0")}-${month
-                    .toString()
-                    .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-                  time = `${isoDateStr}T${timePart}`;
-                }
-
-                return { time, station, elevation };
-              })
-              .filter((item) => item.station && item.time);
-
+            if (!rawData.length) return;
+          
+          
+            // แปลงข้อมูล CSV ระดับน้ำเป็นอ็อบเจ็กต์
+            const parsedData: WaterLevelData[] = rawData.map((row) => {
+              const rawTime = row["Date"]?.trim();
+              const crossSection = Number(row["Cross Section"]?.trim()); // ลบช่องว่าง
+              const elevation = parseFloat(row["Water_Elevation"]?.trim()); // ลบช่องว่าง
+              const station = Object.keys(stationMapping).find((key) => stationMapping[key] === crossSection) || "";
+  
+              let time = "";
+              if (rawTime) {
+                const [datePart, timePart] = rawTime.split(" ");
+                const [day, month, year] = datePart.split("/").map(Number);
+                const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                time = `${isoDateStr}T${timePart}`;
+              }
+  
+              return { time, station, elevation };
+            }).filter(item => item.station && item.time);
+  
+            // ข้อมูล parsedWaterData
+            let parsedWaterData = rawData.slice(1).map((row: any) => {
+              const rawDate = row["Date"]?.trim();
+              const crossSection = row['Cross Section'].trim();
+              const elevation = parseFloat(row["Water_Elevation"]?.trim()); // ลบช่องว่าง
+              let formattedDate = null;
+  
+              if (rawDate) {
+                const [day, month, yearAndTime] = rawDate.split("/"); // แยกเดือน, วัน, และปี+เวลา
+                const [year, time] = yearAndTime.split(" "); // แยกปีและเวลา
+  
+                // รูปแบบวันที่ใหม่เป็น "YYYY-MM-DD HH:mm"
+                formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${time}`;
+              }
+  
+              return {
+                CrossSection: parseInt(crossSection),
+                Date: formattedDate,
+                WaterLevel: (elevation), // แปลงเป็นตัวเลขทศนิยม 2 ตำแหน่ง
+              };
+            });
+  
+            // ข้อมูล maxElevations
             const stationMaxMap: Record<string, number> = {};
             const latestTime = new Date(Math.max(...parsedData.map((d) => new Date(d.time).getTime())));
             const threeDaysAgo = new Date(latestTime);
             threeDaysAgo.setDate(latestTime.getDate() - 6);
-            // console.log("Latest Time:", latestTime);
-            // console.log("threeDaysAgo Time:", threeDaysAgo);
+  
             Object.keys(stationMapping).forEach((station) => {
               const stationData = parsedData.filter(
                 (d) => d.station === station && new Date(d.time) >= threeDaysAgo
@@ -83,15 +140,20 @@ const Dashboard: React.FC = () => {
                 stationMaxMap[station] = maxElevation;
               }
             });
-
+  
+            // Set state for each required data
             setMaxElevations(stationMaxMap);
+            setData(parsedData);
+            setWaterData(parsedWaterData); // ตรวจสอบข้อมูลก่อนการตั้ง state
           },
         });
-      });
+      })
+      .catch((error) => console.error("Error loading CSV:", error));
   }, []);
-
+  
 
   useEffect(() => {
+    
     const timers = [
       setTimeout(() => setShowForecast(true), 1000),
       setTimeout(() => setShowProfile(true), 1000),
@@ -137,7 +199,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="h6" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
           แผนที่ตำแหน่งสถานีที่สำคัญพื้นที่ศึกษาโครงการวังยาง
         </Typography>
-        <LongdoMap id="longdo-map" mapKey={mapKey} JsonPaths={JsonPaths} />
+        <LongdoMap id="longdo-map" mapKey={mapKey} JsonPaths={JsonPaths} rainData={rainData} flowData={flowData} eleData={eleData} />
       </Box>
 
       <Box sx={{ marginBlock: "20px" }}>
@@ -154,11 +216,11 @@ const Dashboard: React.FC = () => {
       </Box>
 
       <Box sx={BoxStyle} id="profile-chart">
-        {showProfile && <LongProfileChart />}
+        {showProfile && <LongProfileChart waterData={waterData} />}
       </Box>
 
       <Box id="water-level" sx={{ ...BoxStyle }}>
-        {showWaterLevel && <WaterLevelChart />}
+        {showWaterLevel && <WaterLevelChart data={data}/>}
       </Box>
 
       <Box sx={{ ...BoxStyle, paddingBottom: "20px" }} id="water-gate">

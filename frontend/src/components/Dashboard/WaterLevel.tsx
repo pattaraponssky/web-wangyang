@@ -30,8 +30,11 @@ const stationMapping: Record<string, number> = {
   "E.87": 3636,
 };
 
-const WaterLevelChart: React.FC = () => {
-  const [data, setData] = useState<WaterLevelData[]>([]);
+interface Props {
+  data: WaterLevelData[];
+}
+
+const WaterLevelChart: React.FC<Props> = ({data}) => {
   const [secondData, setSecondData] = useState<WaterLevelData[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
@@ -40,38 +43,6 @@ const WaterLevelChart: React.FC = () => {
   const Levels = warningLevels[selectedStation];
 
   useEffect(() => {
-    fetch("./ras-output/output_ras.csv")
-      .then((response) => response.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (result) => {
-            const rawData: any[] = result.data;
-            if (!rawData.length) return;
-            const parsedData: WaterLevelData[] = rawData.map((row) => {
-              const rawTime = row["Date"]?.trim();
-              const crossSection = Number(row["Cross Section"]?.trim());
-              const elevation = parseFloat(row["Water_Elevation"]);
-              const station = Object.keys(stationMapping).find((key) => stationMapping[key] === crossSection) || "";
-            
-              let time = "";
-              if (rawTime) {
-                const [datePart, timePart] = rawTime.split(" ");
-                const [day, month, year] = datePart.split("/").map(Number);
-                const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;                
-                time = `${isoDateStr}T${timePart}`; // เพื่อความแม่นยำ (เช่น 2025-04-03T06:00)
-              }
-            
-              return { time, station, elevation, NO: "" }; // Add default value for NO
-            }).filter(item => item.station && item.time);
-            
-            setData(parsedData);
-            setSelectedIndex(0);
-          },
-        });
-      });
-
     fetch("./data/ground_station.csv")
       .then((response) => response.text())
       .then((csvText) => {

@@ -5,17 +5,25 @@ import { Box, Button, CardContent, MenuItem, Select, Typography} from "@mui/mate
 import { formatThaiDay } from "../../utility";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
+interface waterData {
+  CrossSection: number;
+  Date: string | null;
+  WaterLevel: number;
+}
+interface Props {
+  waterData: waterData[];
+}
 
-const LongProfileChart: React.FC = () => {
+const LongProfileChart: React.FC<Props> = ({ waterData }) => {
   const [data, setData] = useState<{ Ground: number; LOB: number; ROB: number; KM: number; WaterLevel?: number }[]>([]);
-  const [waterData, setWaterData] = useState<{CrossSection: number; Date: string | null; WaterLevel: number }[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const dates = [...new Set(waterData.map((d) => d.Date?.split(" ")[0]))].sort();
   const currentIndex = dates.indexOf(selectedDate ?? "");
-  
+
   useEffect(() => {
     // โหลดไฟล์ CSV หลัก
+   
     fetch("./data/longProfile.csv")
       .then((response) => response.text())
       .then((csvText) => {
@@ -37,46 +45,9 @@ const LongProfileChart: React.FC = () => {
       .catch((error) => console.error("Error loading CSV:", error));
   }, []);
 
-  useEffect(() => {
-    fetch("./ras-output/output_ras.csv")
-      .then((response) => response.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          complete: (result) => {
-            const rawData: any[] = result.data;
-  
-            // แปลงข้อมูล CSV ระดับน้ำเป็นอ็อบเจ็กต์
-            let parsedWaterData = rawData.slice(1).map((row: any) => {
-              const rawDate = row[0]?.trim();
-              let formattedDate = null;
-  
-              if (rawDate) {
-                const [day, month, yearAndTime] = rawDate.split("/"); // แยกเดือน, วัน, และปี+เวลา
-                const [year, time] = yearAndTime.split(" "); // แยกปีและเวลา
-  
-                // รูปแบบวันที่ใหม่เป็น "YYYY-MM-DD HH:mm"
-                formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${time}`;
-              }
-  
-              return {
-                CrossSection: parseInt(row[1]),
-                Date: formattedDate,
-                WaterLevel: parseFloat(row[2])
-              };
-            });
-  
-            setWaterData(parsedWaterData);
-          },
-          header: false,
-          skipEmptyLines: true,
-        });
-      })
-      .catch((error) => console.error("Error loading Water Level CSV:", error));
-  }, []);
   
   useEffect(() => {
     if (waterData.length > 0) {
-      // ตั้งค่า selectedDate และ selectedTime เมื่อข้อมูลโหลดเสร็จ
       const firstDateTime = [...new Set(waterData.map((d) => d.Date))].sort()[0];
       if (firstDateTime) {
         const [datePart, timePart] = firstDateTime.split(" ");
@@ -84,7 +55,8 @@ const LongProfileChart: React.FC = () => {
         setSelectedTime(timePart);
       }
     }
-  }, [waterData]);
+  }, [waterData]); // ตัด selectedDate, selectedTime ออก
+  
   
 
   const uniqueDays = [...new Set(waterData.map(d => d.Date?.split(" ")[0]))].sort();
@@ -93,30 +65,33 @@ const LongProfileChart: React.FC = () => {
       .filter(d => d.Date?.startsWith(selectedDate || ""))
       .map(d => d.Date?.split(" ")[1])
   )].sort();
-  
 
   // ฟังก์ชันที่จะทำการกรองข้อมูลตาม selectedNO
   const fullSelectedDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : null;
-  const filteredWaterData = waterData.filter((d) => d.Date === fullSelectedDateTime);
-  filteredWaterData.reverse();
+  const filteredwaterData = waterData.filter((d) => d.Date === fullSelectedDateTime);
+  filteredwaterData.reverse();
 
 
-  // การกรองและการปรับข้อมูลหลักเมื่อเลือก NO ใหม่
   useEffect(() => {
-    setData((prevData) => {
-      if (prevData.length === 0 || filteredWaterData.length === 0) return prevData;
-      const maxKM = Math.max(...prevData.map((d) => d.KM));
-      const minKM = Math.min(...prevData.map((d) => d.KM));
-      const waterDataLength = filteredWaterData.length;
+    if (!selectedDate || !selectedTime || waterData.length === 0 || data.length === 0) return;
   
-      return prevData.map((d) => {
+    const fullSelectedDateTime = `${selectedDate} ${selectedTime}`;
+    const filteredwaterData = [...waterData.filter((d) => d.Date === fullSelectedDateTime)].reverse();
+  
+    const maxKM = Math.max(...data.map((d) => d.KM));
+    const minKM = Math.min(...data.map((d) => d.KM));
+    const waterDataLength = filteredwaterData.length;
+  
+    setData((prevData) =>
+      prevData.map((d) => {
         const normalized = (d.KM - minKM) / (maxKM - minKM);
         const waterIndex = Math.round((1 - normalized) * (waterDataLength - 1));
-        const waterLevel = filteredWaterData[waterIndex]?.WaterLevel ?? null;
+        const waterLevel = filteredwaterData[waterIndex]?.WaterLevel ?? null;
         return { ...d, WaterLevel: waterLevel };
-      });
-    });
-  }, [selectedDate, selectedTime, waterData]);
+      })
+    );
+  }, [selectedDate, selectedTime, waterData, data.length]);
+  
 
  
 
@@ -502,7 +477,7 @@ const LongProfileChart: React.FC = () => {
             </Button>
 
             {/* Dropdown เลือกวันที่ */}
-            <Select
+           <Select
               value={selectedDate || ""}
               onChange={(e) => {
                 setSelectedDate(e.target.value);
@@ -535,6 +510,7 @@ const LongProfileChart: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
+
 
             {/* ปุ่มเลื่อนไปวันถัดไป */}
             <Button

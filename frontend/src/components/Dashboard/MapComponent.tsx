@@ -16,15 +16,19 @@ interface LongdoMapProps {
   mapKey: string;
   JsonPaths: string[];
   topoJsonPaths?: string[]; // เพิ่ม property นี้
+  rainData?: any;
+  flowData?: any;
+  eleData?: any;
   callback?: () => void;
 }
 
-const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths }) => {
+const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flowData, eleData }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [JsonDataList, setJsonDataList] = useState<any[]>([]);
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [markers, setMarkers] = useState<any[]>([]);
-    
+
+  
   // โหลดไฟล์ GeoJSON
   useEffect(() => {
     const loadJsonFiles = async () => {
@@ -253,27 +257,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths }) => {
       console.error("Map ยังไม่ถูกสร้างขึ้น");
       return;
     }
-    const safeFetch = async (url: string) => {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return await res.json();
-      } catch (error) {
-        console.warn(`❌ Failed to fetch ${url}:`, error);
-        return null; // หรือ [] ถ้าใช้ .map หรือ .forEach ต่อ
-      }
-    };
-    
-    const [rainData, flowData, eleData] = await Promise.all([
-      safeFetch("http://localhost/wangyang/API/api_rain_hydro3.php"),
-      safeFetch("http://localhost/wangyang/API/api_flow_hydro3.php"),
-      safeFetch("http://localhost/wangyang/API/api_elevation_hydro3.php"),
-    ]);
-
-    console.log("✅ ข้อมูลสถานีฝน:", rainData);
-    console.log("✅ ข้อมูลสถานีไหล:", flowData);
-    console.log("✅ ข้อมูลสถานีระดับน้ำ:", eleData);
-    
     // ล้าง Marker เก่าทั้งหมด
     markers.forEach(marker => map.Overlays.remove(marker));
     setMarkers([]); // รีเซ็ต state
