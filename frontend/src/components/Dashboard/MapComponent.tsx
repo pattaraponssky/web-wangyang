@@ -121,9 +121,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
     });
   };
 
-
-
-
   const addGeoJsonPolygons = () => {
     if (!map) {
       console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
@@ -282,7 +279,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
               case 'DAM Station':
                 iconHtml = `<div style="text-align:center;">
                               <img src="./images/icons/reservoir_icon.png" style="width:24px; height:24px;"/>
-                              <div style="background-color:white; padding:2px; width:100px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                              <div style="background-ceolor:white; padding:2px; width:100px; border-radius:5px; font-size: 12px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;

@@ -22,7 +22,7 @@ const WaterForecastChart: React.FC = () => {
               
                       // ดึงข้อมูลตั้งแต่ 7 วันที่แล้ว เวลา 07:00
             const now = new Date();
-            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 7, 0, 0).getTime();
+            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3, 7, 0, 0).getTime();
 
             const filteredData = data.filter((item: any) => {
               const timestamp = convertToTimestamp(item.DateTime);
