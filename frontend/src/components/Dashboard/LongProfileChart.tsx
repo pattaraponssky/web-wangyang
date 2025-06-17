@@ -92,10 +92,6 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
     );
   }, [selectedDate, selectedTime, waterData, data.length]);
   
-
- 
-
-
   const chartOptions = {
     chart: {
       type: "line" as "line",

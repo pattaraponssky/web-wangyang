@@ -27,13 +27,15 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
   const [JsonDataList, setJsonDataList] = useState<any[]>([]);
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [markers, setMarkers] = useState<any[]>([]);
-
+  const [latestEleData, setLatestEleData] = useState<any[]>([]);
+  const [latestRainData, setLatestRainData] = useState<any[]>([]);
+  const [latestFlowData, setLatestFlowData] = useState<any[]>([]);
   
   // โหลดไฟล์ GeoJSON
   useEffect(() => {
     const loadJsonFiles = async () => {
       try {
-        console.log("เริ่มโหลดไฟล์ GeoJSON...");
+        // console.log("เริ่มโหลดไฟล์ GeoJSON...");
         const JsonDataListPromises = JsonPaths.map(async (path) => {
           const response = await fetch(path);
           if (!response.ok) throw new Error(`โหลดไฟล์ไม่สำเร็จ: ${path}`);
@@ -99,7 +101,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
     if (isMapReady) {
       console.log("กำลังเพิ่ม markers...");
       map.location({ lat: 16.20222222, lon: 103.5280556 }, true);
-      map.zoom(10, true);
+      map.zoom(11, true);
       addGeoJsonMarkers();
       addTopoJsonMarkers();
       addGeoJsonPolygons();
@@ -120,6 +122,56 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
       language: "th",
     });
   };
+
+  function getLatestRainFromData(data: any[]) {
+    return data.map(station => {
+      const rainKeys = Object.keys(station)
+        .filter(k => k.startsWith('rain_') && k.endsWith('_ago'));
+  
+      if (rainKeys.length === 0) return null;
+  
+      // เรียงจากวันที่ล่าสุด (rain_1_day_ago)
+      const sortedKeys = rainKeys.sort((a, b) => {
+        const aNum = parseInt(a.match(/\d+/)?.[0] || "0", 10);
+        const bNum = parseInt(b.match(/\d+/)?.[0] || "0", 10);
+        return aNum - bNum;
+      });
+  
+      const latestKey = sortedKeys[0];
+      return {
+        stationcode: station.station_code || "-",
+        stationname: station.location || "-",
+        latestField: latestKey,
+        latestValue: station[latestKey] ?? 0
+      };
+    }).filter(Boolean);
+  }
+  
+
+  function getLatestDateValue(data: any[]) {
+    return data.map(station => {
+      const entries = Object.entries(station);
+      const dateKeys = entries
+        .filter(([key, _]) => /^\d{2}\/\d{2}\/\d{4}$/.test(key)) // ค้นหา key ที่เป็นวันที่
+        .map(([key]) => key);
+  
+      if (dateKeys.length === 0) return null;
+  
+      const latestDate = dateKeys.sort((a, b) => {
+        const [d1, m1, y1] = a.split('/');
+        const [d2, m2, y2] = b.split('/');
+        return new Date(`${y2}-${m2}-${d2}`).getTime() - new Date(`${y1}-${m1}-${d1}`).getTime();
+      })[0];
+  
+      return {
+        stationcode: station.stationcode || station.station_code || "-",
+        stationname: station.stationname || station.location || "-",
+        latestDate: latestDate,
+        latestValue: station[latestDate] ?? 0
+      };
+    }).filter(Boolean); // ลบ null ออก
+  }
+  
 
   const addGeoJsonPolygons = () => {
     if (!map) {
@@ -184,7 +236,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
       }
     });
 
-    console.log("✅ Polygon ถูกเพิ่มลงในแผนที่เรียบร้อย");
+    // console.log("✅ Polygon ถูกเพิ่มลงในแผนที่เรียบร้อย");
   };
 
   const addGeoJsonLines = () => {
@@ -245,7 +297,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
       }
     });
 
-    console.log("✅ เพิ่มเส้นแม่น้ำลงในแผนที่เรียบร้อย");
+    // console.log("✅ เพิ่มเส้นแม่น้ำลงในแผนที่เรียบร้อย");
   };
 
   // ฟังก์ชันเพิ่ม Marker จาก GeoJSON
@@ -260,6 +312,19 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
 
     let newMarkers: any[] = []; // เก็บ Marker ใหม่
 
+    const getLatestValue = (dataList: any[], stationCode: string): string => {
+      const target = dataList.find(item =>
+        item.stationcode === stationCode ||
+        item.station_code === stationCode ||
+        item.CodeStation === stationCode
+      );
+      if (!target) return "-";
+    
+      const dateKeys = Object.keys(target).filter(key => /^\d{2}\/\d{2}\/\d{4}$/.test(key));
+      const latestDate = dateKeys.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+      return target[latestDate] !== undefined ? target[latestDate] : "-";
+    };
+    
     JsonDataList.forEach((geoJsonData) => {
       
       if (geoJsonData && geoJsonData.features) {
@@ -278,8 +343,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
             switch (geoJsonData.name) {
               case 'DAM Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/reservoir_icon.png" style="width:24px; height:24px;"/>
-                              <div style="background-ceolor:white; padding:2px; width:100px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                              <img src="./images/icons/reservoir_icon.png" style="width:32px; height:32px;"/>
+                               <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
@@ -287,8 +352,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                 break;
               case 'Rain Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/rain_station_icon.png" style="width:24px; height:24px;" />
-                              <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                              <img src="./images/icons/rain_station_icon.png" style="width:32px; height:32px;" />
+                               <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
@@ -296,17 +361,18 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                 break;
               case 'Hydro Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/flow_station_icon.png" style="width:24px; height:24px;"/>
-                              <div style="background-color:white; padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                              <img src="./images/icons/flow_station_icon.png" style="width:32px; height:32px;"/>
+                               <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.CodeStation}
                               </div>
+                         
                             </div>`;
                 iconUrl = "./images/icons/flow_station_icon.png";
                 break;
               case 'ProjectStation':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/gate_icon.png" style="width:24px; height:24px;"/>
-                              <div style="background-color:white; width: 80px;padding:2px; border-radius:5px; font-size: 12px; margin-top: 2px;">
+                              <img src="./images/icons/gate_icon.png" style="width:32px; height:32px;"/>
+                               <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;width:80px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
@@ -329,31 +395,42 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                         }
                         </span>`,
                 detail: geoJsonData.name === 'DAM Station' ? 
-                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span> 
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span> 
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${River || "ไม่มีข้อมูล"} ${Basin || "ไม่มีข้อมูล"} ${Detail || "ไม่มีรายละเอียด"}<br> </span> 
                         <span style="font-size:0.9rem; font-weight:bold;">ปริมาณกักเก็บ: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail || "ไม่มีข้อมูล"} ล้าน ลบ.ม.</span> 
+                        
                         <div id="${chartId}" style="width: auto; height: auto;"></div>`                      
                         : geoJsonData.name === 'Rain Station' ? 
-                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
+                        <div style="font-size: 0.9rem; line-height: 1.4rem;">
+                            <div><b>📉 ปริมาณน้ำฝน:</b> <span style="color: #1e88e5; font-weight: bold;">${getLatestValue(rainData, Code) || "-"} มม.</span></div>
+                        </div>
                         <div id="${chartId}" style="width: auto; height: auto;"></div>
                         `
                         : geoJsonData.name === 'Hydro Station' ? 
-                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${CodeStation}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
+                        <div style="font-size: 0.9rem; line-height: 1.4rem;">
+                          <div><b>📉 อัตราการไหล:</b> <span style="color: #1e88e5; font-weight: bold;">${getLatestValue(flowData, CodeStation)} ลบ.ม./วินาที</span></div>
+                        </div>
+                        <div style="font-size: 0.9rem; line-height: 1.4rem;">
+                          <div><b>📈 ระดับน้ำ:</b> <span style="color: #e53935; font-weight: bold;">${getLatestValue(eleData, CodeStation)} ม.รทก.</span></div>
+                        </div>
                         <div id="${chartId}" style="width: auto; height: auto;"></div>`
                         : 
-                        `<span style="font-size:0.9rem; font-weight:bold;">วัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
+                        <span style="font-weight:bold; color:blue">${getLatestValue(eleData, CodeStation)} ม.รทก.</span>
                         <div id="${chartId}" style="width: auto; height: auto;"></div>`,
                 icon: { html: iconHtml },
                 size: { width: 500, height: 'auto' },
@@ -653,7 +730,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
     });
 
     setMarkers(newMarkers); // อัปเดต state
-    console.log("เพิ่ม markers จาก GeoJSON เสร็จเรียบร้อย");
+    // console.log("เพิ่ม markers จาก GeoJSON เสร็จเรียบร้อย");
 };
 
   const addTopoJsonMarkers = () => {
@@ -677,19 +754,19 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
 
         map.Overlays.add(marker);
         marker.onclick = () => {
-          console.log(`แสดงข้อมูล Marker: ${MBASIN_T}`);
+          // console.log(`แสดงข้อมูล Marker: ${MBASIN_T}`);
           marker.popup(`<b>พื้นที่:</b> ${MBASIN_T} <br> <b>ขนาดพื้นที่:</b> ${Area} ตร.กม.`);
         };
       });
     });
 
-    console.log("✅ เพิ่ม Marker จาก TopoJSON เรียบร้อย");
+    // console.log("✅ เพิ่ม Marker จาก TopoJSON เรียบร้อย");
   };
 
   return (
     <div
       ref={mapContainerRef}
-      style={{ width: "100%", height: "600px" }}
+      style={{ width: "100%", height: "75vh" }}
     ></div>
   );
 };
