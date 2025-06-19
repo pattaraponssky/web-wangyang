@@ -23,8 +23,8 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
 
   useEffect(() => {
     // โหลดไฟล์ CSV หลัก
-   
     fetch("./data/longProfile.csv")
+    // fetch("./data/longProfile.csv")
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {

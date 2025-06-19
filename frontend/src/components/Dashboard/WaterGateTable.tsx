@@ -12,7 +12,7 @@ import {
   MenuItem,
   Box,
 } from "@mui/material";
-import { formatThaiDateForTableGate, ThaiDate } from "../../utility";
+import { formatThaiDateForTableGate, Path_File, ThaiDate } from "../../utility";
 
 interface DataWaterLevel {
   datetime: string;
@@ -55,8 +55,10 @@ const WaterLevelTable: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch("./ras-output/output_ras.csv").then((res) => res.text()),
-      fetch("./ras-output/gate_output.csv").then((res) => res.text()),
+      fetch(`${Path_File}output_ras.csv`).then((res) => res.text()),
+      fetch(`${Path_File}gate_output.csv`).then((res) => res.text()),
+      // fetch("./ras-output/output_ras.csv").then((res) => res.text()),
+      // fetch("./ras-output/gate_output.csv").then((res) => res.text()),
     ])
       .then(([csvText1, csvText2]) => {
         const parsedData: DataWaterLevel[] = [];

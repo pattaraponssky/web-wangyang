@@ -103,4 +103,5 @@ export const nowThaiDate = () => {
 
 
 export const API_URL = "http://localhost/wangyang/hec_api/"; // URL ของ API ที่ใช้ในการเรียกข้อมูล
+export const Path_File = "http://localhost/website/ras-output/";
 

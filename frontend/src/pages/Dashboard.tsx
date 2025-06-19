@@ -10,6 +10,7 @@ import WaterGateTable from "../components/Dashboard/WaterGateTable";
 import WaterLevelChart from "../components/Dashboard/WaterLevel";
 import FloatingMenu from "../components/Dashboard/selectMenu";
 import Papa from "papaparse";
+import { Path_File } from "../utility";
 
 
 interface WaterLevelData {
@@ -74,7 +75,8 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetch("./ras-output/output_ras.csv")
+    // fetch("./ras-output/output_ras.csv")
+    fetch(`${Path_File}output_ras.csv`)
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {

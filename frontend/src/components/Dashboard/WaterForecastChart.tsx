@@ -3,14 +3,15 @@ import Papa from 'papaparse';
 import ReactApexChart from 'react-apexcharts';
 import { Card, Box, Typography, Grid } from '@mui/material';
 import { ApexOptions } from 'apexcharts';
+import { Path_File } from '../../utility';
 
 
 const WaterForecastChart: React.FC = () => {
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    const csvFilePath = './ras-output/sta_flow.csv';
-  
+    const csvFilePath = `${Path_File}sta_flow.csv`;
+    // const csvFilePath = './ras-output/sta_flow.csv';
     fetch(csvFilePath)
       .then((response) => response.text())
       .then((csvData) => {
