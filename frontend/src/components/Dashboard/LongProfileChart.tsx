@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Papa from "papaparse";
 import ReactApexChart from "react-apexcharts";
-import { Box, Button, CardContent, MenuItem, Select, Typography} from "@mui/material";
+import { Box, Button, CardContent, MenuItem, Select, Typography } from "@mui/material";
 import { formatThaiDay } from "../../utility";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, PlayArrow, Pause } from "@mui/icons-material";
 
 interface waterData {
   CrossSection: number;
@@ -18,13 +18,30 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
   const [data, setData] = useState<{ Ground: number; LOB: number; ROB: number; KM: number; WaterLevel?: number }[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const dates = [...new Set(waterData.map((d) => d.Date?.split(" ")[0]))].sort();
-  const currentIndex = dates.indexOf(selectedDate ?? "");
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const intervalIdRef = useRef<number | null>(null);
+
+  // Memoize unique dates (days)
+  const uniqueDays = useMemo(() => {
+    return [...new Set(waterData.map((d) => d.Date?.split(" ")[0]))].sort();
+  }, [waterData]);
+
+  // Memoize unique times for the selected date
+  const uniqueTimes = useMemo(() => {
+    return [...new Set(waterData.filter((d) => d.Date?.startsWith(selectedDate || "")).map((d) => d.Date?.split(" ")[1]))].sort();
+  }, [waterData, selectedDate]);
+
+  // Create a sorted array of all unique full date-time strings for playback
+  const allDateTimes = useMemo(() => {
+    // Filter out any null or undefined Dates and sort them
+    return [...new Set(waterData.map(d => d.Date).filter((date): date is string => date !== null))].sort();
+  }, [waterData]);
+
+  
 
   useEffect(() => {
-    // โหลดไฟล์ CSV หลัก
+    // Load main CSV file
     fetch("./data/longProfile.csv")
-    // fetch("./data/longProfile.csv")
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
@@ -34,7 +51,7 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
               Ground: parseFloat(row[0]) || 0,
               LOB: parseFloat(row[1]) || 0,
               ROB: parseFloat(row[2]) || 0,
-              KM: parseFloat(row[3]) || 0, 
+              KM: parseFloat(row[3]) || 0,
             }));
             setData(parsedData);
           },
@@ -45,69 +62,100 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
       .catch((error) => console.error("Error loading CSV:", error));
   }, []);
 
-  
   useEffect(() => {
-    if (waterData.length > 0) {
-      const firstDateTime = [...new Set(waterData.map((d) => d.Date))].sort()[0];
+    if (waterData.length > 0 && !selectedDate && !selectedTime) {
+      const firstDateTime = allDateTimes[0]; // Use the first full date-time from the sorted list
       if (firstDateTime) {
         const [datePart, timePart] = firstDateTime.split(" ");
         setSelectedDate(datePart);
         setSelectedTime(timePart);
       }
     }
-  }, [waterData]); // ตัด selectedDate, selectedTime ออก
-  
-  
-
-  const uniqueDays = [...new Set(waterData.map(d => d.Date?.split(" ")[0]))].sort();
-  const uniqueTimes = [...new Set(
-    waterData
-      .filter(d => d.Date?.startsWith(selectedDate || ""))
-      .map(d => d.Date?.split(" ")[1])
-  )].sort();
-
-  // ฟังก์ชันที่จะทำการกรองข้อมูลตาม selectedNO
-  const fullSelectedDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : null;
-  const filteredwaterData = waterData.filter((d) => d.Date === fullSelectedDateTime);
-  filteredwaterData.reverse();
+  }, [waterData, allDateTimes, selectedDate, selectedTime]);
 
 
   useEffect(() => {
     if (!selectedDate || !selectedTime || waterData.length === 0 || data.length === 0) return;
-  
+
     const fullSelectedDateTime = `${selectedDate} ${selectedTime}`;
     const filteredwaterData = [...waterData.filter((d) => d.Date === fullSelectedDateTime)].reverse();
-  
+
     const maxKM = Math.max(...data.map((d) => d.KM));
     const minKM = Math.min(...data.map((d) => d.KM));
     const waterDataLength = filteredwaterData.length;
-  
+
     setData((prevData) =>
       prevData.map((d) => {
+        // Find the closest KM value in filteredwaterData
+        let closestWaterLevel: number | null = null;
+        let minDiff = Infinity;
+
         const normalized = (d.KM - minKM) / (maxKM - minKM);
         const waterIndex = Math.round((1 - normalized) * (waterDataLength - 1));
-        const waterLevel = filteredwaterData[waterIndex]?.WaterLevel ?? null;
-        return { ...d, WaterLevel: waterLevel };
+        closestWaterLevel = filteredwaterData[waterIndex]?.WaterLevel ?? null;
+        
+        return { ...d, WaterLevel: closestWaterLevel };
       })
     );
   }, [selectedDate, selectedTime, waterData, data.length]);
-  
+
+  // --- MODIFIED useEffect for auto-play functionality ---
+  useEffect(() => {
+    if (isPlaying) {
+      intervalIdRef.current = window.setInterval(() => {
+        const currentFullDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : null;
+        const currentFullDateTimeIndex = allDateTimes.indexOf(currentFullDateTime ?? "");
+
+        if (currentFullDateTimeIndex < allDateTimes.length - 1) {
+          const nextDateTime = allDateTimes[currentFullDateTimeIndex + 1];
+          const [nextDatePart, nextTimePart] = nextDateTime.split(" ");
+          setSelectedDate(nextDatePart);
+          setSelectedTime(nextTimePart);
+        } else {
+          // Stop playing when the end is reached
+          setIsPlaying(false);
+          // Optional: reset to the first date/time after finishing
+          // const firstDateTime = allDateTimes[0];
+          // if (firstDateTime) {
+          //   const [datePart, timePart] = firstDateTime.split(" ");
+          //   setSelectedDate(datePart);
+          //   setSelectedTime(timePart);
+          // }
+        }
+      }, 500); // Change time every 2 seconds (adjust as needed)
+    } else {
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+      }
+    }
+
+    // Cleanup on unmount or when isPlaying changes
+    return () => {
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+      }
+    };
+  }, [isPlaying, allDateTimes, selectedDate, selectedTime]); // Add selectedDate and selectedTime as dependencies
+
+  const handlePlayPause = () => {
+    setIsPlaying((prev) => !prev);
+  };
+
   const chartOptions = {
     chart: {
       type: "line" as "line",
       toolbar: { show: false },
-      fontFamily: 'Prompt',
+      fontFamily: "Prompt",
       zoom: {
-        enabled: true, // ปิดการซูม
+        enabled: true,
       },
     },
     xaxis: {
       type: "numeric" as "numeric",
-      categories: data.map((d) => d.KM), // ใช้ค่า KM เป็นแกน X
-      labels: {
-      },
+      categories: data.map((d) => d.KM),
+      labels: {},
       title: {
-        text: 'ระยะทาง (กม.)',
+        text: "ระยะทาง (กม.)",
       },
     },
     yaxis: {
@@ -116,13 +164,13 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
           return Number(Number(val).toFixed(2)).toLocaleString();
         },
         style: {
-          fontSize: '1rem',
+          fontSize: "1rem",
         },
       },
       title: {
-        text: 'ระดับ (ม.ทรก.)',
+        text: "ระดับ (ม.ทรก.)",
         style: {
-          fontSize: '1rem',
+          fontSize: "1rem",
         },
       },
     },
@@ -136,273 +184,267 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
       },
       x: {
         formatter: function (val: number) {
-          return `ระยะทาง: ${val.toFixed(2)} กม.`; // แสดงระยะทาง KM
+          return `ระยะทาง: ${val.toFixed(2)} กม.`;
         },
       },
     },
-    
     annotations: {
-      xaxis: [        
+      xaxis: [
         {
-          x: 140, // ตำแหน่งในแกน X ที่ต้องการเริ่มพื้นที่
-          x2: 200, // ตำแหน่งในแกน X ที่ต้องการสิ้นสุดพื้นที่
-          borderColor: '#FF0000', // สีของเส้นขอบ
-          fillColor: '#FF0000', // สีพื้นหลังของพื้นที่
-          opacity: 0.1, // ความโปร่งใส
+          x: 140,
+          x2: 200,
+          borderColor: "#FF0000",
+          fillColor: "#FF0000",
+          opacity: 0.1,
           label: {
-            // text: "พื้นที่ที่ต้องการไฮไลต์",
             style: {
-              color: '#ffffff',
-              background: '#FF0000',
-              fontSize: '12px',
+              color: "#ffffff",
+              background: "#FF0000",
+              fontSize: "12px",
             },
           },
         },
         {
-          x: 0, // ตำแหน่งในแกน X ที่ต้องการเริ่มพื้นที่
-          x2: 140, // ตำแหน่งในแกน X ที่ต้องการสิ้นสุดพื้นที่
-          borderColor: 'blue', // สีของเส้นขอบ
-          fillColor: 'blue', // สีพื้นหลังของพื้นที่
-          opacity: 0.1, // ความโปร่งใส
+          x: 0,
+          x2: 140,
+          borderColor: "blue",
+          fillColor: "blue",
+          opacity: 0.1,
           label: {
-            // text: "พื้นที่ที่ต้องการไฮไลต์",
             style: {
-              color: '#ffffff',
-              background: '#FF0000',
-              fontSize: '12px',
+              color: "#ffffff",
+              background: "#FF0000",
+              fontSize: "12px",
             },
           },
         },
-              {
-                  x: 125, // ตำแหน่ง x
-                  borderColor: '#000',
-                  borderWidth: 0,
-                  label: {                
-                      borderColor: '#66B2FF',
-                      position: "bottom", // ✅ ทำให้ข้อความชิดด้านล่าง                      
-                      style: {
-                          fontSize: '1.15rem',
-                          color: '#fff',
-                          background: '#66B2FF',
-                      },
-                      text: 'สถานีสนามเขื่อนวังยาง',
-                  }
-              },
-              {
-                  x: 200,
-                  borderColor: '#000',
-                  borderWidth: 0,
-                  label: {                     
-                      position: "bottom", // ✅ ทำให้ข้อความชิดด้านล่าง
-                      style: {
-                          fontSize: '15px',
-                          color: '#fff',
-                          background: '#66B2FF',                          
-                      },
-                      text: 'สถานีหลัก คบ.ชีกลาง / เขื่อนร้อยเอ็ด',
-                  }
-              }
+        {
+          x: 125,
+          borderColor: "#000",
+          borderWidth: 0,
+          label: {
+            borderColor: "#66B2FF",
+            position: "bottom",
+            style: {
+              fontSize: "1.15rem",
+              color: "#fff",
+              background: "#66B2FF",
+            },
+            text: "สถานีสนามเขื่อนวังยาง",
+          },
+        },
+        {
+          x: 200,
+          borderColor: "#000",
+          borderWidth: 0,
+          label: {
+            position: "bottom",
+            style: {
+              fontSize: "15px",
+              color: "#fff",
+              background: "#66B2FF",
+            },
+            text: "สถานีหลัก คบ.ชีกลาง / เขื่อนร้อยเอ็ด",
+          },
+        },
       ],
       yaxis: [
-        
         {
-          x: 140, // ตำแหน่งในแกน X ที่ต้องการเริ่มพื้นที่
-          x2: 200, // ตำแหน่งในแกน X ที่ต้องการสิ้นสุดพื้นที่
-          borderColor: '#E5CCFF', // สีของเส้นขอบ
-          fillColor: '#E5CCFF', // สีพื้นหลังของพื้นที่
-          opacity: 0, // ความโปร่งใส
+          y: 0,
+          y2: 200,
+          borderColor: "#E5CCFF",
+          fillColor: "#E5CCFF",
+          opacity: 0,
         },
         {
-          x: 0, // ตำแหน่งในแกน X ที่ต้องการเริ่มพื้นที่
-          x2: 140, // ตำแหน่งในแกน X ที่ต้องการสิ้นสุดพื้นที่
-          borderColor: 'red', // สีของเส้นขอบ
-          fillColor: 'red', // สีพื้นหลังของพื้นที่
-          opacity: 0.1, // ความโปร่งใส
+          y: 0,
+          y2: 140,
+          borderColor: "red",
+          fillColor: "red",
+          opacity: 0.1,
         },
       ],
-    
-    points: [ // นำมาไว้ใน annotations
+      points: [
         {
-          x: 170, // ตำแหน่งในแกน X
-          y: 155, // ค่าของ Y
+          x: 170,
+          y: 155,
           marker: {
-            size: 0, // ทำให้จุดใหญ่ขึ้นเพื่อมองเห็นง่าย
+            size: 0,
           },
           label: {
             show: true,
             style: {
-              fontSize: '1rem',
-              fontWeight: 'bold', // ทำให้ตัวหนา
-              color: '#000',
+              fontSize: "1rem",
+              fontWeight: "bold",
+              color: "#000",
             },
-            text: 'จ.ร้อยเอ็ด', // ข้อความที่ต้องการแสดง
+            text: "จ.ร้อยเอ็ด",
           },
         },
         {
-          x: 70, // ตำแหน่งในแกน X
-          y: 155, // ค่าของ Y
+          x: 70,
+          y: 155,
           marker: {
-            size: 0, // ทำให้จุดใหญ่ขึ้นเพื่อมองเห็นง่าย
+            size: 0,
           },
           label: {
             show: true,
             style: {
-              fontSize: '1rem',
-              fontWeight: 'bold', // ทำให้ตัวหนา
-              color: '#000',
+              fontSize: "1rem",
+              fontWeight: "bold",
+              color: "#000",
             },
-            text: 'จ.มหาสารคาม', // ข้อความที่ต้องการแสดง
+            text: "จ.มหาสารคาม",
           },
         },
         {
-          x: 0, // วันที่สำหรับแสดงจุด annotation
-          y: 138, // ค่าของ Y สำหรับแสดงจุด annotation
+          x: 0,
+          y: 138,
           marker: {
-              size: 4,
-              fillColor: 'red',
-              strokeColor: 'red',
-              radius: 2,
-              cssClass: 'apexcharts-custom-class'
-          },
-          label: {
-              show: true,
-              offsetY: 35,
-              offsetX: 25,
-              style: {
-                  fontSize: '1rem',
-                  color: '#fff',
-                  background: '#FF0033',
-              },
-              text: 'E.91' // ข้อความสำหรับจุด annotation
-          }
-        },
-        {
-          x: 39, // วันที่สำหรับแสดงจุด annotation
-          y: 135, // ค่าของ Y สำหรับแสดงจุด annotation
-          marker: {
-              size: 4,
-              fillColor: 'red',
-              strokeColor: 'red',
-              radius: 2,
-              cssClass: 'apexcharts-custom-class'
-          },
-          label: {
-              show: true,
-              offsetY: 40,
-              offsetX: 0,
-              style: {
-                  fontSize: '1rem',
-                  color: '#fff',
-                  background: '#FF0033',
-              },
-              text: 'E.1' // ข้อความสำหรับจุด annotation
-          }
-       },
-       {
-        x: 72, // วันที่สำหรับแสดงจุด annotation
-        y: 132, // ค่าของ Y สำหรับแสดงจุด annotation
-        marker: {
             size: 4,
-            fillColor: 'red',
-            strokeColor: 'red',
+            fillColor: "red",
+            strokeColor: "red",
             radius: 2,
-            cssClass: 'apexcharts-custom-class'
+            cssClass: "apexcharts-custom-class",
+          },
+          label: {
+            show: true,
+            offsetY: 35,
+            offsetX: 25,
+            style: {
+              fontSize: "1rem",
+              color: "#fff",
+              background: "#FF0033",
+            },
+            text: "E.91",
+          },
         },
-        label: {
+        {
+          x: 39,
+          y: 135,
+          marker: {
+            size: 4,
+            fillColor: "red",
+            strokeColor: "red",
+            radius: 2,
+            cssClass: "apexcharts-custom-class",
+          },
+          label: {
+            show: true,
+            offsetY: 40,
+            offsetX: 0,
+            style: {
+              fontSize: "1rem",
+              color: "#fff",
+              background: "#FF0033",
+            },
+            text: "E.1",
+          },
+        },
+        {
+          x: 72,
+          y: 132,
+          marker: {
+            size: 4,
+            fillColor: "red",
+            strokeColor: "red",
+            radius: 2,
+            cssClass: "apexcharts-custom-class",
+          },
+          label: {
             show: true,
             offsetY: 40,
             offsetX: 10,
             style: {
-                fontSize: '1rem',
-                color: '#fff',
-                background: '#FF0033',
+              fontSize: "1rem",
+              color: "#fff",
+              background: "#FF0033",
             },
-            text: 'E.8A' // ข้อความสำหรับจุด annotation
-        }
-      },
-      {
-        x: 119, // วันที่สำหรับแสดงจุด annotation
-        y: 128, // ค่าของ Y สำหรับแสดงจุด annotation
-        marker: {
-            size: 4,
-            fillColor: 'red',
-            strokeColor: 'red',
-            radius: 2,
-            cssClass: 'apexcharts-custom-class'
+            text: "E.8A",
+          },
         },
-        label: {
+        {
+          x: 119,
+          y: 128,
+          marker: {
+            size: 4,
+            fillColor: "red",
+            strokeColor: "red",
+            radius: 2,
+            cssClass: "apexcharts-custom-class",
+          },
+          label: {
             show: true,
             offsetY: 45,
             offsetX: -30,
             style: {
-                fontSize: '1rem',
-                color: '#fff',
-                background: '#FF0033',
-
+              fontSize: "1rem",
+              color: "#fff",
+              background: "#FF0033",
             },
-            text: 'สถานีสนามบ้านท่าแห' // ข้อความสำหรับจุด annotation
-        }
-      },
-      {
-        x: 146, // วันที่สำหรับแสดงจุด annotation
-        y: 128, // ค่าของ Y สำหรับแสดงจุด annotation
-        marker: {
-            size: 4,
-            fillColor: 'red',
-            strokeColor: 'red',
-            radius: 2,
-            cssClass: 'apexcharts-custom-class'
+            text: "สถานีสนามบ้านท่าแห",
+          },
         },
-        label: {
+        {
+          x: 146,
+          y: 128,
+          marker: {
+            size: 4,
+            fillColor: "red",
+            strokeColor: "red",
+            radius: 2,
+            cssClass: "apexcharts-custom-class",
+          },
+          label: {
             show: true,
             offsetY: 45,
             offsetX: 0,
             style: {
-                fontSize: '1rem',
-                color: '#fff',
-                background: '#FF0033',
+              fontSize: "1rem",
+              color: "#fff",
+              background: "#FF0033",
             },
-            text: 'สถานีสนาม E.66A' // ข้อความสำหรับจุด annotation
-        }
-      },
-      {
-          x: 184, // วันที่สำหรับแสดงจุด annotation
-          y: 124.5, // ค่าของ Y สำหรับแสดงจุด annotation
+            text: "สถานีสนาม E.66A",
+          },
+        },
+        {
+          x: 184,
+          y: 124.5,
           marker: {
-              size: 4,
-              fillColor: 'red',
-              strokeColor: 'red',
-              radius: 2,
-              cssClass: 'apexcharts-custom-class'
+            size: 4,
+            fillColor: "red",
+            strokeColor: "red",
+            radius: 2,
+            cssClass: "apexcharts-custom-class",
           },
           label: {
-              show: true,
-              offsetY: 40,
-              offsetX: -70,
-              style: {
-                  fontSize: '1rem',
-                  color: '#fff',
-                  background: '#FF0033',
-              },
-              text: 'จุดบรรจบคลองปาว' // ข้อความสำหรับจุด annotation
-          }
-      },
-      {
-        x: 20, // ตำแหน่งในแกน X
-        y: 120, // ค่าของ Y
-        marker: { size: 0 }, // ซ่อน marker
-        label: {
-          show: true,
-          style: {
-            color: '#skyblue',
-            fontSize: '1rem',
-            fontWeight: 'bold',
+            show: true,
+            offsetY: 40,
+            offsetX: -70,
+            style: {
+              fontSize: "1rem",
+              color: "#fff",
+              background: "#FF0033",
+            },
+            text: "จุดบรรจบคลองปาว",
           },
-          text: '→→→ ทิศทางน้ำไหล →→→', // ใช้ลูกศร →  
-          offsetY: -20, // ขยับขึ้น
-          offsetX: 10, 
         },
-      },
+        {
+          x: 20,
+          y: 120,
+          marker: { size: 0 },
+          label: {
+            show: true,
+            style: {
+              color: "#skyblue",
+              fontSize: "1rem",
+              fontWeight: "bold",
+            },
+            text: "→→→ ทิศทางน้ำไหล →→→",
+            offsetY: -20,
+            offsetX: 10,
+          },
+        },
       ],
     },
     stroke: {
@@ -410,9 +452,8 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
       curve: "monotoneCubic" as "monotoneCubic",
       dashArray: [0, 0, 8, 8],
     },
-    colors: ["#007bff","#744111", "red", "green" ],
+    colors: ["#007bff", "#744111", "red", "green"],
     fill: {
-      
       gradient: {
         shade: "light",
         type: "vertical",
@@ -421,19 +462,12 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
         opacityTo: 0.2,
         stops: [0, 100],
         colorStops: [
-          [
-            { offset: 0, color: "#007bff", opacity: 1 }, // สีดำด้านบน
-            { offset: 100, color: "#007bff", opacity: 0.5 }, // สีเทาด้านล่าง
-          ],
-          [
-            { offset: 0, color: "##744111", opacity: 1 }, // สีดำด้านบน
-            { offset: 100, color: "##744111", opacity: 0.2 }, // สีเทาด้านล่าง
-          ],
+          [{ offset: 0, color: "#007bff", opacity: 1 }, { offset: 100, color: "#007bff", opacity: 0.5 }],
+          [{ offset: 0, color: "##744111", opacity: 1 }, { offset: 100, color: "##744111", opacity: 0.2 }],
         ],
       },
     },
   };
-  
 
   const chartSeries = useMemo(() => {
     return [
@@ -444,96 +478,134 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
     ];
   }, [data]);
 
-
   return (
-      <CardContent >
-        {/* ชื่อหัวข้อกราฟ */}
-        <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color:"#28378B" }}>
-           รูปตัดตามยาวแม่น้ำพื้นที่ศึกษาโครงการวังยาง (เขื่อนมหาสารคาม - เขื่อนร้อยเอ็ด)
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2, flexWrap: "wrap", alignItems: "center" }}>
-            {/* ปุ่มเลื่อนไปวันก่อนหน้า */}
-            <Button
-              variant="contained"
-              onClick={() => setSelectedDate(dates[currentIndex - 1] ?? '')}
-              disabled={currentIndex <= 0}
-              sx={{
-                fontFamily: "Prompt",
-                fontSize: { xs: "0.8rem", sm: "1rem" },
-                bgcolor: "#1976d2",
-                "&:hover": { bgcolor: "#115293" },
-                borderRadius: "20px",
-                paddingX: "16px",
-                width: { xs: "100%", sm: "auto" }, // ให้ปุ่มเต็มหน้าจอในขนาดเล็ก
-                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดหน้าจอเล็ก
-              }}
-            >
-              <ArrowBack sx={{ fontSize: "1.5rem" }} />
-              ย้อนกลับ
-            </Button>
+    <CardContent>
+      <Typography variant="h6" gutterBottom sx={{ fontFamily: "Prompt", fontWeight: "bold", color: "#28378B" }}>
+        รูปตัดตามยาวแม่น้ำพื้นที่ศึกษาโครงการวังยาง (เขื่อนมหาสารคาม - เขื่อนร้อยเอ็ด)
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2, flexWrap: "wrap", alignItems: "center" }}>
+        {/* Buttons and Selects remain largely the same, but their `disabled` state should depend on `isPlaying` */}
+        <Button
+          variant="contained"
+          onClick={() => {
+            const currentFullDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : null;
+            const currentFullDateTimeIndex = allDateTimes.indexOf(currentFullDateTime ?? "");
+            if (currentFullDateTimeIndex > 0) {
+              const prevDateTime = allDateTimes[currentFullDateTimeIndex - 1];
+              const [prevDatePart, prevTimePart] = prevDateTime.split(" ");
+              setSelectedDate(prevDatePart);
+              setSelectedTime(prevTimePart);
+            }
+            setIsPlaying(false);
+          }}
+          disabled={allDateTimes.indexOf(`${selectedDate} ${selectedTime}`) <= 0 || isPlaying}
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+            bgcolor: "#1976d2",
+            "&:hover": { bgcolor: "#115293" },
+            borderRadius: "20px",
+            paddingX: "16px",
+            width: { xs: "100%", sm: "auto" },
+            mb: { xs: 2, sm: 0 },
+          }}
+        >
+          <ArrowBack sx={{ fontSize: "1.5rem" }} />
+          ย้อนกลับ
+        </Button>
 
-            {/* Dropdown เลือกวันที่ */}
-           <Select
-              value={selectedDate || ""}
-              onChange={(e) => {
-                setSelectedDate(e.target.value);
-      
-              }}
-              sx={{
-                fontFamily: "Prompt",
-                width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
-              }}
-            >
-               {uniqueDays.map((day) => (
-                  <MenuItem key={day} value={day}>
-                    {formatThaiDay(day || "")}
-                  </MenuItem>
-                ))}
-            </Select>
+        <Select
+          value={selectedDate || ""}
+          onChange={(e) => {
+            setSelectedDate(e.target.value as string);
+            // setSelectedTime(null); // Clear time when date changes, let user re-select or default to first
+            setIsPlaying(false);
+          }}
+          sx={{
+            fontFamily: "Prompt",
+            width: { xs: "40%", sm: "auto" },
+          }}
+          disabled={isPlaying}
+        >
+          {uniqueDays.map((day) => (
+            <MenuItem key={day} value={day}>
+              {formatThaiDay(day || "")}
+            </MenuItem>
+          ))}
+        </Select>
 
-            <Select
-              value={selectedTime || ""}
-              onChange={(e) => setSelectedTime(e.target.value)}
-              disabled={!selectedDate}
-              sx={{
-                fontFamily: "Prompt",
-                width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
-              }}
-            >
-              {uniqueTimes.map((time) => (
-                <MenuItem key={time} value={time}>
-                  {time}
-                </MenuItem>
-              ))}
-            </Select>
+        <Select
+          value={selectedTime || ""}
+          onChange={(e) => {
+            setSelectedTime(e.target.value as string);
+            setIsPlaying(false);
+          }}
+          disabled={!selectedDate || isPlaying}
+          sx={{
+            fontFamily: "Prompt",
+            width: { xs: "40%", sm: "auto" },
+          }}
+        >
+          {uniqueTimes.map((time) => (
+            <MenuItem key={time} value={time}>
+              {time}
+            </MenuItem>
+          ))}
+        </Select>
 
+        <Button
+          variant="contained"
+          onClick={handlePlayPause}
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+            bgcolor: isPlaying ? "#d32f2f" : "#2e7d32",
+            "&:hover": { bgcolor: isPlaying ? "#b71c1c" : "#1b5e20" },
+            borderRadius: "20px",
+            paddingX: "16px",
+            width: { xs: "100%", sm: "auto" },
+            mb: { xs: 2, sm: 0 },
+          }}
+        >
+          {isPlaying ? <Pause sx={{ fontSize: "1.5rem" }} /> : <PlayArrow sx={{ fontSize: "1.5rem" }} />}
+          {isPlaying ? "หยุด" : "เล่น"}
+        </Button>
 
-            {/* ปุ่มเลื่อนไปวันถัดไป */}
-            <Button
-              variant="contained"
-              onClick={() => setSelectedDate(dates[currentIndex + 1] ?? '')}
-              disabled={currentIndex >= dates.length - 1}
-              sx={{
-                fontFamily: "Prompt",
-                fontSize: { xs: "0.8rem", sm: "1rem" },
-                bgcolor: "#1976d2",
-                "&:hover": { bgcolor: "#115293" },
-                borderRadius: "20px",
-                paddingX: "16px",
-                width: { xs: "100%", sm: "auto" }, // ให้ปุ่มเต็มหน้าจอในขนาดเล็ก
-                mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
-              }}
-            >
-              ถัดไป
-              <ArrowForward sx={{ fontSize: "1.5rem" }} />
-            </Button>
-          </Box>
- 
+        <Button
+          variant="contained"
+          onClick={() => {
+            const currentFullDateTime = selectedDate && selectedTime ? `${selectedDate} ${selectedTime}` : null;
+            const currentFullDateTimeIndex = allDateTimes.indexOf(currentFullDateTime ?? "");
+            if (currentFullDateTimeIndex < allDateTimes.length - 1) {
+              const nextDateTime = allDateTimes[currentFullDateTimeIndex + 1];
+              const [nextDatePart, nextTimePart] = nextDateTime.split(" ");
+              setSelectedDate(nextDatePart);
+              setSelectedTime(nextTimePart);
+            }
+            setIsPlaying(false);
+          }}
+          disabled={allDateTimes.indexOf(`${selectedDate} ${selectedTime}`) >= allDateTimes.length - 1 || isPlaying}
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+            bgcolor: "#1976d2",
+            "&:hover": { bgcolor: "#115293" },
+            borderRadius: "20px",
+            paddingX: "16px",
+            width: { xs: "100%", sm: "auto" },
+            mb: { xs: 2, sm: 0 },
+          }}
+        >
+          ถัดไป
+          <ArrowForward sx={{ fontSize: "1.5rem" }} />
+        </Button>
+      </Box>
 
-        <Box>
-          <ReactApexChart options={chartOptions} series={chartSeries} type="line" height={600} />
-        </Box>
-      </CardContent>
+      <Box>
+        <ReactApexChart options={chartOptions} series={chartSeries} type="line" height={600} />
+      </Box>
+    </CardContent>
   );
-}
+};
+
 export default LongProfileChart;
