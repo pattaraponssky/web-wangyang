@@ -472,7 +472,7 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
   const chartSeries = useMemo(() => {
     return [
       { name: "Water Level (ระดับผิวน้ำ)", type: "area", data: data.map((d) => d.WaterLevel ?? null) },
-      { name: "Ground (ท้ายคลอง)", type: "area", data: data.map((d) => d.Ground) },
+      { name: "Ground (ท้องคลอง)", type: "area", data: data.map((d) => d.Ground) },
       { name: "LOB (ตลิ่งซ้าย)", data: data.map((d) => d.LOB) },
       { name: "ROB (ตลิ่งขวา)", data: data.map((d) => d.ROB) },
     ];

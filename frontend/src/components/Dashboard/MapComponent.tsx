@@ -120,6 +120,29 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
     });
   };
 
+  const createToggleMenu = (
+    label: string,
+    value: string,
+    initialCheck: boolean,
+    onChange: (checked: boolean) => void
+    ) => {
+      return new longdo.MenuBar({
+        button: [
+          {
+            label,
+            value,
+            type: longdo.ButtonType.Toggle,
+            check: initialCheck,
+          },
+        ],
+        label: `📌 แสดง ${label}`,
+        change: (toItem: { check: boolean }) => {
+          onChange(!!toItem?.check);
+        },
+      });
+    };
+  
+
   const addGeoJsonPolygons = () => {
     if (!map) {
       console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
@@ -151,7 +174,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
 
               // เพิ่มแต่ละ Polygon แยกกัน
               const multiPolygon = new longdo.Polygon(polygonCoordinates, {
-                title: `ขอบเขตพื้นที่ศึกษาวังสะตือ`,
+                title: `ขอบเขตพื้นที่ศึกษาวังยาง`,
                 detail: `<b>ขนาดพื้นที่:</b> ${Area} ตร.กม.<br>
                           <b>แม่น้ำ:</b> ${MBASIN_T}`,
                 lineWidth: 3,
@@ -311,14 +334,25 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
 
     let newMarkers: any[] = []; // เก็บ Marker ใหม่
 
+    const getLatestValueRain = (dataList: any[], stationCode: string): string => {
+      if (!Array.isArray(dataList)) return "-";
+      const target = dataList.find(item =>
+        item.station_code === stationCode 
+      );
+    
+      if (!target) return "-";
+      const value = target["rain_1_day_ago"];
+    
+      return value !== undefined && value !== null ? value.toString() : "-";
+    };
+
     const getLatestValue = (dataList: any[], stationCode: string): string => {
       const target = dataList.find(item =>
         item.stationcode === stationCode ||
-        item.station_code === stationCode ||
         item.CodeStation === stationCode
       );
       if (!target) return "-";
-    
+   
       const dateKeys = Object.keys(target).filter(key => /^\d{2}\/\d{2}\/\d{4}$/.test(key));
       const latestDate = dateKeys.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
       return target.hasOwnProperty(latestDate) ? target[latestDate] : "-";
@@ -408,7 +442,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span> 
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Detail} ${Amphoe} ${Province}<br> </span>
                         <div style="font-size: 0.9rem; line-height: 1.4rem;">
-                            <div><b>📉 ปริมาณน้ำฝน:</b> <span style="color: #1e88e5; font-weight: bold;">${getLatestValue(rainData, Code) || "-"} มม.</span></div>
+                            <div><b>📉 ปริมาณน้ำฝน:</b> <span style="color: #1e88e5; font-weight: bold;">${getLatestValueRain(rainData, Name) || "-"} มม.</span></div>
                         </div>
                         <div id="${chartId}" style="width: auto; height: auto;"></div>
                         `
@@ -430,7 +464,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                         <span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <div style="font-size: 0.9rem; line-height: 1.4rem;">
-                            <div><b>📉 ปริมาณน้ำฝน:</b> <span style="color: #1e88e5; font-weight: bold;">${getLatestValue(rainData, Name) || "-"} มม.</span></div>
+                            <div><b>📉 ปริมาณน้ำฝน:</b> <span style="color: #1e88e5; font-weight: bold;">${getLatestValueRain(rainData, Name) || "-"} มม.</span></div>
                         </div>
                         <div style="font-size: 0.9rem; line-height: 1.4rem;">
                           <div><b>📈 ระดับน้ำ:</b> <span style="color: #e53935; font-weight: bold;">${getLatestValue(eleData, Name)} ม.รทก.</span></div>
