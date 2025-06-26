@@ -246,7 +246,7 @@ const Dashboard: React.FC = () => {
         <Grid item xs={12} md={6} sm={12}>
           <Box sx={BoxStyle} id="diagrams-map">
             <ImageComponent
-              src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/04/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg"
+              src={`${imageBaseUrl}/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg`}
               fallbackSrc="./images/ผังน้ำชี.jpg"
               alt="แผนผังลุ่มแม่น้ำชี"
               title={"แผนผังลุ่มแม่น้ำชี"}
