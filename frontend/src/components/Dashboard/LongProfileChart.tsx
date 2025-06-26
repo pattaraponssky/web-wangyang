@@ -88,7 +88,6 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
       prevData.map((d) => {
         // Find the closest KM value in filteredwaterData
         let closestWaterLevel: number | null = null;
-        let minDiff = Infinity;
 
         const normalized = (d.KM - minKM) / (maxKM - minKM);
         const waterIndex = Math.round((1 - normalized) * (waterDataLength - 1));

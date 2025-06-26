@@ -120,29 +120,6 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
     });
   };
 
-  const createToggleMenu = (
-    label: string,
-    value: string,
-    initialCheck: boolean,
-    onChange: (checked: boolean) => void
-    ) => {
-      return new longdo.MenuBar({
-        button: [
-          {
-            label,
-            value,
-            type: longdo.ButtonType.Toggle,
-            check: initialCheck,
-          },
-        ],
-        label: `📌 แสดง ${label}`,
-        change: (toItem: { check: boolean }) => {
-          onChange(!!toItem?.check);
-        },
-      });
-    };
-  
-
   const addGeoJsonPolygons = () => {
     if (!map) {
       console.error("แผนที่ยังไม่ถูกสร้างขึ้น");
@@ -347,6 +324,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
     };
 
     const getLatestValue = (dataList: any[], stationCode: string): string => {
+
+      
       const target = dataList.find(item =>
         item.stationcode === stationCode ||
         item.CodeStation === stationCode

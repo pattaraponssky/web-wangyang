@@ -118,8 +118,22 @@ const WaterLevelTable: React.FC = () => {
                     existingData.flow_rate = flowRate;
                   }
                 });
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // ตัดเวลาให้เป็น 00:00 ของวันนี้
 
-                setData(parsedData);
+                // ฟังก์ชันแปลง "19/06/2025 07:00" → "2025-06-19T07:00"
+                const convertToISO = (dateStr: string) => {
+                  const [datePart, timePart] = dateStr.split(" ");
+                  const [day, month, year] = datePart.split("/").map(Number);
+                  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T${timePart}`;
+                };
+
+                const filteredByToday = parsedData.filter((item) => {
+                  const iso = convertToISO(item.datetime); // แปลงก่อน
+                  return new Date(iso) >= today;
+                });
+
+                setData(filteredByToday);
                 setLoading(false);
               } catch (err) {
                 setError("Error parsing second CSV file");

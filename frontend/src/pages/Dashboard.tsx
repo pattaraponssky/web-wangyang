@@ -48,6 +48,10 @@ const Dashboard: React.FC = () => {
   const [flowData, setFlowData] = useState(null);
   const [eleData, setEleData] = useState(null);
 
+  const now = new Date();
+  const year = now.getFullYear(); // เช่น 2025
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+
   useEffect(() => {
     const safeFetch = async (url: string) => {
       try {
@@ -85,15 +89,16 @@ const Dashboard: React.FC = () => {
           complete: (result) => {
             const rawData: any[] = result.data;
             if (!rawData.length) return;
-          
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
           
             // แปลงข้อมูล CSV ระดับน้ำเป็นอ็อบเจ็กต์
             const parsedData: WaterLevelData[] = rawData.map((row) => {
               const rawTime = row["Date"]?.trim();
-              const crossSection = Number(row["Cross Section"]?.trim()); // ลบช่องว่าง
-              const elevation = parseFloat(row["Water_Elevation"]?.trim()); // ลบช่องว่าง
+              const crossSection = Number(row["Cross Section"]?.trim());
+              const elevation = parseFloat(row["Water_Elevation"]?.trim());
               const station = Object.keys(stationMapping).find((key) => stationMapping[key] === crossSection) || "";
-  
+            
               let time = "";
               if (rawTime) {
                 const [datePart, timePart] = rawTime.split(" ");
@@ -101,31 +106,32 @@ const Dashboard: React.FC = () => {
                 const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
                 time = `${isoDateStr}T${timePart}`;
               }
-  
+            
               return { time, station, elevation };
+            }).filter(item => {
+              return item.station && item.time && new Date(item.time) >= today;
             }).filter(item => item.station && item.time);
   
-            // ข้อมูล parsedWaterData
             let parsedWaterData = rawData.slice(1).map((row: any) => {
               const rawDate = row["Date"]?.trim();
               const crossSection = row['Cross Section'].trim();
-              const elevation = parseFloat(row["Water_Elevation"]?.trim()); // ลบช่องว่าง
+              const elevation = parseFloat(row["Water_Elevation"]?.trim());
               let formattedDate = null;
-  
+            
               if (rawDate) {
-                const [day, month, yearAndTime] = rawDate.split("/"); // แยกเดือน, วัน, และปี+เวลา
-                const [year, time] = yearAndTime.split(" "); // แยกปีและเวลา
-  
-                // รูปแบบวันที่ใหม่เป็น "YYYY-MM-DD HH:mm"
+                const [day, month, yearAndTime] = rawDate.split("/");
+                const [year, time] = yearAndTime.split(" ");
                 formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${time}`;
               }
-  
+            
               return {
                 CrossSection: parseInt(crossSection),
                 Date: formattedDate,
-                WaterLevel: (elevation), // แปลงเป็นตัวเลขทศนิยม 2 ตำแหน่ง
+                WaterLevel: elevation,
               };
-            });
+            }).filter((item: any) => {
+              return item.Date && new Date(item.Date) >= today;
+            })
   
             // ข้อมูล maxElevations
             const stationMaxMap: Record<string, number> = {};
@@ -191,6 +197,8 @@ const Dashboard: React.FC = () => {
     marginBottom: "20px",
   };
 
+  const imageBaseUrl = `http://middlechi-omp.rid.go.th/main/wp-content/uploads/${year}/${month}`;
+
   return (
     <div style={{ fontFamily: "Prompt" }}>
       <Typography variant="h5" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
@@ -248,31 +256,31 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6} sm={12}>
-          <Box sx={BoxStyle} id="report">
-            <ImageComponent
-              src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/04/3.3.1.jpg"
-              fallbackSrc="./images/สรุปเขื่อนวังยาง.jpg"
-              height={'100%'}
-              width={'100%'}
-              alt=""
-              title={"รายงานระดับน้ำเขื่อนวังยาง"}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={12} md={6} sm={12}>
-          <Box sx={BoxStyle} id="report-chart">
-            <ImageComponent
-              src="http://middlechi-omp.rid.go.th/main/wp-content/uploads/2025/04/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg"
-              fallbackSrc="./images/กราฟเขื่อนวังยาง.jpg"
-              height={'100%'}
-              width={'100%'}
-              alt=""
-              title={"รายงานกราฟแสดงระดับน้ำเขื่อนวังยาง"}
-            />
-          </Box>
-        </Grid>
+      <Grid item xs={12} md={6} sm={12}>
+        <Box sx={BoxStyle} id="report">
+          <ImageComponent
+            src={`${imageBaseUrl}/3.3.1.jpg`}
+            fallbackSrc="./images/สรุปเขื่อนวังยาง.jpg"
+            height="100%"
+            width="100%"
+            alt=""
+            title="รายงานระดับน้ำเขื่อนวังยาง"
+          />
+        </Box>
       </Grid>
+      <Grid item xs={12} md={6} sm={12}>
+        <Box sx={BoxStyle} id="report-chart">
+          <ImageComponent
+            src={`${imageBaseUrl}/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg`}
+            fallbackSrc="./images/กราฟเขื่อนวังยาง.jpg"
+            height="100%"
+            width="100%"
+            alt=""
+            title="รายงานกราฟแสดงระดับน้ำเขื่อนวังยาง"
+          />
+        </Box>
+      </Grid>
+    </Grid>
 
       <FloatingMenu />
     </div>
