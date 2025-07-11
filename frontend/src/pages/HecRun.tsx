@@ -1,9 +1,9 @@
 import React from "react";
-import { Box, Grid } from "@mui/material";
-import RunCreateDss from "../components/RunHec/RunCreateDss";
+import { Box, } from "@mui/material";
 import RunHecHms from "../components/RunHec/RunHecHms";
 import RunHecRas from "../components/RunHec/RunHecRas";
-import RunAll from "../components/RunHec/RunAll";
+import RainInputTable from "../components/RunHec/InputTable";
+import RunGate from "../components/RunHec/RunGate";
 
 const BoxStyle = {
     // maxWidth: "90%",
@@ -18,23 +18,27 @@ const BoxStyle = {
 const HecRun: React.FC = () => {
   return (
     <Box sx={{margin: "auto" }}>
-    <Grid container spacing={2}>
+       <Box sx={BoxStyle}>
+          <RainInputTable/>
+        </Box>
+    {/* <Grid container spacing={2}>
       <Grid item xs={12} md={6} sm={12}>
         <Box sx={BoxStyle}>
           <RunCreateDss />
         </Box>
       </Grid>
       <Grid item xs={12} md={6} sm={12}>
-        <Box sx={BoxStyle}>
-          <RunHecHms />
-        </Box>
+        
       </Grid>
-    </Grid>
+    </Grid> */}
+      <Box sx={BoxStyle}>
+          <RunHecHms />
+      </Box>
       <Box sx={BoxStyle}>
         <RunHecRas />
       </Box>
       <Box sx={BoxStyle}>
-        <RunAll />
+        <RunGate />
       </Box>
     </Box>
   );

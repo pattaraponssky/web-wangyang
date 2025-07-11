@@ -5,11 +5,11 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "รันสคริปต์ทั้งหมด",icon: <WaterDrop />, url: `${API_URL}run_all.php` },
   { title: "สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",icon: <Flood />, url: `${API_URL}gate_json.php` },
+  { title: "ส่งข้อมูลข้อเสนอแนะปตร.วังยาง ",icon: <WaterDrop />, url: `${API_URL}run_all.php` },
 ];
 
-const RunAll: React.FC = () => {
+const RunGate: React.FC = () => {
   const [messages, setMessages] = useState<{ [key: number]: string }>({});
   const [loading, setLoading] = useState<{ [key: number]: boolean }>({});
 
@@ -38,7 +38,7 @@ const RunAll: React.FC = () => {
   return (
   <div>
        <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
-        ขั้นตอนที่ 4 รันสคริปต์ทั้งหมด
+        ขั้นตอนที่ 4 ส่งข้อมูลข้อเสนอแนะปตร.วังยาง
       </Typography>
     <Grid container spacing={3}>
 
@@ -71,4 +71,4 @@ const RunAll: React.FC = () => {
   );
 };
 
-export default RunAll;
+export default RunGate;

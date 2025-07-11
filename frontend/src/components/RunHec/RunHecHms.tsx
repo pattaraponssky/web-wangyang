@@ -42,7 +42,7 @@ const RunHecHms: React.FC = () => {
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-        <Grid item xs={12} key={index}>
+         <Grid item xs={12} sm={12} lg={4} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>

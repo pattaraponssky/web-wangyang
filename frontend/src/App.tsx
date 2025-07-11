@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Header from "./components/Layout/Header";
 import DrawerComponent from "./components/Layout/Drawer";
-import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import AboutUs from "./pages/AboutUs"; // ✅ นำเข้า AboutUs
 import { Box } from "@mui/material";
@@ -14,7 +14,6 @@ const App: React.FC = () => {
 
   return (
     <Router>
-
         <Box display="flex" flexDirection="column" minHeight="100vh" minWidth="100%" sx={{ backgroundColor: "#f0f0f0" }}>
         <Header setOpen={setDrawerOpen} />
         <Box display="flex" flexGrow={1} mt={8}>
