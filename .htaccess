@@ -1,0 +1,33 @@
+RewriteEngine On
+RewriteBase /website/
+
+<IfModule mod_authz_core.c>
+  <IfModule mod_auth_basic.c>
+    <IfModule mod_authn_file.c>
+      <If "%{REQUEST_URI} =~ m#^/website/hecrun(/.*)?$#">
+        AuthType Basic
+        AuthName "Restricted Access"
+        AuthUserFile "C:/xampp/htdocs/website/auth/.htpasswd"
+        Require valid-user
+      </If>
+    </IfModule>
+  </IfModule>
+</IfModule>
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.html [L]
+
+<FilesMatch "\.(htaccess|htpasswd|ini|phar|sh|bat|cmd|exe|pl|py|rb|conf|config)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(bak|old|orig|save|swp|swo|log|err)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>

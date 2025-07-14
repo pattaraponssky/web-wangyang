@@ -36,7 +36,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
         {/* เมนูสำหรับ Dashboard */}
         <ListItem
           component={Link}
-          to="/dashboard"
+          to="/website/dashboard"
           onClick={handleItemClick}
           sx={{
             padding: "12px 20px",
@@ -55,10 +55,31 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
 
         <Divider sx={{ margin: "0", backgroundColor: "rgba(0, 0, 0, 0.1)" }} />
 
+        {/* เมนูสำหรับ HecRun */}     
+        {/* <ListItem
+          component={Link}
+          to="/website/hecrun"
+          onClick={handleItemClick}
+          sx={{
+            padding: "12px 20px",
+            borderRadius: "8px",
+            "&:hover": { backgroundColor: "#e3f2fd" },
+          }}
+        >
+          <InfoIcon sx={{ marginRight: "15px", color: "#1976d2" }} />
+          <ListItemText
+            primary="Model"
+            primaryTypographyProps={{
+              sx: { fontSize: "1rem", fontWeight: 600, fontFamily: "Prompt" },
+            }}
+          />
+        </ListItem>
+        <Divider sx={{ margin: "0", backgroundColor: "rgba(0, 0, 0, 0.1)" }} /> */}
         {/* เมนูสำหรับ About Us */}
+        
         <ListItem
           component={Link}
-          to="/aboutus"
+          to="/website/aboutus"
           onClick={handleItemClick}
           sx={{
             padding: "12px 20px",

@@ -15,22 +15,21 @@ const BoxStyle = {
     padding:"20px"
   }
 
-const HecRun: React.FC = () => {
+const Hecrun: React.FC = () => {
   return (
     <Box sx={{margin: "auto" }}>
        <Box sx={BoxStyle}>
           <RainInputTable/>
-        </Box>
-    {/* <Grid container spacing={2}>
-      <Grid item xs={12} md={6} sm={12}>
-        <Box sx={BoxStyle}>
-          <RunCreateDss />
-        </Box>
-      </Grid>
-      <Grid item xs={12} md={6} sm={12}>
-        
-      </Grid>
-    </Grid> */}
+       </Box>
+      {/* <Grid container spacing={2}>
+        <Grid item xs={12} md={6} sm={12}>
+          <Box sx={BoxStyle}>
+            <RunCreateDss />
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={6} sm={12}>
+        </Grid>
+      </Grid> */}
       <Box sx={BoxStyle}>
           <RunHecHms />
       </Box>
@@ -44,4 +43,4 @@ const HecRun: React.FC = () => {
   );
 };
 
-export default HecRun;
+export default Hecrun;

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, PlayArrow, Pause } from "@mui/icons-material";
 import Chart from "react-apexcharts";
 import { formatThaiDay } from "../../utility";
 
@@ -36,10 +36,11 @@ interface Props {
 
 const WaterLevelChart: React.FC<Props> = ({data}) => {
   const [secondData, setSecondData] = useState<WaterLevelData[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [selectedStation, setSelectedStation] = useState<string>("E.91");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const intervalIdRef = useRef<number | null>(null);
   const Levels = warningLevels[selectedStation];
 
   useEffect(() => {
@@ -103,7 +104,48 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
       setSelectedTime("");
     }
   }, [availableDates, selectedStation]); // 👈 ยังใช้ dependency เดิม
+
+  useEffect(() => {
+  if (isPlaying) {
+    intervalIdRef.current = window.setInterval(() => {
+      const timesForSelectedDate = groupedByDate[selectedDate]?.map(item => item.time) || [];
+      const currentIndexInDay = timesForSelectedDate.indexOf(selectedTime);
+
+      if (currentIndexInDay !== -1 && currentIndexInDay < timesForSelectedDate.length - 1) {
+        // If there's a next time in the current day
+        setSelectedTime(timesForSelectedDate[currentIndexInDay + 1]);
+      } else {
+        // No more times in current day, move to next date
+        const currentDayIndex = availableDates.indexOf(selectedDate);
+        if (currentDayIndex < availableDates.length - 1) {
+          const nextDate = availableDates[currentDayIndex + 1];
+          setSelectedDate(nextDate);
+          // When selectedDate changes, the `useEffect` that sets `selectedTime` will automatically run
+          // to pick the first time of the new date. So no need to set selectedTime here.
+        } else {
+          // End of all dates, stop playing
+          setIsPlaying(false);
+        }
+      }
+    }, 1000); // Change time every 1 second (adjust as needed for smoother animation)
+  } else {
+    // Clear interval when not playing
+    if (intervalIdRef.current) {
+      clearInterval(intervalIdRef.current);
+    }
+  }
+
+  // Cleanup on unmount or when isPlaying/dependencies change
+  return () => {
+    if (intervalIdRef.current) {
+      clearInterval(intervalIdRef.current);
+    }
+  };
+}, [isPlaying, selectedDate, selectedTime, groupedByDate, availableDates]);
   
+  const handlePlayPause = () => {
+    setIsPlaying((prev) => !prev);
+  };
   
   const chartOptions = {
     chart: {
@@ -267,17 +309,35 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
         <Button
           sx={{
             fontFamily: "Prompt",
-            fontSize: { xs: "0.8rem", sm: "1rem" },  // ปรับขนาดฟอนต์ตามขนาดหน้าจอ
+            fontSize: { xs: "0.8rem", sm: "1rem" },
             bgcolor: "#1976d2",
             "&:hover": { bgcolor: "#115293" },
             borderRadius: "20px",
             paddingX: "16px",
-            width: { xs: "100%", sm: "auto" }, // ปรับขนาดปุ่มให้เต็มหน้าจอในขนาดเล็ก
-            mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+            width: { xs: "100%", sm: "auto" },
+            mb: { xs: 2, sm: 0 },
           }}
           variant="contained"
-          onClick={() => setSelectedIndex((prev) => Math.max(prev - 1, 0))}
-          disabled={selectedIndex === 0}
+          onClick={() => {
+            setIsPlaying(false); // Pause on manual navigation
+            const timesForSelectedDate = groupedByDate[selectedDate]?.map(item => item.time) || [];
+            const currentIndexInDay = timesForSelectedDate.indexOf(selectedTime);
+
+            if (currentIndexInDay > 0) {
+              setSelectedTime(timesForSelectedDate[currentIndexInDay - 1]);
+            } else {
+              // If at the beginning of the day, try to go to the previous day
+              const currentDayIndex = availableDates.indexOf(selectedDate);
+              if (currentDayIndex > 0) {
+                const prevDate = availableDates[currentDayIndex - 1];
+                setSelectedDate(prevDate);
+                // Set time to the last hour of the previous day
+                const timesForPrevDate = groupedByDate[prevDate]?.map(item => item.time) || [];
+                setSelectedTime(timesForPrevDate[timesForPrevDate.length - 1] || "");
+              }
+            }
+          }}
+          disabled={isPlaying || (selectedDate === availableDates[0] && selectedTime === (groupedByDate[availableDates[0]]?.[0]?.time || ""))}
         >
           <ArrowBack /> ย้อนกลับ
         </Button>
@@ -285,11 +345,12 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
         <Select
           sx={{
             fontFamily: "Prompt",
-            width: { xs: "100%", sm: "auto" },  // ปรับให้ Select ขยายเต็มหน้าจอในขนาดเล็ก
-            marginBottom: { xs: 2, sm: 0 },  // เพิ่ม margin ในขนาดเล็ก
+            width: { xs: "100%", sm: "auto" },
+            marginBottom: { xs: 2, sm: 0 },
           }}
           value={selectedStation}
-          onChange={(e) => setSelectedStation(e.target.value)}
+          onChange={(e) => setSelectedStation(e.target.value as string)}
+          disabled={isPlaying} // Disable during playback
         >
           {Object.keys(stationMapping).map((station) => (
             <MenuItem key={station} value={station}>{station}</MenuItem>
@@ -297,61 +358,102 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
         </Select>
         
         {/* เลือกวันที่ */}
-          <Select
-              sx={{
-                fontFamily: "Prompt",
-                width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
-              }}
-            
+        <Select
+            sx={{
+              fontFamily: "Prompt",
+              width: { xs: "40%", sm: "auto" },
+            }}
             value={selectedDate}
             onChange={(e) => {
-              setSelectedDate(e.target.value);
-              setSelectedTime(""); // reset เวลาเมื่อเปลี่ยนวัน
+              setSelectedDate(e.target.value as string);
+              setIsPlaying(false); // Pause on manual date change
+              // selectedTime will be handled by the dedicated useEffect
             }}
-          >
+            disabled={isPlaying} // Disable during playback
+        >
             {availableDates.map((date) => (
               <MenuItem key={date} value={date}>
                 {formatThaiDay(date)}
               </MenuItem>
             ))}
-          </Select>
+        </Select>
 
-          {/* เลือกเวลาในวันที่ที่เลือก */}
-          {selectedDate && (
-            <Select
-            sx={{
-              fontFamily: "Prompt",
-              width: { xs: "40%", sm: "auto" }, // ขยาย Select ให้เต็มหน้าจอในขนาดเล็ก
+        {/* เลือกเวลาในวันที่ที่เลือก */}
+        {selectedDate && (
+          <Select
+          sx={{
+            fontFamily: "Prompt",
+            width: { xs: "40%", sm: "auto" },
+          }}
+            value={selectedTime}
+            onChange={(e) => {
+              setSelectedTime(e.target.value as string);
+              setIsPlaying(false); // Pause on manual time change
             }}
-              value={selectedTime}
-              onChange={(e) => setSelectedTime(e.target.value)}
-            >
-              {groupedByDate[selectedDate]?.map((item) => {
-                const timeOnly = item.time.split("T")[1];
-                return (
-                  <MenuItem key={item.time} value={item.time}>
-                    {timeOnly}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          )}
+            disabled={!selectedDate || isPlaying} // Disable during playback
+          >
+            {groupedByDate[selectedDate]?.map((item) => {
+              const timeOnly = item.time.split("T")[1];
+              return (
+                <MenuItem key={item.time} value={item.time}>
+                  {timeOnly}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        )}
 
+        {/* Play/Pause Button */}
+        <Button
+          variant="contained"
+          onClick={handlePlayPause}
+          sx={{
+            fontFamily: "Prompt",
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+            bgcolor: isPlaying ? "#d32f2f" : "#2e7d32",
+            "&:hover": { bgcolor: isPlaying ? "#b71c1c" : "#1b5e20" },
+            borderRadius: "20px",
+            paddingX: "16px",
+            width: { xs: "100%", sm: "auto" },
+            mb: { xs: 2, sm: 0 },
+          }}
+        >
+          {isPlaying ? <Pause sx={{ fontSize: "1.5rem" }} /> : <PlayArrow sx={{ fontSize: "1.5rem" }} />}
+          {isPlaying ? "หยุด" : "เล่น"}
+        </Button>
         
         <Button
           sx={{
             fontFamily: "Prompt",
-            fontSize: { xs: "0.8rem", sm: "1rem" }, // ปรับขนาดฟอนต์ตามขนาดหน้าจอ
+            fontSize: { xs: "0.8rem", sm: "1rem" },
             bgcolor: "#1976d2",
             "&:hover": { bgcolor: "#115293" },
             borderRadius: "20px",
             paddingX: "16px",
-            width: { xs: "100%", sm: "auto" }, // ปรับขนาดปุ่มให้เต็มหน้าจอในขนาดเล็ก
-            mb: { xs: 2, sm: 0 }, // เพิ่ม margin-bottom ในขนาดเล็ก
+            width: { xs: "100%", sm: "auto" },
+            mb: { xs: 2, sm: 0 },
           }}
           variant="contained"
-          onClick={() => setSelectedIndex((prev) => Math.min(prev + 1, stationData.length - 1))}
-          disabled={selectedIndex >= stationData.length - 1}
+          onClick={() => {
+            setIsPlaying(false); // Pause on manual navigation
+            const timesForSelectedDate = groupedByDate[selectedDate]?.map(item => item.time) || [];
+            const currentIndexInDay = timesForSelectedDate.indexOf(selectedTime);
+
+            if (currentIndexInDay !== -1 && currentIndexInDay < timesForSelectedDate.length - 1) {
+              setSelectedTime(timesForSelectedDate[currentIndexInDay + 1]);
+            } else {
+              // If at the end of the day, try to go to the next day
+              const currentDayIndex = availableDates.indexOf(selectedDate);
+              if (currentDayIndex < availableDates.length - 1) {
+                const nextDate = availableDates[currentDayIndex + 1];
+                setSelectedDate(nextDate);
+                // Set time to the first hour of the next day
+                const timesForNextDate = groupedByDate[nextDate]?.map(item => item.time) || [];
+                setSelectedTime(timesForNextDate[0] || "");
+              }
+            }
+          }}
+          disabled={isPlaying || (selectedDate === availableDates[availableDates.length - 1] && selectedTime === (groupedByDate[availableDates[availableDates.length - 1]]?.[groupedByDate[availableDates[availableDates.length - 1]]?.length - 1]?.time || ""))}
         >
           ถัดไป <ArrowForward />
         </Button>

@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import AboutUs from "./pages/AboutUs"; // ✅ นำเข้า AboutUs
 import { Box } from "@mui/material";
 import Footer from "./components/Layout/Footer";
-import HecRun from "./pages/HecRun";
+import Hecrun from "./pages/HecRun";
 
 
 const App: React.FC = () => {
@@ -20,10 +20,10 @@ const App: React.FC = () => {
           <DrawerComponent open={drawerOpen} setOpen={setDrawerOpen} />
           <Box flex={1} p={2}>
             <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/aboutus" element={<AboutUs />} />
-              <Route path="/hecrun" element={<HecRun />} />
+              <Route path="/website" element={<Navigate to="/website/dashboard" />} />
+              <Route path="/website/dashboard" element={<Dashboard />} />
+              <Route path="/website/hecrun" element={<Hecrun/>} />
+              <Route path="/website/aboutus" element={<AboutUs />} />
             </Routes>
           </Box>
         </Box>

@@ -49,14 +49,13 @@ const RunGate: React.FC = () => {
               <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>
                {card.icon} {card.title}
               </Typography>
-            
               <Button
                 variant="contained"
                 color="primary"
                 sx={{ marginTop: 2,width:"100%" }}
                 onClick={() => handleRunPhpFile(index, card.url)}
                 disabled={loading[index]} 
-                >
+              >
                 {loading[index] ? <CircularProgress size={24} color="inherit" /> : "รันคำสั่ง"}
               </Button>
               <Typography variant="body1" sx={{ textAlign:"center",marginTop: 2, color: messages[index]?.includes("Error") ? "red" : "green" }}>
