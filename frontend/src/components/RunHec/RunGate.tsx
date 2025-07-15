@@ -5,8 +5,8 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",icon: <Flood />, url: `${API_URL}gate_json.php` },
-  { title: "ส่งข้อมูลข้อเสนอแนะปตร.วังยาง ",icon: <WaterDrop />, url: `${API_URL}run_all.php` },
+  { title: "สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",color: "#1976d2",icon: <Flood />, url: `${API_URL}gate_json.php` },
+  { title: "ส่งข้อมูลข้อเสนอแนะปตร.วังยาง ไปเว็บไซต์หลัก",color: "#1976d2",icon: <WaterDrop />, url: `${API_URL}send_gate_open.php` },
 ];
 
 const RunGate: React.FC = () => {
@@ -51,8 +51,7 @@ const RunGate: React.FC = () => {
               </Typography>
               <Button
                 variant="contained"
-                color="primary"
-                sx={{ marginTop: 2,width:"100%" }}
+                sx={{ marginTop: 2,width:"100%", backgroundColor: card.color }}
                 onClick={() => handleRunPhpFile(index, card.url)}
                 disabled={loading[index]} 
               >

@@ -13,12 +13,12 @@ import { BeachAccess, WaterDrop, Flood } from "@mui/icons-material";
 import axios from "axios";
 
 const defaultRows = [
-  { station_id: 5, name: "สชป.6", type: "rain_rid", values: Array(14).fill(0) },
-  { station_id: 10, name: "E.6C", type: "rain_rid", values: Array(14).fill(0) },
-  { station_id: 14, name: "อ่างฯห้วยสามพาด", type: "rain_rid", values: Array(14).fill(0) },
-  { station_id: 16, name: "อ่างฯห้วยสังเคียบ", type: "rain_rid", values: Array(14).fill(0) },
-  { station_id: "WY.01", name: "สถานีชีกลาง", type: "rain_project", values: Array(14).fill(0) },
-  { station_id: "WY.02", name: "สถานีวังยาง", type: "rain_project", values: Array(14).fill(0) },
+  { station_id: 5, name: "สชป.6", type: "rain_rid", values: Array(7).fill(0) },
+  { station_id: 10, name: "E.6C", type: "rain_rid", values: Array(7).fill(0) },
+  { station_id: 14, name: "อ่างฯห้วยสามพาด", type: "rain_rid", values: Array(7).fill(0) },
+  { station_id: 16, name: "อ่างฯห้วยสังเคียบ", type: "rain_rid", values: Array(7).fill(0) },
+  { station_id: "WY.01", name: "สถานีชีกลาง", type: "rain_project", values: Array(7).fill(0) },
+  { station_id: "WY.02", name: "สถานีวังยาง", type: "rain_project", values: Array(7).fill(0) },
   { station_id: "E.91", name: "สถานีวัดน้ำท่า E.91", type: "flow", values: Array(7).fill(0) },
   { station_id: "E.87", name: "สถานีวัดน้ำท่า E.87", type: "flow", values: Array(7).fill(0) },
 ];
@@ -31,7 +31,7 @@ const HeaderCellStyle = {
   textAlign: "center",
   backgroundColor: "rgb(1, 87, 155)",
   color: "white",
-  fontSize: { xs: "0.8rem", sm: "0.8rem", md: "1rem" },
+  fontSize: { xs: "0.8rem", sm: "0.8rem", md: "0.9rem" },
 };
 
 const getCellStyle = (index: number) => ({
@@ -39,7 +39,7 @@ const getCellStyle = (index: number) => ({
   backgroundColor: index % 2 === 0 ? "#FAFAFA" : "#FFF",
   textAlign: "center",
   fontFamily: "Prompt",
-  fontSize: { xs: "0.8rem", sm: "0.8rem", md: "1rem" },
+  fontSize: { xs: "0.8rem", sm: "0.8rem", md: "0.9rem" },
 });
 
 export default function RainInputTable() {
@@ -49,9 +49,10 @@ export default function RainInputTable() {
     const [initialDataLoading, setInitialDataLoading] = useState(true); // เพิ่ม state สำหรับการโหลดข้อมูลเริ่มต้น
 
     const cardData = [
-        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)", icon: <BeachAccess />, url: `${API_URL}dowload_rain_grid.php` },
-        { title: "สร้างไฟล์ input-hms.txt อัตโนมัติ", icon: <WaterDrop />, url: `${API_URL}write_input_txt.php` },
-        { title: "สร้างไฟล์ input-hms.dss", icon: <Flood />, url: `${API_URL}write_input_dss.php` },
+        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)",color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}dowload_rain_grid.php` },
+        { title: "สร้างไฟล์ input-hms.txt อัตโนมัติ (ไม่ต้องรันหากกรอกข้อมูลด้วยตัวเอง)",color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}write_input_txt.php` },
+        { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss",color: "#1976d2", icon: <Flood />, url: `${API_URL}write_input_dss.php` },
+        { title: "รันสคริปต์ทั้งหมด (Hec-Dss)",color: "#2e7d32", icon: <Flood />, url: `${API_URL}dss_all.php` },
     ];
 
     const handleRunPhpFile = async (index: number, url: string) => {
@@ -79,7 +80,7 @@ export default function RainInputTable() {
       
       // ลูปจาก -6 (6 วันที่แล้ว) ถึง 7 (7 วันในอนาคต)
       // รวมทั้งหมด 14 วัน: (-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)
-      for (let i = -7; i <= 6; i++) { 
+      for (let i = -7; i <= 0; i++) { 
         const d = new Date(today);
         d.setDate(d.getDate() + i); // เพิ่ม/ลบวัน
         const formatted = d.toLocaleDateString("th-TH", {
@@ -154,16 +155,13 @@ export default function RainInputTable() {
 
                 const newRows = defaultRows.map(row => {
                     let values = [];
-                    let newValues = Array(14).fill(0); 
+                    let newValues = Array(7).fill(0); 
                     if (row.type === "rain_rid") {
                         const rainStationData = rainDataMap.get(row.station_id);
 
                         if (rainStationData) {
                             const extractedRainValues: number[] = [];
-                            // ดึง 6 วันย้อนหลัง + วันนี้ (รวม 7 วัน)
-                            // API ให้ข้อมูล rain_7_days_ago ถึง rain_1_day_ago (7 ค่า)
-                            // เราจะแมปข้อมูลนี้กับ 7 ช่องแรกของ 14 ช่อง
-                            for (let i = 7; i >= 0; i--) { // i=6 คือ 6 วันที่แล้ว, i=0 คือ วันนี้
+                            for (let i = 7; i >= 1; i--) { // i=6 คือ 6 วันที่แล้ว, i=0 คือ วันนี้
                                 const key = `rain_${i}_days_ago`;
                                 if (i === 0) { 
                                    extractedRainValues.push(0); // สมมติว่าวันนี้ฝน 0 หรือถ้า API มีคีย์อื่นให้ใส่ตรงนี้
@@ -172,19 +170,18 @@ export default function RainInputTable() {
                                     extractedRainValues.push(isNaN(val) ? 0 : val);
                                 }
                             }
-                            // นำ extractedRainValues (7 ช่อง) ไปเติมใน 7 ช่องแรกของ newValues (0-6)
-                            extractedRainValues.forEach((val, index) => {
-                                newValues[index] = val;
-                            });
+                             values = extractedRainValues;
+                        } else {
+                            // ถ้าไม่พบข้อมูล rain_project ให้ใช้ค่า default (Array(14).fill(0))
+                            values = newValues; // ซึ่งเป็น Array(14).fill(0) อยู่แล้ว
                         }
-                        values = newValues;
                       } else if (row.type === "rain_project") {
                         // Logic สำหรับ "rain_project" (ถ้ามี) ซึ่งคาดว่าดึง 14 วันเต็ม
                         // ถ้า API rain_hydro3.php มีข้อมูล rain_project ด้วย
                         const rainProjectData = rainDataMap.get(row.station_id); 
                         if (rainProjectData) {
                              const extractedRainProjectValues: number[] = [];
-                             for (let i = 13; i >= 0; i--) {
+                              for (let i = 7; i >= 1; i--) {
                                 const key = `rain_${i}_days_ago`;
                                 if (i === 0) {
                                     extractedRainProjectValues.push(0); // ถ้าวันนี้ไม่มีข้อมูล ให้ใส่ 0
@@ -193,11 +190,11 @@ export default function RainInputTable() {
                                     extractedRainProjectValues.push(isNaN(val) ? 0 : val);
                                 }
                              }
-                             // สำหรับ rain_project ถ้าข้อมูล API มี 14 วันพอดี ก็ใช้ได้เลย
+     
                              values = extractedRainProjectValues;
                         } else {
                             // ถ้าไม่พบข้อมูล rain_project ให้ใช้ค่า default (Array(14).fill(0))
-                            values = newValues; // ซึ่งเป็น Array(14).fill(0) อยู่แล้ว
+                            values = newValues; 
                         }
                        } else if (row.type === "flow") {
                         // ดึงข้อมูลน้ำท่าจาก resFlowData
@@ -265,8 +262,7 @@ export default function RainInputTable() {
 
                                 <Button
                                     variant="contained"
-                                    color="primary"
-                                    sx={{ marginTop: 2, width: "100%" }}
+                                    sx={{ marginTop: 2, width: "100%", backgroundColor: card.color }}
                                     onClick={() => handleRunPhpFile(index, card.url)}
                                     disabled={buttonLoading[index]}
                                 >
@@ -332,9 +328,48 @@ export default function RainInputTable() {
             <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ mt: 2, fontFamily: "Prompt" }}>
                 คำนวณ SB แล้วสร้างไฟล์ input-hms.txt
             </Button>
-            <Button variant="contained" color="success" onClick={() => handleRunPhpFile(3, cardData[2].url)} sx={{ mt: 2,mx: 2, fontFamily: "Prompt" }}>
-                แปลงไฟล์ input-hms.txt เป็น input-hms.dss
-            </Button>
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+             {cardData.slice(2, 4).map((card, index) => (
+                    <Grid item xs={12} sm={6} key={index}>
+                        <Card sx={{ borderRadius: 2 }}>
+                            <CardContent>
+                                <Typography
+                                    variant="h6"
+                                    color="textSecondary"
+                                    gutterBottom
+                                    sx={{ fontFamily: "Prompt" }}
+                                >
+                                    {card.icon} {card.title}
+                                </Typography>
+
+                                <Button
+                                    variant="contained"
+                                    sx={{ marginTop: 2, width: "100%", backgroundColor: card.color}}
+                                    onClick={() => handleRunPhpFile(index, card.url)}
+                                    disabled={buttonLoading[index]}
+                                >
+                                    {buttonLoading[index] ? (
+                                        <CircularProgress size={24} color="inherit" />
+                                    ) : (
+                                        "รันคำสั่ง"
+                                    )}
+                                </Button>
+
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        textAlign: "center",
+                                        marginTop: 2,
+                                        color: messages[index]?.includes("Error") ? "red" : "green",
+                                    }}
+                                >
+                                    {messages[index]}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
         </Box>
     );
 }

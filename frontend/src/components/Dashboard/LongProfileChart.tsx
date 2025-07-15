@@ -121,7 +121,7 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
           //   setSelectedTime(timePart);
           // }
         }
-      }, 500); // Change time every 2 seconds (adjust as needed)
+      }, 400); 
     } else {
       if (intervalIdRef.current) {
         clearInterval(intervalIdRef.current);

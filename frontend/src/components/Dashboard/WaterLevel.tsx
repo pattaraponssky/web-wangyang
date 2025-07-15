@@ -127,7 +127,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
           setIsPlaying(false);
         }
       }
-    }, 1000); // Change time every 1 second (adjust as needed for smoother animation)
+    }, 400); // Change time every 1 second (adjust as needed for smoother animation)
   } else {
     // Clear interval when not playing
     if (intervalIdRef.current) {
