@@ -123,7 +123,8 @@ export default function RainInputTable() {
             try {
                 setInitialDataLoading(true);
 
-                const [resRainData, resFlowData] = await Promise.all([
+                const [resSubbasinData ,resRainData, resFlowData] = await Promise.all([
+                    fetch(`${API_URL}/input_hms.php`).then(res => res.json()),
                     // API_rain_hydro3.php ตอนนี้มี rain_X_days_ago
                     fetch(`http://localhost/wangyang/API/api_rain_hydro3.php`).then(res => res.json()),
                     // API_flow_hydro3_8day.php ตอนนี้มีวันที่เป็นคีย์
@@ -153,6 +154,16 @@ export default function RainInputTable() {
                     });
                 }
 
+                const wyDailyRainMap = new Map();
+                if (resSubbasinData && resSubbasinData.wy_api_raw_data_hourly_summed) {
+                    const summedData = resSubbasinData.wy_api_raw_data_hourly_summed;
+                    for (const stationCode in summedData) {
+                        if (Object.prototype.hasOwnProperty.call(summedData, stationCode)) {
+                            wyDailyRainMap.set(stationCode, summedData[stationCode]);
+                        }
+                    }
+                }
+
                 const newRows = defaultRows.map(row => {
                     let values = [];
                     let newValues = Array(7).fill(0); 
@@ -170,28 +181,30 @@ export default function RainInputTable() {
                                     extractedRainValues.push(isNaN(val) ? 0 : val);
                                 }
                             }
-                             values = extractedRainValues;
+                             values = extractedRainValues; // reverse เพื่อให้เก่าสุดอยู่ซ้ายสุด (วันที่เก่าสุด) ไปใหม่สุดอยู่ขวาสุด (วันที่ใกล้ปัจจุบัน)
                         } else {
                             // ถ้าไม่พบข้อมูล rain_project ให้ใช้ค่า default (Array(14).fill(0))
                             values = newValues; // ซึ่งเป็น Array(14).fill(0) อยู่แล้ว
                         }
-                      } else if (row.type === "rain_project") {
-                        // Logic สำหรับ "rain_project" (ถ้ามี) ซึ่งคาดว่าดึง 14 วันเต็ม
-                        // ถ้า API rain_hydro3.php มีข้อมูล rain_project ด้วย
-                        const rainProjectData = rainDataMap.get(row.station_id); 
-                        if (rainProjectData) {
-                             const extractedRainProjectValues: number[] = [];
-                              for (let i = 7; i >= 1; i--) {
-                                const key = `rain_${i}_days_ago`;
-                                if (i === 0) {
-                                    extractedRainProjectValues.push(0); // ถ้าวันนี้ไม่มีข้อมูล ให้ใส่ 0
-                                } else {
-                                    const val = parseFloat(rainProjectData[key]);
-                                    extractedRainProjectValues.push(isNaN(val) ? 0 : val);
-                                }
-                             }
-     
-                             values = extractedRainProjectValues;
+                       } else if (row.type === "rain_project") {
+                        // ดึงข้อมูลฝนรายวันจาก wy_api_raw_data_hourly_summed (จาก resSubbasinData)
+                        const stationDailyRain = wyDailyRainMap.get(row.station_id);
+                        if (stationDailyRain) {
+                            const extractedProjectRainValues: number[] = [];
+                            const today = new Date();
+
+                            // ต้องการ 7 วัน (ตาม UI), ลูปจาก 6 วันที่แล้วถึงวันนี้
+                            for (let i = 7; i >= 1; i--) {
+                                const date = new Date(today);
+                                date.setDate(today.getDate() - i);
+                                // แปลงวันที่เป็น YYYY-MM-DD (ค.ศ.) เพื่อใช้เป็น key ใน wyDailyRainMap
+                                const dateKeyCE = date.toLocaleDateString("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" }); // "YYYY-MM-DD"
+                                
+                                const val = stationDailyRain[dateKeyCE];
+                                extractedProjectRainValues.push(isNaN(parseFloat(val)) ? 0 : parseFloat(val));
+                            }
+                            // reverse เพื่อให้เก่าสุดอยู่ซ้ายสุด (วันที่เก่าสุด) ไปใหม่สุดอยู่ขวาสุด (วันที่ใกล้ปัจจุบัน)
+                            values = extractedProjectRainValues
                         } else {
                             // ถ้าไม่พบข้อมูล rain_project ให้ใช้ค่า default (Array(14).fill(0))
                             values = newValues; 
