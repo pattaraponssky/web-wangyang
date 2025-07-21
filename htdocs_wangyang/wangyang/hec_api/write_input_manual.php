@@ -118,7 +118,7 @@ foreach ($flow_stations as $station) {
 }
 
 // === สร้างไฟล์ input-hms.txt ===
-$fileName = "C:\sti_wangyang\hms_wangyang\input-hms\input-hms.txt";
+$fileName = "C:\wangyang\hms_wangyang\input-hms\input-hms.txt";
 $file_dir = dirname($fileName);
 if (!is_dir($file_dir)) {
     mkdir($file_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี

@@ -3,7 +3,7 @@ import os
 import time
 
 #  ตั้งค่าพาธของโปรเจกต์ HEC-RAS
-RAS_PROJECT = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.prj"
+RAS_PROJECT = r"C:\wangyang\RAS_Wangyang1D\Wangyang1D.prj"
 RAS_PROJECT = os.path.abspath(RAS_PROJECT)
 print(f"Using project file: {RAS_PROJECT}")
 
@@ -12,7 +12,7 @@ RAS_VERSIONS = ["RAS630.HECRASController"]
 ras = None
 
 #  กำหนด path ของไฟล์ DSS
-dss_file = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.dss"
+dss_file = r"C:\wangyang\RAS_Wangyang1D\Wangyang1D.dss"
 
 # 🔍 ตรวจสอบว่าไฟล์มีอยู่หรือไม่
 if os.path.exists(dss_file):

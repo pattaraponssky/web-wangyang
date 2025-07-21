@@ -1,5 +1,5 @@
 @echo off
-python C:\sti_wangyang\hec_ras_run.py
+python C:\wangyang\hec_ras_run.py
 IF %ERRORLEVEL% EQU 0 (
     echo Success Run
 ) ELSE (

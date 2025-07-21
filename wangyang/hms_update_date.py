@@ -11,7 +11,7 @@ forecast_time = "07:00"
 end_time = "06:00"
 
 # Modify the .forecast file
-forecast_file = r"C:\sti_wangyang\hms_wangyang\Wangyang\forecast\Forecast_1.forecast"
+forecast_file = r"C:\wangyang\hms_wangyang\Wangyang\forecast\Forecast_1.forecast"
 
 # Read the file
 with open(forecast_file, "r") as file:

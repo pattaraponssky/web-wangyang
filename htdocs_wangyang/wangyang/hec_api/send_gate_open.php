@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-$batFile = 'C:\\sti_wangyang\\send_gate_open.bat';
+$batFile = 'C:\\wangyang\\send_gate_open.bat';
 
 exec("start /B \"\" \"$batFile\"", $output, $return_var);
 

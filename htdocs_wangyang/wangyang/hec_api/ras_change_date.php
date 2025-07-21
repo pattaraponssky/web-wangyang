@@ -3,7 +3,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 // run_hec_ras.php
-$command = "python C:\\sti_wangyang\\ras_update_date.py";
+$command = "python C:\\wangyang\\ras_update_date.py";
 exec($command . " 2>&1", $output, $return_var);
 
 if ($return_var === 0) {

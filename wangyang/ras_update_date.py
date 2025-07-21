@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 #กำหนดพาธไฟล์ .p01 ของแผนปัจจุบัน
-p01_file = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.p03"
+p01_file = r"C:\wangyang\RAS_Wangyang1D\Wangyang1D.p03"
 
 today = datetime.today()
 start_date = (today - timedelta(days=7)).strftime("%d%b%Y,07.00").upper()  # 7 days before

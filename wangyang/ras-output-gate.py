@@ -1,7 +1,7 @@
 from hec.heclib.dss import HecDss
 from datetime import datetime, timedelta
 
-file = R"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.dss"
+file = R"C:\wangyang\RAS_Wangyang1D\Wangyang1D.dss"
 dssfile = HecDss.open(file)
 
 today = datetime.today()

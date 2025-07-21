@@ -6,7 +6,7 @@ from datetime import datetime
 hec = win32com.client.Dispatch("RAS630.HECRASController")  # สำหรับ HEC-RAS 6.3
 
 # === ระบุพาธไฟล์โครงการ HEC-RAS และไฟล์ CSV ===
-project_file = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.prj"
+project_file = r"C:\wangyang\RAS_Wangyang1D\Wangyang1D.prj"
 csv_file = r"C:\xampp\htdocs\website\ras-output\output_ras.csv"
 
 # === เปิดโครงการ HEC-RAS ===

@@ -1,5 +1,5 @@
 @echo off
-python C:\sti_wangyang\ras_update_date.py
+python C:\wangyang\ras_update_date.py
 IF %ERRORLEVEL% EQU 0 (
     echo Success Run
 ) ELSE (

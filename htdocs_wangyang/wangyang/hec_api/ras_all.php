@@ -5,11 +5,11 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // รายชื่อคำสั่งที่ต้องการรันตามลำดับ
 $commands = [
-    'python "C:\\sti_wangyang\\hec_ras_update_date.py"',
-    'python "C:\\sti_wangyang\\hec_ras_compute.py"',
-    '"C:\\sti_wangyang\\ras-output-flow.bat"',
-    '"C:\\sti_wangyang\\ras-output-gate.bat"',
-    '"C:\\sti_wangyang\\ras-output.bat"',
+    'python "C:\\wangyang\\hec_ras_update_date.py"',
+    'python "C:\\wangyang\\hec_ras_compute.py"',
+    '"C:\\wangyang\\ras-output-flow.bat"',
+    '"C:\\wangyang\\ras-output-gate.bat"',
+    '"C:\\wangyang\\ras-output.bat"',
 ];
 
 // บันทึกผลลัพธ์

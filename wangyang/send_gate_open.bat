@@ -1,5 +1,5 @@
 @echo off
-python C:\sti_wangyang\gate_json.py
+python C:\wangyang\gate_json.py
 IF %ERRORLEVEL% EQU 0 (
     echo Success Run
 ) ELSE (

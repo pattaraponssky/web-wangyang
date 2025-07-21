@@ -48,7 +48,7 @@ foreach ($stations as $stationCode) {
     }
 }
 
-$fileName = "C:\sti_wangyang\hms_wangyang\input-hms\input-hms.txt";
+$fileName = "C:\wangyang\hms_wangyang\input-hms\input-hms.txt";
 
 $startDate = new DateTime();
 $startDate->modify("-7 days");

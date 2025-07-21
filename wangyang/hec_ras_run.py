@@ -4,7 +4,7 @@ import time
 import re
 from datetime import datetime, timedelta
 #  กำหนดพาธไฟล์ .p01 ของแผนปัจจุบัน
-p01_file = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.p03"
+p01_file = r"C:\wangyang\RAS_Wangyang1D\Wangyang1D.p03"
 
 today = datetime.today()
 start_date = (today - timedelta(days=7)).strftime("%d%b%Y,07.00").upper()  # 7 days before
@@ -36,7 +36,7 @@ print(" Successfully updated .p01 file.")
 
 
 #  ตั้งค่าพาธของโปรเจกต์ HEC-RAS
-RAS_PROJECT = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.prj"
+RAS_PROJECT = r"C:\wangyang\RAS_Wangyang1D\Wangyang1D.prj"
 RAS_PROJECT = os.path.abspath(RAS_PROJECT)
 print(f" Using project file: {RAS_PROJECT}")
 

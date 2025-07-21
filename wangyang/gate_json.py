@@ -3,9 +3,9 @@ import json
 from datetime import datetime, date
 
 # === Config ===
-csv_input_path = r"/Users/dan/เขื่อนวังยาง/sti_wangyang/output-ras/gate_output.csv"
-json_output_path = r"/Users/dan/เขื่อนวังยาง/sti_wangyang/output-ras/gate_open.json"
-csv_output_path = r"/Users/dan/เขื่อนวังยาง/sti_wangyang/output-ras/gate_open.csv"
+csv_input_path = r"/Users/dan/เขื่อนวังยาง/wangyang/output-ras/gate_output.csv"
+json_output_path = r"/Users/dan/เขื่อนวังยาง/wangyang/output-ras/gate_open.json"
+csv_output_path = r"/Users/dan/เขื่อนวังยาง/wangyang/output-ras/gate_open.csv"
 station_code = "WY.02"
 station_name = "ปตร.วังยาง"
 gate_open_value = 6

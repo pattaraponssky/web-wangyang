@@ -1,5 +1,5 @@
 @echo off
-python C:\sti_wangyang\ras-output.py
+python C:\wangyang\ras-output.py
 IF %ERRORLEVEL% EQU 0 (
     echo Success Run
 ) ELSE (

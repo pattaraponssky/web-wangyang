@@ -128,7 +128,7 @@ foreach ($stations as $stationCode) {
     }
 }
 
-$fileName = "C:\sti_wangyang\hms_wangyang\input-hms\input-hms.txt";
+$fileName = "C:\wangyang\hms_wangyang\input-hms\input-hms.txt";
 
 $startDate = new DateTime();
 $startDate->modify("-7 days");
@@ -199,7 +199,7 @@ fclose($file);
 
 echo "✅ สร้างไฟล์ $fileName (วังยาง) สำเร็จ!!";
 
-$batFile = 'C:\\sti_wangyang\\hms_wangyang\\input-hms\\input-hms.bat';
+$batFile = 'C:\\wangyang\\hms_wangyang\\input-hms\\input-hms.bat';
 
 exec("start /B \"\" \"$batFile\"", $output, $return_var);
 

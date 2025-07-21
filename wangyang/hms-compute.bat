@@ -3,7 +3,7 @@ echo Running Jython script...
 
 set "HEC_HMS_PATH=C:\Program Files\HEC\HEC-HMS\4.12"
 set "JYTHON_PATH=C:\jython2.7.4\bin\jython"
-set "SCRIPT_PATH=C:\sti_wangyang\hms-compute.py"
+set "SCRIPT_PATH=C:\wangyang\hms-compute.py"
 
 :: เพิ่มเส้นทางของ HEC-HMS lib ไปยัง PYTHONPATH
 set "PYTHONPATH=%HEC_HMS_PATH%\lib;%PYTHONPATH%"
