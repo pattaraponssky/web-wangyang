@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Button, Card, CardContent, Typography, Grid, CircularProgress } from "@mui/material";
-import { BeachAccess, Flood, WaterDrop, } from "@mui/icons-material";
+import { Flood, } from "@mui/icons-material";
 import axios from "axios"; 
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "รันสคริปต์การทำงานทั้งหมด(Run All Model)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}hms_all.php` },
+  { title: "รันสคริปต์การทำงานทั้งหมด (Run All Model)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}run_all.php` },
 ];
 
 const RunAll: React.FC = () => {
@@ -34,13 +34,13 @@ const RunAll: React.FC = () => {
 
   return (
   <div>
-       <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
-        ขั้นตอนที่ 2 แปลงข้อมูลน้ำฝนเป็นน้ำท่า (HEC-HMS)
+       <Typography variant="h5" sx={{ padding: 1, fontWeight: "bold",fontFamily:"Prompt"}}>
+        ทำงานจำลองโมเดลทั้งหมด (Run All Model)
       </Typography>
     <Grid container spacing={3}>
 
       {cardData.map((card, index) => (
-         <Grid item xs={12} sm={12} lg={4} key={index}>
+         <Grid item xs={12} sm={12} lg={12} key={index}>
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h6" color="textSecondary" gutterBottom sx={{fontFamily:"Prompt"}}>

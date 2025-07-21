@@ -37,7 +37,7 @@ const RunGate: React.FC = () => {
 
   return (
   <div>
-       <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
+       <Typography variant="h6" sx={{ padding:1, fontWeight: "bold",fontFamily:"Prompt"}}>
         ขั้นตอนที่ 4 ส่งข้อมูลข้อเสนอแนะปตร.วังยาง
       </Typography>
     <Grid container spacing={3}>

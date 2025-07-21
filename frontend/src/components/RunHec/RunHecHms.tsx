@@ -36,7 +36,7 @@ const RunHecHms: React.FC = () => {
 
   return (
   <div>
-       <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
+       <Typography variant="h6" sx={{ padding: 1, fontWeight: "bold",fontFamily:"Prompt"}}>
         ขั้นตอนที่ 2 แปลงข้อมูลน้ำฝนเป็นน้ำท่า (HEC-HMS)
       </Typography>
     <Grid container spacing={3}>

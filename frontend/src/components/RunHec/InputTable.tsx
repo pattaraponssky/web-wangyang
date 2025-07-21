@@ -13,12 +13,12 @@ import { BeachAccess, WaterDrop, Flood } from "@mui/icons-material";
 import axios from "axios";
 
 const defaultRows = [
-  { station_id: 5, name: "สชป.6", type: "rain_rid", values: Array(7).fill(0) },
-  { station_id: 10, name: "E.6C", type: "rain_rid", values: Array(7).fill(0) },
-  { station_id: 14, name: "อ่างฯห้วยสามพาด", type: "rain_rid", values: Array(7).fill(0) },
-  { station_id: 16, name: "อ่างฯห้วยสังเคียบ", type: "rain_rid", values: Array(7).fill(0) },
-  { station_id: "WY.01", name: "สถานีชีกลาง", type: "rain_project", values: Array(7).fill(0) },
-  { station_id: "WY.02", name: "สถานีวังยาง", type: "rain_project", values: Array(7).fill(0) },
+  { station_id: 5, name: "สชป.6", type: "rain_rid", values: Array(14).fill(0) },
+  { station_id: 10, name: "E.6C", type: "rain_rid", values: Array(14).fill(0) },
+  { station_id: 14, name: "อ่างฯห้วยสามพาด", type: "rain_rid", values: Array(14).fill(0) },
+  { station_id: 16, name: "อ่างฯห้วยสังเคียบ", type: "rain_rid", values: Array(14).fill(0) },
+  { station_id: "WY.01", name: "สถานีชีกลาง", type: "rain_project", values: Array(14).fill(0) },
+  { station_id: "WY.02", name: "สถานีวังยาง", type: "rain_project", values: Array(14).fill(0) },
   { station_id: "E.91", name: "สถานีวัดน้ำท่า E.91", type: "flow", values: Array(7).fill(0) },
   { station_id: "E.87", name: "สถานีวัดน้ำท่า E.87", type: "flow", values: Array(7).fill(0) },
 ];
@@ -34,9 +34,19 @@ const HeaderCellStyle = {
   fontSize: { xs: "0.8rem", sm: "0.8rem", md: "0.9rem" },
 };
 
-const getCellStyle = (index: number) => ({
+const getCellStyle = (index: number, rowType: string) => ({
   padding: "5px",
-  backgroundColor: index % 2 === 0 ? "#FAFAFA" : "#FFF",
+  // **แก้ไขตรงนี้**: ตรวจสอบ rowType เพื่อกำหนดสีพื้นหลัง
+  backgroundColor:
+  rowType === 'flow'
+    ? '#e3f2fd'
+    : rowType === 'rain_rid'
+    ? '#fce4ec'
+     : rowType === 'rain_project'
+    ? '#fce4ec'
+    : index % 2 === 0
+    ? '#FAFAFA'
+    : '#FFF',
   textAlign: "center",
   fontFamily: "Prompt",
   fontSize: { xs: "0.8rem", sm: "0.8rem", md: "0.9rem" },
@@ -50,7 +60,7 @@ export default function RainInputTable() {
 
     const cardData = [
         { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)",color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}dowload_rain_grid.php` },
-        { title: "สร้างไฟล์ input-hms.txt อัตโนมัติ (ไม่ต้องรันหากกรอกข้อมูลด้วยตัวเอง)",color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}write_input_txt.php` },
+        { title: "สร้างไฟล์ input-hms.txt โดยใช้ฝนพยากรณ์",color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}write_input_txt.php` },
         { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss",color: "#1976d2", icon: <Flood />, url: `${API_URL}write_input_dss.php` },
         { title: "รันสคริปต์ทั้งหมด (Hec-Dss)",color: "#2e7d32", icon: <Flood />, url: `${API_URL}dss_all.php` },
     ];
@@ -80,7 +90,7 @@ export default function RainInputTable() {
       
       // ลูปจาก -6 (6 วันที่แล้ว) ถึง 7 (7 วันในอนาคต)
       // รวมทั้งหมด 14 วัน: (-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)
-      for (let i = -7; i <= 0; i++) { 
+      for (let i = -7; i <= 6; i++) { 
         const d = new Date(today);
         d.setDate(d.getDate() + i); // เพิ่ม/ลบวัน
         const formatted = d.toLocaleDateString("th-TH", {
@@ -163,62 +173,52 @@ export default function RainInputTable() {
                         }
                     }
                 }
+ const newRows = defaultRows.map(row => {
+                    let values: number[] = []; // Ensure values is an array of numbers
 
-                const newRows = defaultRows.map(row => {
-                    let values = [];
-                    let newValues = Array(7).fill(0); 
                     if (row.type === "rain_rid") {
                         const rainStationData = rainDataMap.get(row.station_id);
+                        values = Array(14).fill(0); // Initialize with 14 zeros for rain
 
                         if (rainStationData) {
-                            const extractedRainValues: number[] = [];
-                            for (let i = 7; i >= 1; i--) { // i=6 คือ 6 วันที่แล้ว, i=0 คือ วันนี้
-                                const key = `rain_${i}_days_ago`;
-                                if (i === 0) { 
-                                   extractedRainValues.push(0); // สมมติว่าวันนี้ฝน 0 หรือถ้า API มีคีย์อื่นให้ใส่ตรงนี้
-                                } else {
-                                    const val = parseFloat(rainStationData[key]);
-                                    extractedRainValues.push(isNaN(val) ? 0 : val);
-                                }
-                            }
-                             values = extractedRainValues; // reverse เพื่อให้เก่าสุดอยู่ซ้ายสุด (วันที่เก่าสุด) ไปใหม่สุดอยู่ขวาสุด (วันที่ใกล้ปัจจุบัน)
-                        } else {
-                            // ถ้าไม่พบข้อมูล rain_project ให้ใช้ค่า default (Array(14).fill(0))
-                            values = newValues; // ซึ่งเป็น Array(14).fill(0) อยู่แล้ว
-                        }
-                       } else if (row.type === "rain_project") {
-                        // ดึงข้อมูลฝนรายวันจาก wy_api_raw_data_hourly_summed (จาก resSubbasinData)
-                        const stationDailyRain = wyDailyRainMap.get(row.station_id);
-                        if (stationDailyRain) {
-                            const extractedProjectRainValues: number[] = [];
-                            const today = new Date();
-
-                            // ต้องการ 7 วัน (ตาม UI), ลูปจาก 6 วันที่แล้วถึงวันนี้
+                            // Populate 7 days of historical rain data
                             for (let i = 7; i >= 1; i--) {
-                                const date = new Date(today);
-                                date.setDate(today.getDate() - i);
-                                // แปลงวันที่เป็น YYYY-MM-DD (ค.ศ.) เพื่อใช้เป็น key ใน wyDailyRainMap
-                                const dateKeyCE = date.toLocaleDateString("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" }); // "YYYY-MM-DD"
-                                
-                                const val = stationDailyRain[dateKeyCE];
-                                extractedProjectRainValues.push(isNaN(parseFloat(val)) ? 0 : parseFloat(val));
+                                const key = `rain_${i}_days_ago`;
+                                const val = parseFloat(rainStationData[key]);
+                                // Calculate the correct index for the `values` array
+                                // `i` goes from 7 (oldest) to 1 (yesterday)
+                                // We want the oldest day (7 days ago) to be at index 0
+                                // and yesterday (1 day ago) to be at index 6
+                                // So, index = 7 - i
+                                values[7 - i] = isNaN(val) ? 0 : val;
                             }
-                            // reverse เพื่อให้เก่าสุดอยู่ซ้ายสุด (วันที่เก่าสุด) ไปใหม่สุดอยู่ขวาสุด (วันที่ใกล้ปัจจุบัน)
-                            values = extractedProjectRainValues
-                        } else {
-                            // ถ้าไม่พบข้อมูล rain_project ให้ใช้ค่า default (Array(14).fill(0))
-                            values = newValues; 
+                            // Days from index 7 to 13 (today to 6 days from now) remain 0
+                            // unless you have future forecast data from this API.
                         }
-                       } else if (row.type === "flow") {
-                        // ดึงข้อมูลน้ำท่าจาก resFlowData
-                        // ใช้ row.station_id (เช่น "E.91", "E.87") เพื่อจับคู่กับ stationcode ของ API น้ำท่า
+                    } else if (row.type === "rain_project") {
+                        const stationDailyRain = wyDailyRainMap.get(row.station_id);
+                        values = Array(14).fill(0); // Initialize with 14 zeros for project rain
+
+                        if (stationDailyRain) {
+                            const today = new Date();
+                            for (let i = -7; i <= 6; i++) { // Loop for 14 days
+                                const date = new Date(today);
+                                date.setDate(today.getDate() + i);
+                                const dateKeyCE = date.toLocaleDateString("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" });
+
+                                const val = stationDailyRain[dateKeyCE];
+                                // Map the loop index `i` (-7 to 6) to `values` array index (0 to 13)
+                                // If i is -7, array index is 0. If i is 6, array index is 13.
+                                values[i + 7] = isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+                            }
+                        }
+                    } else if (row.type === "flow") {
                         const flowStationData = flowDataMap.get(row.station_id);
+                        values = Array(8).fill(0); // Initialize with 8 zeros for flow
 
                         if (flowStationData) {
-                            const extractedFlowValues: number[] = [];
                             const today = new Date();
-                            // API flow มีวันที่เป็นคีย์ (จากตัวอย่างล่าสุด)
-                            for (let i = 7; i >= 0; i--) { // ต้องการ 7 วัน (i=6 คือ 6 วันที่แล้ว, i=0 คือ วันนี้)
+                            for (let i = 7; i >= 0; i--) { // Loop for 8 days (7 days ago to today)
                                 const date = new Date(today);
                                 date.setDate(today.getDate() - i);
                                 const day = String(date.getDate()).padStart(2, '0');
@@ -227,9 +227,9 @@ export default function RainInputTable() {
                                 const dateKey = `${day}/${month}/${year}`;
 
                                 const val = parseFloat(flowStationData[dateKey]);
-                                extractedFlowValues.push(isNaN(val) ? 0 : val);
+                                // Flow data goes from oldest (index 0) to newest (index 7)
+                                values[7 - i] = isNaN(val) ? 0 : val;
                             }
-                            values = extractedFlowValues; // API flow ให้ข้อมูลตามลำดับอยู่แล้ว
                         }
                     }
                     return { ...row, values };
@@ -255,7 +255,7 @@ export default function RainInputTable() {
     }
 
     return ( 
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1 }}>
             <Typography variant="h6" sx={{ fontWeight: "bold", fontFamily: "Prompt", mb: 2 }}>
                 ขั้นตอนที่ 1 เตรียมข้อมูลน้ำฝน-น้ำท่า (Hec-Dss)
             </Typography>
@@ -302,7 +302,7 @@ export default function RainInputTable() {
                 ))}
             </Grid>
             <Typography variant="h6" sx={{ fontWeight: "bold", fontFamily: "Prompt", my: 2 }}>
-                กรอกข้อมูลปริมาณน้ำฝน/น้ำท่าสำหรับแบบจำลอง
+                กรอกข้อมูล<span style={{ color: '#fd7fab' }}>ปริมาณน้ำฝน</span> และ<span style={{ color: '#0288d1' }}>ปริมาณน้ำท่า</span>สำหรับแบบจำลอง
             </Typography>
             <Table>
                 <TableHead>
@@ -316,9 +316,9 @@ export default function RainInputTable() {
                 <TableBody>
                     {rows.map((row, rowIdx) => (
                         <TableRow key={row.station_id}>
-                            <TableCell sx={getCellStyle(rowIdx)}>{row.name}</TableCell>
+                             <TableCell sx={getCellStyle(rowIdx, row.type)}>{row.name}</TableCell>
                             {row.values.map((val, colIdx) => (
-                                <TableCell key={colIdx} sx={getCellStyle(rowIdx)}>
+                                 <TableCell key={colIdx} sx={getCellStyle(rowIdx, row.type)}>
                                     <TextField
                                         type="number"
                                         variant="outlined"

@@ -4,6 +4,7 @@ import RunHecHms from "../components/RunHec/RunHecHms";
 import RunHecRas from "../components/RunHec/RunHecRas";
 import RainInputTable from "../components/RunHec/InputTable";
 import RunGate from "../components/RunHec/RunGate";
+import RunAll from '../components/RunHec/RunAll';
 
 const BoxStyle = {
     // maxWidth: "90%",
@@ -18,6 +19,9 @@ const BoxStyle = {
 const Hecrun: React.FC = () => {
   return (
     <Box sx={{margin: "auto" }}>
+        <Box sx={BoxStyle}>
+          <RunAll/>
+       </Box>
        <Box sx={BoxStyle}>
           <RainInputTable/>
        </Box>

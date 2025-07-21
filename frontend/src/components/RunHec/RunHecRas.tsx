@@ -40,7 +40,7 @@ const RunHecRas: React.FC = () => {
 
   return (
   <div>
-       <Typography variant="h6" sx={{ padding: 2, fontWeight: "bold",fontFamily:"Prompt"}}>
+       <Typography variant="h6" sx={{ padding: 1, fontWeight: "bold",fontFamily:"Prompt"}}>
         ขั้นตอนที่ 3 จำลองสถานการณ์น้ำ (HEC-RAS)
       </Typography>
     <Grid container spacing={3}>
