@@ -2,14 +2,13 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-$batFile = 'C:\\sti_wangyang\\hms_update_date.bat';
 
-exec("start /B \"\" \"$batFile\"", $output, $return_var);
+$command = "python C:\\sti_wangyang\\hms_update_date.py";
+exec($command . " 2>&1", $output, $return_var);
 
-// ตรวจสอบผลลัพธ์
 if ($return_var === 0) {
-    echo "BAT file ran successfully.";
+    echo json_encode(["success" => true, "message" => "✅ Run hms_update_date completed", "output" => $output]);
 } else {
-    echo "Error running BAT file.";
+    echo json_encode(["success" => false, "message" => "❌ Run failed", "output" => $output]);
 }
 ?>

@@ -10,9 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// --- ฟังก์ชันดึงข้อมูลจาก API (จะไม่ถูกใช้สำหรับ Subbasin Rain อีกต่อไป) ---
-// คุณสามารถลบฟังก์ชันนี้ทิ้งไปได้เลยถ้าแน่ใจว่าจะไม่ใช้ API อีก
-// หรือคงไว้เผื่อใช้งานในอนาคต แต่ส่วนของ subbasin_rain_api_url จะไม่เรียกแล้ว
+// --- ฟังก์ชันดึงข้อมูลจาก API (ปรับปรุงให้แข็งแกร่งขึ้น) ---
 function fetchData($url) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -42,7 +40,7 @@ function fetchData($url) {
 
 // --- การจัดการวันที่ ---
 // ใช้เวลาปัจจุบันในโซนเวลาของไทย
-date_default_timezone_set('Asia/Bangkok');
+date_default_timezone_set('Asia/Bangkok'); 
 
 $today_dt_obj = new DateTime(); // วันที่ปัจจุบันของเซิร์ฟเวอร์
 $today_dt_obj->setTime(0, 0, 0); // ตั้งเวลาเป็น 00:00:00 (เพื่อให้ตรงกับ 00:00Z ใน API ใหม่)
@@ -64,6 +62,11 @@ for ($i = 7; $i >= 0; $i--) {
     $dates_flow_output[] = $dt;
 }
 
+// --- โหลดข้อมูลจาก API ใหม่สำหรับ Subbasin Rain ---
+$subbasin_rain_api_url = "http://localhost/wangyang/hec_api/filter_rain_grid_api.php";
+$subbasin_rain_data = fetchData($subbasin_rain_api_url);
+$subbasin_rain_data = is_array($subbasin_rain_data) ? $subbasin_rain_data : [];
+
 // --- โหลดข้อมูลจาก Frontend (สำหรับ Flow และ Station-specific Rain ที่อาจจะยังมีอยู่) ---
 $data = json_decode(file_get_contents('php://input'), true);
 $input_from_frontend = $data['data'] ?? [];
@@ -78,8 +81,8 @@ foreach ($input_from_frontend as $row) {
 
 // === ค่าถ่วงน้ำหนักของ Subbasin (ยังใช้เหมือนเดิม) ===
 $subbasin_ratios = [
-  'SB-01' => ['5' => 0.7979, '10' => 0.2021],
-  'SB-02' => ['5' => 0.7725, '14' => 0.2275],
+  'SB-01' => ['5' => 0.7979, '10' => 0.2021], // สถานี 5, 10 น่าจะมาจาก Frontend หรือ API เก่า
+  'SB-02' => ['5' => 0.7725, '14' => 0.2275], // สถานี 5, 14 น่าจะมาจาก Frontend หรือ API เก่า
   'SB-03' => ['5' => 0.5710, 'WY.02' => 0.4290],
   'SB-04' => ['WY.01' => 0.1585, 'WY.02' => 0.8415],
   'SB-05' => ['16' => 0.2931, '5' => 0.0250, 'WY.01' => 0.0874, 'WY.02' => 0.5945],
@@ -87,18 +90,23 @@ $subbasin_ratios = [
   'SB-07' => ['WY.01' => 1.000],
 ];
 
-// === คำนวณ SB จากข้อมูลที่ดึงจาก Frontend Input เท่านั้น ===
+// === คำนวณ SB จากข้อมูลที่ดึงจาก filter_rain_grid_api.php ===
 $sb_daily = [];
 foreach ($subbasin_ratios as $sb => $ratios) {
     $sb_daily[$sb] = [];
     foreach ($dates_rain_output as $dt_idx => $dt_obj_for_output) {
+        $date_key_for_api = $dt_obj_for_output->format('Y-m-d'); // เช่น "2025-07-15"
         $value = 0.0;
-        foreach ($ratios as $station_id => $ratio) {
-            $station_values = $stationMap_frontend[$station_id] ?? [];
-            // ตรวจสอบ index ให้ตรงกับ $dates_rain_output
-            // ใช้ค่าจาก frontend โดยตรง และถ้าไม่มีให้เป็น 0
-            $val = isset($station_values[$dt_idx]) ? $station_values[$dt_idx] : 0;
-            $value += (float)$val * $ratio;
+
+        if (isset($subbasin_rain_data[$sb]['values']["00:00Z {$date_key_for_api}"])) {
+            $value = (float)($subbasin_rain_data[$sb]['values']["00:00Z {$date_key_for_api}"]);
+        } else {
+            foreach ($ratios as $station_id => $ratio) {
+                    $station_values = $stationMap_frontend[$station_id] ?? [];
+                    // ตรวจสอบ index ให้ตรงกับ $dates_rain_output
+                    $val = isset($station_values[$dt_idx]) ? $station_values[$dt_idx] : 0;
+                    $value += (float)$val * $ratio;
+            }
         }
         $sb_daily[$sb][] = number_format($value, 9, '.', '');
     }

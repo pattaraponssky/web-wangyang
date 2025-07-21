@@ -2,14 +2,13 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-$batFile = 'C:\\sti_wangyang\\hec_ras_update_date.bat';
+// run_hec_ras.php
+$command = "python C:\\sti_wangyang\\ras_update_date.py";
+exec($command . " 2>&1", $output, $return_var);
 
-exec("start /B \"\" \"$batFile\"", $output, $return_var);
-
-// ตรวจสอบผลลัพธ์
 if ($return_var === 0) {
-    echo "BAT file ran successfully.";
+    echo json_encode(["success" => true, "message" => "✅ Run ras_update_date completed", "output" => $output]);
 } else {
-    echo "Error running BAT file.";
+    echo json_encode(["success" => false, "message" => "❌ Run failed", "output" => $output]);
 }
 ?>

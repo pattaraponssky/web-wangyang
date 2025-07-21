@@ -6,11 +6,11 @@
 
 
 # ไฟล์ model ส่วนตัว
-/sti_wangyang/RAS_Wangyang1D
-/sti_wangyang/hms_wangyang
-/sti_wangyang/hms_wangyang
-/sti_wangyang/.jython_cache
-/sti_wangyang/__pycache__
+/wangyang/RAS_Wangyang1D
+/wangyang/hms_wangyang
+/wangyang/hms_wangyang
+/wangyang/.jython_cache
+/wangyang/__pycache__
 /htdocs_wangyang/wangyang/hec_api/.jython_cache
 
 # ไฟล์ฝนพยากรณ์ 

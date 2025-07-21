@@ -5,7 +5,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // รายชื่อคำสั่งที่ต้องการรันตามลำดับ
 $commands = [
-    '"C:\\sti_wangyang\\hms_update_date.bat"',
+    'python "C:\\sti_wangyang\\hec_ras_update_date.py"',
     'python "C:\\sti_wangyang\\hec_ras_compute.py"',
     '"C:\\sti_wangyang\\ras-output-flow.bat"',
     '"C:\\sti_wangyang\\ras-output-gate.bat"',

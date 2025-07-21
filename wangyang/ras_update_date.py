@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-# 📂 กำหนดพาธไฟล์ .p01 ของแผนปัจจุบัน
+#กำหนดพาธไฟล์ .p01 ของแผนปัจจุบัน
 p01_file = r"C:\sti_wangyang\RAS_Wangyang1D\Wangyang1D.p03"
 
 today = datetime.today()
