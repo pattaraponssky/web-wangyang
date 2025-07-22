@@ -44,7 +44,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
   const Levels = warningLevels[selectedStation];
 
   useEffect(() => {
-    fetch("./data/ground_station.csv")
+    fetch("/data/ground_station.csv")
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {

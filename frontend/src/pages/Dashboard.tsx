@@ -39,6 +39,7 @@ const Dashboard: React.FC = () => {
   const [maxElevations, setMaxElevations] = useState<Record<string, number>>({});
   const [data, setData] = useState<WaterLevelData[]>([]);
   const [waterData, setWaterData] = useState<waterData[]>([]);
+  const [displayDate, setDisplayDate] = useState<string>("");
   // สถานะสำหรับ delay การแสดงผล
   const [showForecast, setShowForecast] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -106,7 +107,7 @@ const Dashboard: React.FC = () => {
                 const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
                 time = `${isoDateStr}T${timePart}`;
               }
-            
+           
               return { time, station, elevation };
             }).filter(item => {
               return item.station && item.time && new Date(item.time) >= today;
@@ -148,7 +149,23 @@ const Dashboard: React.FC = () => {
                 stationMaxMap[station] = maxElevation;
               }
             });
-  
+
+            const latestValid = parsedData[parsedData.length - 1];
+              if (latestValid) {
+                const latestDate = new Date(latestValid.time);
+
+                // ย้อนหลังไป 7 วัน
+                latestDate.setDate(latestDate.getDate() - 6);
+
+                const formatted = latestDate.toLocaleDateString("th-TH", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                });
+
+                setDisplayDate(formatted);  // เซตวันที่ย้อนหลัง 7 วัน
+              }
             // Set state for each required data
             setMaxElevations(stationMaxMap);
             setData(parsedData);
@@ -181,12 +198,12 @@ const Dashboard: React.FC = () => {
   });
 
   const JsonPaths = [
-    "./data/River.geojson",
-    "./data/ProjectArea.geojson",
-    "./data/DamStation.geojson",
-    "./data/HydroStation.geojson",
-    "./data/RainStation.geojson",
-    "./data/ProjectStation.geojson",
+    "/data/River.geojson",
+    "/data/ProjectArea.geojson",
+    "/data/DamStation.geojson",
+    "/data/HydroStation.geojson",
+    "/data/RainStation.geojson",
+    "/data/ProjectStation.geojson",
   ];
 
   const BoxStyle = {
@@ -201,8 +218,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={{ fontFamily: "Prompt" }}>
-      <Typography variant="h5" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
-        สรุปสถานการณ์น้ำประจำวันที่ <span style={{ color: "#64b5f6" }}>{formattedDate}</span>
+     <Typography variant="h5" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
+        สรุปสถานการณ์น้ำประจำวันที่ <span style={{ color: "#64b5f6" }}>{displayDate || formattedDate}</span>
       </Typography>
 
       <Box sx={{ padding: "20px", maxWidth: "100%", margin: "auto", backgroundColor: "white", borderRadius: "10px", boxShadow: 3, marginBottom: "20px" }} id="map">
@@ -240,14 +257,14 @@ const Dashboard: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} sm={12}>
           <Box sx={BoxStyle} id="flood-map">
-            <ImageComponent src="./images/map_flood.png" alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
+            <ImageComponent src="/images/map_flood.png" alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
           </Box>
         </Grid>
         <Grid item xs={12} md={6} sm={12}>
           <Box sx={BoxStyle} id="diagrams-map">
             <ImageComponent
               src={`${imageBaseUrl}/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg`}
-              fallbackSrc="./images/ผังน้ำชี.jpg"
+              fallbackSrc="/images/ผังน้ำชี.jpg"
               alt="แผนผังลุ่มแม่น้ำชี"
               title={"แผนผังลุ่มแม่น้ำชี"}
             />
@@ -260,7 +277,7 @@ const Dashboard: React.FC = () => {
         <Box sx={BoxStyle} id="report">
           <ImageComponent
             src={`${imageBaseUrl}/3.3.1.jpg`}
-            fallbackSrc="./images/สรุปเขื่อนวังยาง.jpg"
+            fallbackSrc="/images/สรุปเขื่อนวังยาง.jpg"
             height="100%"
             width="100%"
             alt=""
@@ -272,7 +289,7 @@ const Dashboard: React.FC = () => {
         <Box sx={BoxStyle} id="report-chart">
           <ImageComponent
             src={`${imageBaseUrl}/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg`}
-            fallbackSrc="./images/กราฟเขื่อนวังยาง.jpg"
+            fallbackSrc="/images/กราฟเขื่อนวังยาง.jpg"
             height="100%"
             width="100%"
             alt=""

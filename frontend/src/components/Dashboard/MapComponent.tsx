@@ -355,40 +355,40 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
             switch (geoJsonData.name) {
               case 'DAM Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/reservoir_icon.png" style="width:32px; height:32px;"/>
+                              <img src="/images/icons/reservoir_icon.png" style="width:32px; height:32px;"/>
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
-                iconUrl = "./images/icons/reservoir_icon.png";
+                iconUrl = "/images/icons/reservoir_icon.png";
                 break;
               case 'Rain Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/rain_station_icon.png" style="width:32px; height:32px;" />
+                              <img src="/images/icons/rain_station_icon.png" style="width:32px; height:32px;" />
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
-                iconUrl = "./images/icons/rain_station_icon.png";
+                iconUrl = "/images/icons/rain_station_icon.png";
                 break;
               case 'Hydro Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/flow_station_icon.png" style="width:32px; height:32px;"/>
+                              <img src="/images/icons/flow_station_icon.png" style="width:32px; height:32px;"/>
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.CodeStation}
                               </div>
                          
                             </div>`;
-                iconUrl = "./images/icons/flow_station_icon.png";
+                iconUrl = "/images/icons/flow_station_icon.png";
                 break;
               case 'ProjectStation':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/gate_icon.png" style="width:32px; height:32px;"/>
+                              <img src="/images/icons/gate_icon.png" style="width:32px; height:32px;"/>
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;width:80px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
-                iconUrl = "./images/icons/gate_icon.png";
+                iconUrl = "/images/icons/gate_icon.png";
                 break;
             }
 

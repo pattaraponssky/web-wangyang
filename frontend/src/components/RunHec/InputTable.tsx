@@ -127,38 +127,38 @@ export default function RainInputTable() {
                 alert("สร้างไฟล์ไม่สำเร็จ");
             });
     };
-  
-    useEffect(() => {
+  useEffect(() => {
         const loadData = async () => {
             try {
                 setInitialDataLoading(true);
 
-                const [resSubbasinData ,resRainData, resFlowData] = await Promise.all([
+                // --- Fetch all necessary data ---
+                const [
+                    resSubbasinData,
+                    resRainData,
+                    resFlowData,
+                    resGridRainData // Data from filter_rain_grid_api.php
+                ] = await Promise.all([
                     fetch(`${API_URL}/input_hms.php`).then(res => res.json()),
-                    // API_rain_hydro3.php ตอนนี้มี rain_X_days_ago
                     fetch(`http://localhost/wangyang/API/api_rain_hydro3.php`).then(res => res.json()),
-                    // API_flow_hydro3_8day.php ตอนนี้มีวันที่เป็นคีย์
                     fetch("http://localhost/wangyang/API/api_flow_hydro3_8day.php").then(res => res.json()),
+                    fetch("http://localhost/wangyang/hec_api/filter_rain_grid_api.php").then(res => res.json()),
                 ]);
 
-                // สร้าง Map สำหรับข้อมูลฝน (resRainData) ใช้ station_code เป็น key
+                // --- Process fetched data into Maps for easy lookup ---
                 const rainDataMap = new Map();
                 if (Array.isArray(resRainData)) {
                     resRainData.forEach((data: any) => {
-                        if (data.station_id !== undefined) { // ใช้ station_id (ตัวเลข)
+                        if (data.station_id !== undefined) {
                             rainDataMap.set(data.station_id, data);
-                            console.log(`📊 ข้อมูลฝนสำหรับสถานี ${data.station_id}:`, data);
-                            
                         }
                     });
                 }
                 
-                
-                // สร้าง Map สำหรับข้อมูลน้ำท่า (resFlowData) ใช้ stationcode เป็น key
                 const flowDataMap = new Map();
                 if (Array.isArray(resFlowData)) {
                     resFlowData.forEach((data: any) => {
-                        if (data.stationcode) { // ใช้ stationcode จาก API flow
+                        if (data.stationcode) {
                             flowDataMap.set(data.stationcode, data);
                         }
                     });
@@ -173,62 +173,101 @@ export default function RainInputTable() {
                         }
                     }
                 }
- const newRows = defaultRows.map(row => {
-                    let values: number[] = []; // Ensure values is an array of numbers
+
+                // --- Subbasin Ratios (Hardcoded in frontend for now) ---
+                const subbasinRatios = {
+                    'SB-01': { '5': 0.7979, '10': 0.2021 },
+                    'SB-02': { '5': 0.7725, '14': 0.2275 },
+                    'SB-03': { '5': 0.5710, 'WY.02': 0.4290 },
+                    'SB-04': { 'WY.01': 0.1585, 'WY.02': 0.8415 },
+                    'SB-05': { '16': 0.2931, '5': 0.0250, 'WY.01': 0.0874, 'WY.02': 0.5945 },
+                    'SB-06': { 'WY.01': 0.5962, 'WY.02': 0.4038 },
+                    'SB-07': { 'WY.01': 1.000 },
+                };
+
+                // Helper to get date keys in "00:00Z YYYY-MM-DD" format for 14-day rain period
+                const getRainDateKeysForApi = () => {
+                    const keys: string[] = [];
+                    const today = new Date();
+                    for (let i = -7; i <= 6; i++) {
+                        const d = new Date(today);
+                        d.setDate(d.getDate() + i);
+                        keys.push(`00:00Z ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+                    }
+                    return keys;
+                };
+                const rainDateKeys = getRainDateKeysForApi();
+
+                const newRows = defaultRows.map(row => {
+                    let values: number[] = [];
+                    const numDays = row.type.startsWith("rain") ? 14 : 7; // Rain data is 14 days, Flow is 7 days
+
+                    // Initialize values array with zeros
+                    values = Array(numDays).fill(0);
+
+                    // --- Step 1: Populate rain data from filter_rain_grid_api.php (SB values) ---
+                    // This acts as the base or forecasted values, especially for future days.
+                    if (row.type.startsWith("rain")) {
+                        for (const sb in subbasinRatios) {
+                            if (Object.prototype.hasOwnProperty.call(subbasinRatios, sb)) {
+                                const ratiosForSb = subbasinRatios[sb as keyof typeof subbasinRatios];
+                                // Check if the current station is part of this SB
+                                if (ratiosForSb.hasOwnProperty(String(row.station_id))) {
+                                    rainDateKeys.forEach((dateKey, index) => {
+                                        if (resGridRainData && resGridRainData[sb] && resGridRainData[sb].values && resGridRainData[sb].values[dateKey] !== undefined) {
+                                            const sbValue = parseFloat(resGridRainData[sb].values[dateKey]);
+                                            values[index] = isNaN(sbValue) ? 0 : sbValue;
+                                        }
+                                    });
+                                    // IMPORTANT: Do NOT return here. Allow more precise data to overwrite.
+                                }
+                            }
+                        }
+                    }
+
+                    // --- Step 2: Overwrite with more precise historical/forecast data if available ---
+                    // This ensures actual observed/projected data takes precedence.
 
                     if (row.type === "rain_rid") {
                         const rainStationData = rainDataMap.get(row.station_id);
-                        values = Array(14).fill(0); // Initialize with 14 zeros for rain
-
                         if (rainStationData) {
-                            // Populate 7 days of historical rain data
+                            // Populate 7 days of historical rain data (indices 0-6 in 14-day array)
                             for (let i = 7; i >= 1; i--) {
                                 const key = `rain_${i}_days_ago`;
                                 const val = parseFloat(rainStationData[key]);
-                                // Calculate the correct index for the `values` array
-                                // `i` goes from 7 (oldest) to 1 (yesterday)
-                                // We want the oldest day (7 days ago) to be at index 0
-                                // and yesterday (1 day ago) to be at index 6
-                                // So, index = 7 - i
-                                values[7 - i] = isNaN(val) ? 0 : val;
+                                values[7 - i] = isNaN(val) ? 0 : val; // Overwrite estimated values
                             }
-                            // Days from index 7 to 13 (today to 6 days from now) remain 0
-                            // unless you have future forecast data from this API.
+                            // Future days (index 7 to 13) will retain values from Step 1 or remain 0
                         }
                     } else if (row.type === "rain_project") {
                         const stationDailyRain = wyDailyRainMap.get(row.station_id);
-                        values = Array(14).fill(0); // Initialize with 14 zeros for project rain
-
                         if (stationDailyRain) {
                             const today = new Date();
-                            for (let i = -7; i <= 6; i++) { // Loop for 14 days
+                            for (let i = -6; i <= 0; i++) {
                                 const date = new Date(today);
                                 date.setDate(today.getDate() + i);
                                 const dateKeyCE = date.toLocaleDateString("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" });
 
                                 const val = stationDailyRain[dateKeyCE];
-                                // Map the loop index `i` (-7 to 6) to `values` array index (0 to 13)
-                                // If i is -7, array index is 0. If i is 6, array index is 13.
-                                values[i + 7] = isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+                                values[i + 6] = isNaN(parseFloat(val)) ? 0 : parseFloat(val); // Overwrite estimated values
                             }
                         }
                     } else if (row.type === "flow") {
                         const flowStationData = flowDataMap.get(row.station_id);
-                        values = Array(8).fill(0); // Initialize with 8 zeros for flow
-
+                        // Flow values are always 7 days, and distinct from rain logic
+                        values = Array(8).fill(0); // Re-initialize as flow is separate from rain estimation
                         if (flowStationData) {
                             const today = new Date();
-                            for (let i = 7; i >= 0; i--) { // Loop for 8 days (7 days ago to today)
+                            for (let i = -7; i <= 0; i++) { // Loop for 7 days (6 days ago to today)
                                 const date = new Date(today);
-                                date.setDate(today.getDate() - i);
+                                date.setDate(today.getDate() + i); // Adjust day
                                 const day = String(date.getDate()).padStart(2, '0');
                                 const month = String(date.getMonth() + 1).padStart(2, '0');
                                 const year = date.getFullYear();
                                 const dateKey = `${day}/${month}/${year}`;
 
                                 const val = parseFloat(flowStationData[dateKey]);
-                                // Flow data goes from oldest (index 0) to newest (index 7)
-                                values[7 - i] = isNaN(val) ? 0 : val;
+                                values[i + 7] = isNaN(val) ? 0 : val;
                             }
                         }
                     }
@@ -323,7 +362,7 @@ export default function RainInputTable() {
                                         type="number"
                                         variant="outlined"
                                         size="small"
-                                        value={val}
+                                        value={val.toFixed(2)}
                                         inputProps={{ min: 0 }}
                                         onKeyDown={(e) => {
                                             if (e.key === '-' || e.key === 'e') e.preventDefault();
