@@ -16,7 +16,7 @@ const VelocLineChart: React.FC = () => {
   const [chartData, setChartData] = useState<{ name: string; data: { x: number; y: number }[] }[]>([]);
 
   useEffect(() => {
-    fetch("./ras-output/output_profile.csv")
+    fetch("../ras-output/output_profile.csv")
       .then((response) => response.text())
       .then((csvData) => {
         Papa.parse(csvData, {

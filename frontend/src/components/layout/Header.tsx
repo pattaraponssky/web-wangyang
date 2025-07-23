@@ -55,8 +55,8 @@ const Header: React.FC<HeaderProps> = ({ setOpen }) => {
         {/* โลโก้ที่มุมขวา */}
         <Box sx={{ marginLeft: "auto" }}>
           <img
-            // src="./images/logo_rid.png" // เปลี่ยนเป็นโลโก้ของคุณ
-            src="/images/logo_rid.png" 
+            // src="../images/logo_rid.png" // เปลี่ยนเป็นโลโก้ของคุณ
+            src="./images/logo_rid.png" 
             alt="Logo"
             style={{ height: "50px" }} // ปรับขนาดโลโก้ตามต้องการ
           />

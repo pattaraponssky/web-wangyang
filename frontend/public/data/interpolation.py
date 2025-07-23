@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # อ่านไฟล์ CSV
-file_path = '/Users/dan/web-wangyang/frontend/public/data/ground_station5.csv'  # เปลี่ยนเป็น path ของไฟล์ CSV ของคุณ
+file_path = '/Users/dan/web-wangyang/frontend/public./data/ground_station5.csv'  # เปลี่ยนเป็น path ของไฟล์ CSV ของคุณ
 df = pd.read_csv(file_path)
 
 # ฟังก์ชันในการทำ Interpolation และลดจำนวนแถวให้เหลือ 35 ค่า

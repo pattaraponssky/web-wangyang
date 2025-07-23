@@ -11,7 +11,7 @@ const WaterForecastChart: React.FC = () => {
 
   useEffect(() => {
     const csvFilePath = `${Path_File}sta_flow.csv`;
-    // const csvFilePath = './ras-output/sta_flow.csv';
+    // const csvFilePath = '../ras-output/sta_flow.csv';
     fetch(csvFilePath)
       .then((response) => response.text())
       .then((csvData) => {

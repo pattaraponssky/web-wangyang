@@ -107,7 +107,6 @@ IF %ERRORLEVEL%==0 (
 ) ELSE (
     echo [ERROR] Script failed with exit code %ERRORLEVEL%.
 )
-pause
 
 :: STEP 10 - Send API gate_json
 echo Step 10: Send API gate_json
@@ -118,6 +117,6 @@ IF %ERRORLEVEL%==0 (
 ) ELSE (
     echo [ERROR] Script failed with exit code %ERRORLEVEL%.
 )
-pause
+@REM pause
 
 echo ========= All Steps Completed Successfully =========

@@ -4,7 +4,7 @@ import requests
 
 # กำหนด path ของ CSV
 csv_path = "gate_open.csv"
-url = "http://192.168.99.202:3000/api/datadss"
+url = "http://192.168.99.202:3000/api./datadss"
 
 data_list = []
 

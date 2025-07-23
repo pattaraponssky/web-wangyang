@@ -5,12 +5,13 @@ import DashboardCards from "../components/Dashboard/DashboardCards";
 import LongProfileChart from "../components/Dashboard/LongProfileChart";
 import WaterForecastChart from "../components/Dashboard/WaterForecastChart";
 import FloodWarningTable from "../components/Dashboard/WarningTable";
-import ImageComponent from "../components/Dashboard/ImageComponent";
+
 import WaterGateTable from "../components/Dashboard/WaterGateTable";
 import WaterLevelChart from "../components/Dashboard/WaterLevel";
 import FloatingMenu from "../components/Dashboard/selectMenu";
 import Papa from "papaparse";
 import { Path_File } from "../utility";
+import ImageComponent from "../components/Dashboard/ImageComponent";
 
 
 interface WaterLevelData {
@@ -80,7 +81,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // fetch("./ras-output/output_ras.csv")
+    // fetch("../ras-output/output_ras.csv")
     fetch(`${Path_File}output_ras.csv`)
       .then((response) => response.text())
       .then((csvText) => {
@@ -198,12 +199,12 @@ const Dashboard: React.FC = () => {
   });
 
   const JsonPaths = [
-    "/data/River.geojson",
-    "/data/ProjectArea.geojson",
-    "/data/DamStation.geojson",
-    "/data/HydroStation.geojson",
-    "/data/RainStation.geojson",
-    "/data/ProjectStation.geojson",
+    "./data/River.geojson",
+    "./data/ProjectArea.geojson",
+    "./data/DamStation.geojson",
+    "./data/HydroStation.geojson",
+    "./data/RainStation.geojson",
+    "./data/ProjectStation.geojson",
   ];
 
   const BoxStyle = {
@@ -257,14 +258,14 @@ const Dashboard: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} sm={12}>
           <Box sx={BoxStyle} id="flood-map">
-            <ImageComponent src="/images/map_flood.png" alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
+            <ImageComponent src="./images/map_flood.png" alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
           </Box>
         </Grid>
         <Grid item xs={12} md={6} sm={12}>
           <Box sx={BoxStyle} id="diagrams-map">
             <ImageComponent
               src={`${imageBaseUrl}/4.%E0%B8%9C%E0%B8%B1%E0%B8%87%E0%B8%99%E0%B9%89%E0%B8%B3.jpg`}
-              fallbackSrc="/images/ผังน้ำชี.jpg"
+              fallbackSrc="./images/ผังน้ำชี.jpg"
               alt="แผนผังลุ่มแม่น้ำชี"
               title={"แผนผังลุ่มแม่น้ำชี"}
             />
@@ -277,7 +278,7 @@ const Dashboard: React.FC = () => {
         <Box sx={BoxStyle} id="report">
           <ImageComponent
             src={`${imageBaseUrl}/3.3.1.jpg`}
-            fallbackSrc="/images/สรุปเขื่อนวังยาง.jpg"
+            fallbackSrc="./images/สรุปเขื่อนวังยาง.jpg"
             height="100%"
             width="100%"
             alt=""
@@ -289,7 +290,7 @@ const Dashboard: React.FC = () => {
         <Box sx={BoxStyle} id="report-chart">
           <ImageComponent
             src={`${imageBaseUrl}/3.3-%E0%B8%81%E0%B8%A3%E0%B8%B2%E0%B8%9F%E0%B9%80%E0%B8%82%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%A2%E0%B8%B2%E0%B8%87_001.jpg`}
-            fallbackSrc="/images/กราฟเขื่อนวังยาง.jpg"
+            fallbackSrc="./images/กราฟเขื่อนวังยาง.jpg"
             height="100%"
             width="100%"
             alt=""
