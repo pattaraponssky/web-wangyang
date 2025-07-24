@@ -208,8 +208,8 @@ foreach ($subbasin_ratios as $sb => $ratios) {
                             // rain_6_days_ago คือวันที่เก่าสุดในชุด 7 วัน (วันนี้ - 7 วัน)
                             $days_ago_from_newest_in_period = (count($dates_display) - 1) - $day_offset; 
                         }
-                        
-                        $rain_key = "rain_" . $days_ago_from_newest_in_period . "_days_ago"; 
+                        $adjusted_days_ago = $days_ago_from_newest_in_period + 1;
+                        $rain_key = "rain_" . $adjusted_days_ago . "_days_ago"; 
                         
                         $rain_value = isset($station[$rain_key]) ? floatval($station[$rain_key]) : 0.0;
                         $sb_value += $rain_value * $ratio;
