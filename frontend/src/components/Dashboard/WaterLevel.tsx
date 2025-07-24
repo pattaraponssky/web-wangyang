@@ -248,7 +248,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
     },
     tooltip: {
       y: {
-        formatter: (value: any) => (value * 5).toFixed(2), // แสดงค่าทศนิยม 2 ตำแหน่ง
+        formatter: (value: any) => (value).toFixed(2), // แสดงค่าทศนิยม 2 ตำแหน่ง
       },
     },
     yaxis: {
