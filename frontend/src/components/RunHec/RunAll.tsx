@@ -5,7 +5,7 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "รันสคริปต์การทำงานทั้งหมด (Run All Model)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}run_all.php` },
+  { title: "รันสคริปต์การทำงานทั้งหมด (Run All Model)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/run_all.php` },
 ];
 
 const RunAll: React.FC = () => {

@@ -11,3 +11,13 @@ html, body {
 
     height: auto !important;
 }
+
+.chart-toggle-button {
+  display: inline-block;
+  margin: 4px;
+  padding: 6px 10px;
+  background-color: #e0e0e0;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: pointer;
+}

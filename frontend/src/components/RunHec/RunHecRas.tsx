@@ -5,12 +5,12 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขวันที่ช่วงพยากรณ์ (HEC-RAS)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}ras_change_date.php` },
-  { title: "จำลองสถาณการณ์น้ำ (HEC-RAS)", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}ras_compute.php` },
-  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ", color: "#1976d2", icon: <Cloud />, url: `${API_URL}ras_output_profiles.php` },
-  { title: "ดึงข้อมูลอัตราการไหล", color: "#1976d2", icon: <Flood />, url: `${API_URL}ras_output_flow.php` },
-  { title: "ดึงข้อมูลประตูระบายน้ำ", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}ras_output_gate.php` },
-  { title: "รันสคริปต์ทั้งหมด (HEC-RAS)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}ras_all.php` },
+  { title: "แก้ไขวันที่ช่วงพยากรณ์ (HEC-RAS)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/ras_change_date.php` },
+  { title: "จำลองสถาณการณ์น้ำ (HEC-RAS)", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/ras_compute.php` },
+  { title: "ดึงข้อมูลโปรไฟล์ลำน้ำ", color: "#1976d2", icon: <Cloud />, url: `${API_URL}hec_api/ras_output_profiles.php` },
+  { title: "ดึงข้อมูลอัตราการไหล", color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_api/ras_output_flow.php` },
+  { title: "ดึงข้อมูลประตูระบายน้ำ", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/ras_output_gate.php` },
+  { title: "รันสคริปต์ทั้งหมด (HEC-RAS)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/ras_all.php` },
 ];
 
 const RunHecRas: React.FC = () => {
