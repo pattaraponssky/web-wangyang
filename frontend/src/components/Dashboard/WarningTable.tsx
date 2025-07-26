@@ -1,5 +1,6 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, Button, Box } from '@mui/material';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload'; // Import an icon for the button
 
 // ข้อมูลจากตาราง (คงเดิม)
 const warningData = [
@@ -38,6 +39,14 @@ const warningData = [
 interface FloodWarningTableProps {
   maxLevels: Record<string, number>;
 }
+
+const locationMapping = (key: string): string => {
+  const map: { [key: string]: string } = {
+    "WY": "เขื่อนวังยาง",
+    // เพิ่มได้ตามต้องการ
+  };
+  return map[key] || key; // ถ้าไม่พบ key ใน map ให้คืนค่า key เดิม
+};
 
 const FloodWarningTable: React.FC<FloodWarningTableProps> = ({ maxLevels }) => {
   const isSmallScreen = useMediaQuery("(max-width: 600px)"); // เช็คว่าหน้าจอเล็กไหม
@@ -91,6 +100,59 @@ const FloodWarningTable: React.FC<FloodWarningTableProps> = ({ maxLevels }) => {
     padding: isSmallScreen ? "4px" : "8px", // ลด padding บนมือถือ
   };
 
+  // --- START: New CSV Export Functionality ---
+  const exportToCsv = () => {
+    const headers = [
+      "ลำดับ",
+      "ตำแหน่งเตือนภัย",
+      "อำเภอ",
+      "จังหวัด",
+      "ความลึก (ม.)",
+      "ตลิ่งซ้าย (ม.รทก.)",
+      "ตลิ่งขวา (ม.รทก.)",
+      "ท้องคลอง (ม.รทก.)",
+      "เกณฑ์เฝ้าระวัง (ม.รทก.)",
+      "เกณฑ์เตือนภัย (ม.รทก.)",
+      "เกณฑ์วิกฤต (ม.รทก.)",
+      "ระดับน้ำสูงสุด 7 วัน (ม.รทก.)"
+    ];
+
+    const rows = warningData.map(item => {
+      const currentMaxLevel = maxLevels[item.location];
+      return [
+        item.id,
+        item.location,
+        item.district,
+        item.province,
+        item.depth.toFixed(2),
+        item.leftBank.toFixed(2),
+        item.rightBank.toFixed(2),
+        item.canalBottom.toFixed(2),
+        item.watch.toFixed(2),
+        item.alert.toFixed(2),
+        item.crisis.toFixed(2),
+        currentMaxLevel != null ? currentMaxLevel.toFixed(2) : "-"
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    // Create a Blob with UTF-8 BOM for proper Thai character display in Excel
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "flood_warning_wangyang.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url); // Clean up the URL object
+  };
+  // --- END: New CSV Export Functionality ---
+
   return (
     <TableContainer
       sx={{
@@ -101,12 +163,34 @@ const FloodWarningTable: React.FC<FloodWarningTableProps> = ({ maxLevels }) => {
         paddingTop: 2,
       }}
     >
-      <Typography
+      <Box sx={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
+        <Typography
         variant="h6"
         sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt", color: "#28378B" }}
       >
         ตำแหน่งสำคัญ เกณฑ์การเฝ้าระวังและเตือนภัยพื้นที่ศึกษาโครงการวังยาง
       </Typography>
+
+      {/* --- START: Export Button --- */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={exportToCsv}
+        startIcon={<CloudDownloadIcon />}
+        sx={{
+          mb: 2, // Margin bottom for spacing
+          fontFamily: "Prompt",
+          backgroundColor: "#28aa15", // Example blue color
+          '&:hover': {
+            backgroundColor: "#159311", // Darker blue on hover
+          },
+        }}
+      >
+        Export ข้อมูลเป็น CSV
+      </Button>
+      {/* --- END: Export Button --- */}
+      </Box>
+
       <Table sx={{ minWidth: isSmallScreen ? 333 : 1000, tableLayout: "auto" }}>
         {/* หัวตาราง */}
         <TableHead sx={{ clipPath: "none" }}>
@@ -160,7 +244,7 @@ const FloodWarningTable: React.FC<FloodWarningTableProps> = ({ maxLevels }) => {
             return (
               <TableRow key={item.id}>
                 <TableCell sx={getCellStyle(index)}>{item.id}</TableCell>
-                <TableCell sx={getCellStyle(index)}>{item.location}</TableCell>
+                <TableCell sx={getCellStyle(index)}>{locationMapping(item.location)}</TableCell>
                 {!isSmallScreen && !isMediumScreen && <TableCell sx={getCellStyle(index)}>{item.district}</TableCell>}
                 {!isSmallScreen && !isMediumScreen && <TableCell sx={getCellStyle(index)}>{item.province}</TableCell>}
                 <TableCell sx={getCellStyle(index)}>{item.depth.toFixed(2)}</TableCell>

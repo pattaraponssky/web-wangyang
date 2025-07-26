@@ -3,7 +3,7 @@ import { Drawer, List, ListItem, ListItemText, Toolbar, Divider } from "@mui/mat
 import { Link } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InfoIcon from "@mui/icons-material/Info";
-
+import EqualizerIcon from '@mui/icons-material/Equalizer';
 interface DrawerProps {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -56,7 +56,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
         <Divider sx={{ margin: "0", backgroundColor: "rgba(0, 0, 0, 0.1)" }} />
 
         {/* เมนูสำหรับ HecRun */}     
-        {/* <ListItem
+        <ListItem
           component={Link}
           to="/website/hecrun"
           onClick={handleItemClick}
@@ -66,7 +66,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
             "&:hover": { backgroundColor: "#e3f2fd" },
           }}
         >
-          <InfoIcon sx={{ marginRight: "15px", color: "#1976d2" }} />
+          <EqualizerIcon sx={{ marginRight: "15px", color: "#1976d2" }} />
           <ListItemText
             primary="Model"
             primaryTypographyProps={{
@@ -74,7 +74,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
             }}
           />
         </ListItem>
-        <Divider sx={{ margin: "0", backgroundColor: "rgba(0, 0, 0, 0.1)" }} /> */}
+        <Divider sx={{ margin: "0", backgroundColor: "rgba(0, 0, 0, 0.1)" }} />
         {/* เมนูสำหรับ About Us */}
         
         <ListItem

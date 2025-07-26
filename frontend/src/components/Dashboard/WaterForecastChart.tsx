@@ -21,10 +21,9 @@ const WaterForecastChart: React.FC = () => {
           complete: (result) => {
             const data = result.data;
               
-                      // ดึงข้อมูลตั้งแต่ 7 วันที่แล้ว เวลา 07:00
             const now = new Date();
-            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3, 7, 0, 0).getTime();
-
+            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 7, 0, 0).getTime();
+            
             const filteredData = data.filter((item: any) => {
               const timestamp = convertToTimestamp(item.DateTime);
               return timestamp && timestamp >= startTime;
@@ -58,15 +57,24 @@ const WaterForecastChart: React.FC = () => {
 
   return (
     <Box >
-      <Typography variant="h6" sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt" ,color:"#28378B"}}>
-        ผลการพยากรณ์ปริมาณน้ำท่าตำแหน่งสำคัญ 7 วัน ล่วงหน้า
-      </Typography>
+      <Box sx={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
+        <Typography variant="h6" sx={{ paddingBottom: 2, fontWeight: "bold", fontFamily: "Prompt" ,color:"#28378B"}}>
+          ผลการพยากรณ์ปริมาณน้ำท่าตำแหน่งสำคัญ 7 วัน ล่วงหน้า
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ width: 40, height: 4, backgroundColor: '#1E88E5', mr: 1 }} />
+          <Typography sx={{ fontFamily: 'Prompt', mr: 2 }}>ค่าตรวจวัดจริง</Typography>
+
+          <Box sx={{ width: 40, height: 0, borderTop: '4px dashed #66BB6A', mr: 1 }} />
+          <Typography sx={{ fontFamily: 'Prompt' }}>ค่าพยากรณ์</Typography>
+        </Box>
+      </Box>
 
       <Grid container spacing={2}>
         {chartData &&
           chartData.map((seriesItem: any, index: number) => {
-            const normalData = seriesItem.data.slice(0, 72); // ข้อมูลก่อน 72
-            const dashedData = seriesItem.data.slice(72); // ข้อมูลตั้งแต่ 72 ขึ้นไป (เส้นปะ)
+            const normalData = seriesItem.data.slice(0, 169); // ข้อมูลก่อน 72
+            const dashedData = seriesItem.data.slice(169); // ข้อมูลตั้งแต่ 72 ขึ้นไป (เส้นปะ)
 
             const options: ApexOptions = {
               chart: { id: `chart-${index}`, fontFamily: 'Prompt', type: 'line', height: 350 , zoom: {
@@ -90,7 +98,7 @@ const WaterForecastChart: React.FC = () => {
               annotations: {
                 xaxis: [
                   {
-                    x: seriesItem.data[72]?.[0],
+                    x: seriesItem.data[169]?.[0],
                     borderColor: '#FF0000',
                     label: {
                       borderColor: '#000',
