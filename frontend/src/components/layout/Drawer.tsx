@@ -57,9 +57,11 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
 
         {/* เมนูสำหรับ HecRun */}     
         <ListItem
-          component={Link}
-          to="/website/hecrun"
+          component="a"
+          href="/website/hecrun"
           onClick={handleItemClick}
+          target="_blank" // หากต้องการเปิดหน้าใหม่
+          rel="noopener noreferrer"
           sx={{
             padding: "12px 20px",
             borderRadius: "8px",
@@ -74,6 +76,7 @@ const DrawerComponent: React.FC<DrawerProps> = ({ open, setOpen }) => {
             }}
           />
         </ListItem>
+
         <Divider sx={{ margin: "0", backgroundColor: "rgba(0, 0, 0, 0.1)" }} />
         {/* เมนูสำหรับ About Us */}
         
