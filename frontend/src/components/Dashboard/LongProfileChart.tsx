@@ -37,7 +37,6 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
     return [...new Set(waterData.map(d => d.Date).filter((date): date is string => date !== null))].sort();
   }, [waterData]);
 
-  
 
   useEffect(() => {
     // Load main CSV file
@@ -319,28 +318,6 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
           },
         },
         {
-          x: 39,
-          y: 135,
-          marker: {
-            size: 4,
-            fillColor: "red",
-            strokeColor: "red",
-            radius: 2,
-            cssClass: "apexcharts-custom-class",
-          },
-          label: {
-            show: true,
-            offsetY: 40,
-            offsetX: 0,
-            style: {
-              fontSize: "1rem",
-              color: "#fff",
-              background: "#FF0033",
-            },
-            text: "E.1",
-          },
-        },
-        {
           x: 72,
           y: 132,
           marker: {
@@ -363,8 +340,8 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
           },
         },
         {
-          x: 119,
-          y: 128,
+          x: 109,
+          y: 129,
           marker: {
             size: 4,
             fillColor: "red",

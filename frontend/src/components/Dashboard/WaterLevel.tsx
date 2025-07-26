@@ -87,24 +87,72 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
 
   const availableDates = Object.keys(groupedByDate);
 
+  // --- START: MODIFIED USEEFFECT FOR INITIAL DATE/TIME AND STATION CHANGE ---
   useEffect(() => {
     if (availableDates.length) {
-      // ถ้า selectedDate ปัจจุบันยังคงอยู่ใน availableDates
-      const validDate = availableDates.includes(selectedDate) ? selectedDate : availableDates[0];
-      setSelectedDate(validDate);
+      // If selectedDate is currently empty or not in availableDates, set it to the first available date
+      const initialDate = availableDates.includes(selectedDate) ? selectedDate : availableDates[0];
+      setSelectedDate(initialDate);
   
-      // หาเวลาทั้งหมดในวันที่นั้น
-      const timesInDate = groupedByDate[validDate]?.map((item) => item.time) || [];
-  
-      // ถ้า selectedTime ปัจจุบันยังคงอยู่ใน timesInDate
-      const validTime = timesInDate.includes(selectedTime) ? selectedTime : timesInDate[0];
-      setSelectedTime(validTime);
+      // Get all times for the initialDate
+      const timesInDate = groupedByDate[initialDate]?.map((item) => item.time) || [];
+      
+      // Attempt to find 7 AM
+      const sevenAMTime = initialDate + "T07:00:00";
+      let newSelectedTime = timesInDate[0]; // Default to first available time
+
+      if (timesInDate.includes(sevenAMTime)) {
+        newSelectedTime = sevenAMTime;
+      } else {
+        const nextAvailableTime = timesInDate.find(time => time > sevenAMTime);
+        if (nextAvailableTime) {
+          newSelectedTime = nextAvailableTime;
+        }
+      }
+      
+      // Set initial selected time (only if selectedTime is currently empty or invalid for the station)
+      // This ensures selectedTime is set on initial load or station change, but not overridden by date change
+      if (!timesInDate.includes(selectedTime) || !selectedTime) {
+         setSelectedTime(newSelectedTime);
+      }
+
     } else {
       setSelectedDate("");
       setSelectedTime("");
     }
-  }, [availableDates, selectedStation]); // 👈 ยังใช้ dependency เดิม
+  }, [availableDates, selectedStation]); // Re-run when availableDates or selectedStation changes
 
+  // --- NEW useEffect to handle selectedTime when selectedDate changes ---
+  useEffect(() => {
+    // This effect runs when selectedDate changes due to user interaction (not play button)
+    // We only need to adjust selectedTime if the current selectedTime is no longer valid for the new selectedDate.
+    if (selectedDate && groupedByDate[selectedDate]) {
+      const timesForNewDate = groupedByDate[selectedDate]?.map(item => item.time) || [];
+      // If the current selectedTime is NOT in the new date's times, find the closest valid time
+      if (!timesForNewDate.includes(selectedTime)) {
+        const timePart = selectedTime.split('T')[1]; // Get just the time part (e.g., "07:00:00")
+        const targetTimeOnNewDate = selectedDate + 'T' + timePart;
+
+        let newValidTime = timesForNewDate[0]; // Fallback to the first time of the new day
+
+        if (timesForNewDate.includes(targetTimeOnNewDate)) {
+          newValidTime = targetTimeOnNewDate;
+        } else {
+          // If the specific time doesn't exist, find the next closest one or the last one
+          const nextClosest = timesForNewDate.find(t => t > targetTimeOnNewDate);
+          if (nextClosest) {
+            newValidTime = nextClosest;
+          } else if (timesForNewDate.length > 0) {
+            newValidTime = timesForNewDate[timesForNewDate.length - 1]; // Fallback to last time if no next
+          }
+        }
+        setSelectedTime(newValidTime);
+      }
+    }
+  }, [selectedDate]); // This effect only depends on selectedDate
+
+  // --- END: MODIFIED USEEFFECT FOR INITIAL DATE/TIME AND STATION CHANGE ---
+  
   useEffect(() => {
   if (isPlaying) {
     intervalIdRef.current = window.setInterval(() => {
@@ -119,9 +167,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
         const currentDayIndex = availableDates.indexOf(selectedDate);
         if (currentDayIndex < availableDates.length - 1) {
           const nextDate = availableDates[currentDayIndex + 1];
-          setSelectedDate(nextDate);
-          // When selectedDate changes, the `useEffect` that sets `selectedTime` will automatically run
-          // to pick the first time of the new date. So no need to set selectedTime here.
+          setSelectedDate(nextDate); // This will trigger the new useEffect for selectedTime
         } else {
           // End of all dates, stop playing
           setIsPlaying(false);
@@ -141,7 +187,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
       clearInterval(intervalIdRef.current);
     }
   };
-}, [isPlaying, selectedDate, selectedTime, groupedByDate, availableDates]);
+}, [isPlaying, selectedDate, selectedTime, groupedByDate, availableDates]); // Dependencies for play/pause
   
   const handlePlayPause = () => {
     setIsPlaying((prev) => !prev);
@@ -157,7 +203,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
     annotations: {
       yaxis: [
         {
-          y: Levels.alert,
+          y: Levels.alert, // Assuming this is for Left Bank
           borderWidth: 0,
           label: {
             position: 'right',
@@ -168,7 +214,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
           },
         },
         {
-          y: Levels.alert,
+          y: Levels.alert, // Assuming this is for Right Bank
           borderWidth: 0,
           label: {
             position: 'left',
@@ -331,7 +377,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
               if (currentDayIndex > 0) {
                 const prevDate = availableDates[currentDayIndex - 1];
                 setSelectedDate(prevDate);
-                // Set time to the last hour of the previous day
+                // When moving to previous day, set time to the last hour of that day
                 const timesForPrevDate = groupedByDate[prevDate]?.map(item => item.time) || [];
                 setSelectedTime(timesForPrevDate[timesForPrevDate.length - 1] || "");
               }
@@ -367,7 +413,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
             onChange={(e) => {
               setSelectedDate(e.target.value as string);
               setIsPlaying(false); // Pause on manual date change
-              // selectedTime will be handled by the dedicated useEffect
+              // *** No direct setSelectedTime here, it's handled by the new useEffect ***
             }}
             disabled={isPlaying} // Disable during playback
         >
@@ -447,9 +493,24 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
               if (currentDayIndex < availableDates.length - 1) {
                 const nextDate = availableDates[currentDayIndex + 1];
                 setSelectedDate(nextDate);
-                // Set time to the first hour of the next day
+                // When moving to next day, set time based on existing selectedTime or 7 AM if not found
                 const timesForNextDate = groupedByDate[nextDate]?.map(item => item.time) || [];
-                setSelectedTime(timesForNextDate[0] || "");
+                const timePart = selectedTime.split('T')[1]; // Get just the time part
+                const targetTimeOnNextDate = nextDate + 'T' + timePart;
+
+                let nextDayTime = timesForNextDate[0]; // Default to first available time
+
+                if (timesForNextDate.includes(targetTimeOnNextDate)) {
+                  nextDayTime = targetTimeOnNextDate;
+                } else {
+                  const nextClosest = timesForNextDate.find(t => t > targetTimeOnNextDate);
+                  if (nextClosest) {
+                    nextDayTime = nextClosest;
+                  } else if (timesForNextDate.length > 0) {
+                    nextDayTime = timesForNextDate[timesForNextDate.length - 1]; // Fallback to last time if no next
+                  }
+                }
+                setSelectedTime(nextDayTime || "");
               }
             }
           }}

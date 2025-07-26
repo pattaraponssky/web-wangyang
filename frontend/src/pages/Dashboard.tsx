@@ -117,8 +117,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
 
-
-  useEffect(() => {
+useEffect(() => {
     fetch(`${Path_File}ras-output/output_ras.csv`)
       .then((response) => response.text())
       .then((csvText) => {
@@ -134,6 +133,11 @@ const Dashboard: React.FC = () => {
             
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+
+            // --- Define 7 AM on current day for filtering ---
+            const sevenAmToday = new Date();
+            sevenAmToday.setHours(7, 0, 0, 0); // Set to 7:00:00 of today
+            // --- End 7 AM definition ---
 
             // แปลงข้อมูล CSV ระดับน้ำเป็นอ็อบเจ็กต์
             const parsedData: WaterLevelData[] = rawData.map((row) => {
@@ -151,8 +155,10 @@ const Dashboard: React.FC = () => {
               }
 
               return { time, station, elevation };
-            }).filter(item => {
-              return item.station && item.time && new Date(item.time) >= today;
+            })
+            // Filter data to start from 7 AM of today
+            .filter(item => {
+              return item.station && item.time && new Date(item.time) >= sevenAmToday;
             }).filter(item => item.station && item.time);
 
             let parsedWaterData = rawData.slice(1).map((row: any) => {
@@ -172,19 +178,24 @@ const Dashboard: React.FC = () => {
                 Date: formattedDate,
                 WaterLevel: elevation,
               };
-            }).filter((item: any) => {
-              return item.Date && new Date(item.Date) >= today;
             })
+            // Filter parsedWaterData to start from 7 AM of today as well
+            .filter((item: any) => {
+              return item.Date && new Date(item.Date) >= sevenAmToday;
+            });
 
             // ข้อมูล maxElevations
             const stationMaxMap: Record<string, number> = {};
-            const latestTime = new Date(Math.max(...parsedData.map((d) => new Date(d.time).getTime())));
+            // If parsedData is empty after 7 AM filter, latestTime will be problematic.
+            // Ensure parsedData has elements before finding latest time.
+            const latestTime = parsedData.length > 0 ? new Date(Math.max(...parsedData.map((d) => new Date(d.time).getTime()))) : new Date(); // Fallback to current date
             const sevenDaysAgo = new Date(latestTime);
             sevenDaysAgo.setDate(latestTime.getDate() - 6); // corrected to 7 days ago
 
             Object.keys(stationMapping).forEach((station) => {
+              // Ensure filtering for maxElevation also respects the 7 AM start for consistency
               const stationData = parsedData.filter(
-                (d) => d.station === station && new Date(d.time) >= sevenDaysAgo
+                (d) => d.station === station && new Date(d.time) >= sevenAmToday
               );
               const maxElevation = Math.max(...stationData.map((d) => d.elevation));
               if (!isNaN(maxElevation)) {
@@ -193,7 +204,8 @@ const Dashboard: React.FC = () => {
             });
 
             // --- Logic for displayDate and alert ---
-            const latestValid = parsedData[parsedData.length - 1]; // Assuming last entry is latest
+            // The latestValid should be from the data *after* 7 AM filter
+            const latestValid = parsedData[parsedData.length - 1]; 
             let calculatedDisplayDate = "";
 
             if (latestValid) {
@@ -208,7 +220,7 @@ const Dashboard: React.FC = () => {
                 day: "numeric",
               });
             } else {
-              // If no valid data at all, the display date should reflect that there's an issue
+              // If no valid data at all (after 7 AM filter), the display date should reflect that there's an issue
               calculatedDisplayDate = "ไม่พบข้อมูล"; 
             }
 
@@ -220,8 +232,7 @@ const Dashboard: React.FC = () => {
                 month: 'long',
                 day: 'numeric'
             });
-
-            // Compare and show/hide alert
+            
             if (calculatedDisplayDate !== formattedCurrentDate) {
                 showForecastAlert();
             } else {
@@ -233,7 +244,7 @@ const Dashboard: React.FC = () => {
 
             // Set state for each required data
             setMaxElevations(stationMaxMap);
-            setData(parsedData);
+            setData(parsedData); // This seems to be for another table/chart, if not used, can remove.
             setWaterData(parsedWaterData); // ตรวจสอบข้อมูลก่อนการตั้ง state
           },
         });
@@ -242,8 +253,7 @@ const Dashboard: React.FC = () => {
         console.error("Error loading CSV:", error);
         showForecastAlert(); // Show alert also on fetch/parse error
       });
-  }, []); // Empty dependency array means this runs once on mount
-
+  }, []);
 
   useEffect(() => {
     // Only show components when all necessary data is loaded
@@ -294,7 +304,7 @@ const Dashboard: React.FC = () => {
           rainData={rainData ?? []}
           flowData={flowData ?? []}
           eleData={eleData ?? []}
-          wyData={wyData ?? []}// <-- ส่ง wyData ไปให้ LongdoMap
+          wyData={wyData ?? []}
         />
       </Box>
 
@@ -302,13 +312,12 @@ const Dashboard: React.FC = () => {
         <DashboardCards />
       </Box>
 
-      <Box sx={{ ...BoxStyle }} id="flood-warning">
-      <FloodWarningTable maxLevels={maxElevations} />
-
-      </Box>
-
       <Box sx={{ ...BoxStyle, padding: "20px" }} id="forecast-chart">
         {showForecast && <WaterForecastChart />}
+      </Box>
+
+      <Box sx={{ ...BoxStyle }} id="flood-warning">
+        <FloodWarningTable maxLevels={maxElevations} />
       </Box>
 
       <Box sx={BoxStyle} id="profile-chart">

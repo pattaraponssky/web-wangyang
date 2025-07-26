@@ -35,8 +35,8 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                   "StationB": "station_code_b",
                   "โครงการส่งน้ำและบำรุงรักษาชีกลาง": "WY.01",
                   "สถานีเขื่อนวังยาง": "WY.02",
-                  "ณ ด้านเหนือน้ำ บ้านท่าแห": "WY.03",
-                  "E.66A": "WY.04",
+                  "ด้านเหนือน้ำ บ้านท่าแห": "WY.03",
+                  "ด้านท้ายน้ำ E.66A": "WY.04",
                 };
 
   const convertBEToCE = (datetimeBE: string): Date | null => {
@@ -177,7 +177,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
   useEffect(() => {
     if (isMapReady) {
       console.log("กำลังเพิ่ม markers...");
-      map.location({ lat: 16.20222222, lon: 103.5280556 }, true);
+      map.location({ lat: 16.20222222, lon: 103.3280556 }, true);
       map.zoom(11, true);
       addGeoJsonMarkers();
       addTopoJsonMarkers();

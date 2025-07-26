@@ -11,7 +11,6 @@ const WaterForecastChart: React.FC = () => {
 
   useEffect(() => {
     const csvFilePath = `${Path_File}ras-output/sta_flow.csv`;
-    // const csvFilePath = '../ras-output/sta_flow.csv';
     fetch(csvFilePath)
       .then((response) => response.text())
       .then((csvData) => {
@@ -29,7 +28,6 @@ const WaterForecastChart: React.FC = () => {
               return timestamp && timestamp >= startTime;
             });
 
-  
             const seriesData = [
               { name: 'E.91', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.91']) || 0]) },
               { name: 'E.1', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.1']) || 0]) },
@@ -62,10 +60,10 @@ const WaterForecastChart: React.FC = () => {
           ผลการพยากรณ์ปริมาณน้ำท่าตำแหน่งสำคัญ 7 วัน ล่วงหน้า
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Box sx={{ width: 40, height: 4, backgroundColor: '#1E88E5', mr: 1 }} />
+          <Box sx={{ width: 50, height: 4, backgroundColor: '#1E88E5', mr: 1 }} />
           <Typography sx={{ fontFamily: 'Prompt', mr: 2 }}>ค่าตรวจวัดจริง</Typography>
 
-          <Box sx={{ width: 40, height: 0, borderTop: '4px dashed #66BB6A', mr: 1 }} />
+          <Box sx={{ width: 50, height: 0, borderTop: '4px dashed #66BB6A', mr: 1 }} />
           <Typography sx={{ fontFamily: 'Prompt' }}>ค่าพยากรณ์</Typography>
         </Box>
       </Box>

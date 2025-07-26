@@ -50,10 +50,10 @@ export default function RainInputTable() {
     const [initialDataLoading, setInitialDataLoading] = useState(true);
 
     const cardData = [
-        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)",color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/dowload_rain_grid.php` },
-        { title: "สร้างไฟล์ input-hms.txt โดยใช้ฝนพยากรณ์",color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/write_input_txt.php` },
-        { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss",color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_api/write_input_dss.php` },
-        { title: "รันสคริปต์ทั้งหมด (Hec-Dss)",color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/dss_all.php` },
+        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/dowload_rain_grid.php` },
+        { title: "สร้างไฟล์ input-hms.txt โดยใช้ฝนพยากรณ์", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/write_input_txt.php` },
+        { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss", color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_api/write_input_dss.php` },
+        { title: "รันสคริปต์ทั้งหมด (Hec-Dss)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/dss_all.php` },
     ];
 
     const handleRunPhpFile = async (index: number, url: string) => {
@@ -102,7 +102,7 @@ export default function RainInputTable() {
     };
 
     const handleSubmit = () => {
-        fetch(`${API_URL}hec_apiwrite_input_manual.php`, {
+        fetch(`${API_URL}hec_api/write_input_manual.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: rows }),
@@ -306,13 +306,14 @@ export default function RainInputTable() {
                         const numberOfCells = endDayOffset - startDayOffset + 1;
 
                         let startIndexInValues = 0;
-                        if (row.type === 'rain_project' && startDayOffset === 0) { // If it's a future rain project table
-                             startIndexInValues = 7;
-                        } else if (row.type === 'rain_rid' && startDayOffset === -7) { // If it's historical rain
+                        // For rain data, if the display range is -7 to -1, we want the first 7 values (indices 0-6)
+                        if ((row.type === 'rain_rid' || row.type === 'rain_project') && startDayOffset === -7) {
                             startIndexInValues = 0;
-                        } else if (row.type === 'flow' && startDayOffset === -7) { // If it's flow data
+                        } else if (row.type === 'flow' && startDayOffset === -7) {
                              startIndexInValues = 0;
                         }
+                        // Note: If you were to bring back future rain, you'd need another condition here
+                        // if (row.type === 'rain_project' && startDayOffset === 0) { startIndexInValues = 7; }
 
                         return (
                             <TableRow key={row.station_id}>
@@ -404,15 +405,9 @@ export default function RainInputTable() {
 
             <Divider sx={{ my: 4 }} />
 
-            {/* ตารางข้อมูลปริมาณน้ำฝน (Rainfall Data - Observed) */}
+            {/* ตารางข้อมูลปริมาณน้ำฝนตรวจวัด (Rainfall Data - Observed) */}
             {/* Displaying -7 days ago to -1 day ago (7 days total) */}
-            {renderTable(allRainfallRows, "ข้อมูลปริมาณน้ำฝนตรวจวัด (ข้อมูลย้อนหลัง 7 วัน)", -7, -1)}
-
-            <Divider sx={{ my: 4 }} />
-
-            {/* ตารางฝนพยากรณ์ (Rain Forecast - Project) */}
-            {/* Displaying today (0) to +6 days in the future (7 days total) */}
-            {renderTable(allRainfallRows, "ข้อมูลปริมาณน้ำฝนพยากรณ์ (วันปัจจุบันถึงล่วงหน้า 6 วัน)", 0, 6)}
+            {renderTable(allRainfallRows, "ข้อมูลปริมาณน้ำฝนตรวจวัด (ย้อนหลัง 7 วัน)", -7, -1)}
 
             <Divider sx={{ my: 4 }} />
 
