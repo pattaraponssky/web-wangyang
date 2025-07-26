@@ -58,6 +58,35 @@ const Dashboard: React.FC = () => {
   const year = now.getFullYear(); // เช่น 2025
   const month = String(now.getMonth() + 1).padStart(2, '0');
   
+  // --- New functions for managing the alert ---
+  const showForecastAlert = () => {
+    const alertElement = document.getElementById('forecast-alert');
+    if (alertElement) {
+        alertElement.style.display = 'block';
+    }
+  };
+
+  const hideForecastAlert = () => {
+    const alertElement = document.getElementById('forecast-alert');
+    if (alertElement) {
+        alertElement.style.display = 'none';
+    }
+  };
+  
+    useEffect(() => {
+    const closeButton = document.getElementById('close-forecast-alert');
+    if (closeButton) {
+      closeButton.addEventListener('click', hideForecastAlert);
+    }
+
+    // Cleanup function: remove the event listener when the component unmounts
+    return () => {
+      if (closeButton) {
+        closeButton.removeEventListener('click', hideForecastAlert);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const safeFetch = async (url: string) => {
       try {
@@ -90,7 +119,7 @@ const Dashboard: React.FC = () => {
 
 
   useEffect(() => {
-    fetch(`${Path_File}output_ras.csv`)
+    fetch(`${Path_File}ras-output/output_ras.csv`)
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
@@ -98,7 +127,11 @@ const Dashboard: React.FC = () => {
           skipEmptyLines: true,
           complete: (result) => {
             const rawData: any[] = result.data;
-            if (!rawData.length) return;
+            if (!rawData.length) {
+              showForecastAlert(); // Show alert if no data at all
+              return;
+            }
+            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -146,12 +179,12 @@ const Dashboard: React.FC = () => {
             // ข้อมูล maxElevations
             const stationMaxMap: Record<string, number> = {};
             const latestTime = new Date(Math.max(...parsedData.map((d) => new Date(d.time).getTime())));
-            const threeDaysAgo = new Date(latestTime);
-            threeDaysAgo.setDate(latestTime.getDate() - 6); // corrected to 7 days ago
+            const sevenDaysAgo = new Date(latestTime);
+            sevenDaysAgo.setDate(latestTime.getDate() - 6); // corrected to 7 days ago
 
             Object.keys(stationMapping).forEach((station) => {
               const stationData = parsedData.filter(
-                (d) => d.station === station && new Date(d.time) >= threeDaysAgo
+                (d) => d.station === station && new Date(d.time) >= sevenDaysAgo
               );
               const maxElevation = Math.max(...stationData.map((d) => d.elevation));
               if (!isNaN(maxElevation)) {
@@ -159,22 +192,45 @@ const Dashboard: React.FC = () => {
               }
             });
 
-            const latestValid = parsedData[parsedData.length - 1];
+            // --- Logic for displayDate and alert ---
+            const latestValid = parsedData[parsedData.length - 1]; // Assuming last entry is latest
+            let calculatedDisplayDate = "";
+
             if (latestValid) {
-              const latestDate = new Date(latestValid.time);
+              const latestDateFromCSV = new Date(latestValid.time);
+              // Set the display date to 7 days *before* the latest valid date in CSV
+              latestDateFromCSV.setDate(latestDateFromCSV.getDate() - 6); 
 
-              // ย้อนหลังไป 7 วัน
-              latestDate.setDate(latestDate.getDate() - 6); // corrected to 7 days ago
-
-              const formatted = latestDate.toLocaleDateString("th-TH", {
+              calculatedDisplayDate = latestDateFromCSV.toLocaleDateString("th-TH", {
                 weekday: "long",
                 year: "numeric",
                 month: "long",
                 day: "numeric",
               });
-
-              setDisplayDate(formatted);  // เซตวันที่ย้อนหลัง 7 วัน
+            } else {
+              // If no valid data at all, the display date should reflect that there's an issue
+              calculatedDisplayDate = "ไม่พบข้อมูล"; 
             }
+
+            // Get current date formatted for comparison
+            const currentDateForComparison = new Date();
+            const formattedCurrentDate = currentDateForComparison.toLocaleDateString('th-TH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Compare and show/hide alert
+            if (calculatedDisplayDate !== formattedCurrentDate) {
+                showForecastAlert();
+            } else {
+                hideForecastAlert();
+            }
+            
+            setDisplayDate(calculatedDisplayDate); // Set the calculated display date
+            // --- End Logic for displayDate and alert ---
+
             // Set state for each required data
             setMaxElevations(stationMaxMap);
             setData(parsedData);
@@ -182,8 +238,11 @@ const Dashboard: React.FC = () => {
           },
         });
       })
-      .catch((error) => console.error("Error loading CSV:", error));
-  }, []);
+      .catch((error) => {
+        console.error("Error loading CSV:", error);
+        showForecastAlert(); // Show alert also on fetch/parse error
+      });
+  }, []); // Empty dependency array means this runs once on mount
 
 
   useEffect(() => {
@@ -199,21 +258,13 @@ const Dashboard: React.FC = () => {
     }
   }, [rainData, flowData, eleData, wyData, data, waterData]); // Add all data dependencies
 
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('th-TH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-
   const JsonPaths = [
-    "./data/River.geojson",
-    "./data/ProjectArea.geojson",
-    "./data/DamStation.geojson",
-    "./data/HydroStation.geojson",
-    "./data/RainStation.geojson",
-    "./data/ProjectStation.geojson",
+    `${Path_File}data/River.geojson`,
+    `${Path_File}data/ProjectArea.geojson`,
+    `${Path_File}data/DamStation.geojson`,
+    `${Path_File}data/HydroStation.geojson`,
+    `${Path_File}data/RainStation.geojson`,
+    `${Path_File}data/ProjectStation.geojson`,
   ];
 
   const BoxStyle = {
@@ -226,19 +277,10 @@ const Dashboard: React.FC = () => {
 
   const imageBaseUrl = `http://middlechi-omp.rid.go.th/main/wp-content/uploads/${year}/${month}`;
 
-  // Render loading state if data is not yet available
-  if (!rainData || !flowData || !eleData || !wyData || data.length === 0 || waterData.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: "Prompt" }}>
-        <Typography variant="h6">กำลังโหลดข้อมูล...</Typography>
-      </Box>
-    );
-  }
-
   return (
     <div style={{ fontFamily: "Prompt" }}>
      <Typography variant="h5" sx={{ marginBottom: "1rem", fontWeight: 600, fontFamily: "Prompt", color: "#28378B" }}>
-        สรุปสถานการณ์น้ำประจำวันที่ <span style={{ color: "#64b5f6" }}>{displayDate || formattedDate}</span>
+        สรุปสถานการณ์น้ำประจำวันที่ <span style={{ color: "#64b5f6" }}>{displayDate}</span>
       </Typography>
 
       <Box sx={{ padding: "20px", maxWidth: "100%", margin: "auto", backgroundColor: "white", borderRadius: "10px", boxShadow: 3, marginBottom: "20px" }} id="map">

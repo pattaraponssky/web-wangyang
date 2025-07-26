@@ -1,4 +1,5 @@
-
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,6 +13,54 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <div id="forecast-alert" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 0, 0, 0.9);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        z-index: 10000;
+        display: none; /* Hidden by default */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        border: 2px solid white;
+        animation: fadeIn 0.5s ease-out;
+    ">
+        <p style="margin-bottom: 10px;">วันที่ข้อมูลแบบจำลองไม่ถูกต้อง!</p>
+        <p style="font-size: 1.2rem; font-weight: normal; margin: 0 0 20px 0;">กรุณาตรวจสอบข้อมูลหรือลองใหม่อีกครั้ง</p>
+        <button id="close-forecast-alert" style="
+            background-color: white;
+            color: #dc3545; /* Red color to match alert */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        ">
+            ปิด
+        </button>
+    </div>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Optional: Add hover effect for the button */
+        #close-forecast-alert:hover {
+            background-color: #f8d7da; /* Lighter red background on hover */
+            color: #dc3545;
+        }
+    </style>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
-
+</html>

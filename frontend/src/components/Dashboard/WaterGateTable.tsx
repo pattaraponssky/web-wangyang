@@ -55,8 +55,8 @@ const WaterLevelTable: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${Path_File}output_ras.csv`).then((res) => res.text()),
-      fetch(`${Path_File}gate_output.csv`).then((res) => res.text()),
+      fetch(`${Path_File}ras-output/output_ras.csv`).then((res) => res.text()),
+      fetch(`${Path_File}ras-output/gate_output.csv`).then((res) => res.text()),
       // fetch("../ras-output/output_ras.csv").then((res) => res.text()),
       // fetch("../ras-output/gate_output.csv").then((res) => res.text()),
     ])

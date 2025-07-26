@@ -50,10 +50,10 @@ export default function RainInputTable() {
     const [initialDataLoading, setInitialDataLoading] = useState(true);
 
     const cardData = [
-        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)",color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_apidowload_rain_grid.php` },
-        { title: "สร้างไฟล์ input-hms.txt โดยใช้ฝนพยากรณ์",color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_apiwrite_input_txt.php` },
-        { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss",color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_apiwrite_input_dss.php` },
-        { title: "รันสคริปต์ทั้งหมด (Hec-Dss)",color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_apidss_all.php` },
+        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)",color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/dowload_rain_grid.php` },
+        { title: "สร้างไฟล์ input-hms.txt โดยใช้ฝนพยากรณ์",color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/write_input_txt.php` },
+        { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss",color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_api/write_input_dss.php` },
+        { title: "รันสคริปต์ทั้งหมด (Hec-Dss)",color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/dss_all.php` },
     ];
 
     const handleRunPhpFile = async (index: number, url: string) => {
@@ -130,9 +130,9 @@ export default function RainInputTable() {
                     resGridRainData
                 ] = await Promise.all([
                     fetch(`${API_URL}hec_api/input_hms.php`).then(res => res.json()),
-                    fetch(`http://localhost/wangyang/API/api_rain_hydro3.php`).then(res => res.json()),
-                    fetch("http://localhost/wangyang/API/api_flow_hydro3_8day.php").then(res => res.json()),
-                    fetch("http://localhost/wangyang/hec_api/filter_rain_grid_api.php").then(res => res.json()),
+                    fetch(`${API_URL}API/api_rain_hydro3.php`).then(res => res.json()),
+                    fetch(`${API_URL}API/api_flow_hydro3_8day.php`).then(res => res.json()),
+                    fetch(`${API_URL}hec_api/filter_rain_grid_api.php`).then(res => res.json()),
                 ]);
 
                 // --- Process fetched data into Maps for easy lookup ---

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import Papa from "papaparse";
 import ReactApexChart from "react-apexcharts";
 import { Box, Button, CardContent, MenuItem, Select, Typography } from "@mui/material";
-import { formatThaiDay } from "../../utility";
+import { formatThaiDay, Path_File } from "../../utility";
 import { ArrowBack, ArrowForward, PlayArrow, Pause } from "@mui/icons-material";
 
 interface waterData {
@@ -41,7 +41,7 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
 
   useEffect(() => {
     // Load main CSV file
-    fetch("./data/longProfile.csv")
+    fetch(`${Path_File}data/longProfile.csv`)
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {

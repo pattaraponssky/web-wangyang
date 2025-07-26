@@ -3,7 +3,7 @@ import Papa from "papaparse";
 import { Select, MenuItem, CardContent, Typography, Box, Button } from "@mui/material";
 import { ArrowBack, ArrowForward, PlayArrow, Pause } from "@mui/icons-material";
 import Chart from "react-apexcharts";
-import { formatThaiDay } from "../../utility";
+import { formatThaiDay, Path_File } from "../../utility";
 
 interface WaterLevelData {
   time: string;
@@ -44,7 +44,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
   const Levels = warningLevels[selectedStation];
 
   useEffect(() => {
-    fetch("./data/ground_station.csv")
+    fetch(`${Path_File}data/ground_station.csv`)
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
