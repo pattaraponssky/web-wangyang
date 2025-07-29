@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Container, Grid, Link,  } from "@mui/material";
 import {LocationOn } from "@mui/icons-material";
+import { Path_File } from "../../utility";
 
 const footerStyles = {
   fontFamily: "Prompt",
@@ -14,7 +15,7 @@ const Footer: React.FC = () => {
       sx={{
         fontFamily: "Prompt",
         // background: "linear-gradient(to bottom, #adf6fe, #1976D2)", // ไล่สีจากฟ้าอ่อน (บน) ไปเข้ม (ล่าง)
-        backgroundImage: "url(./images/bg_footer.jpg)", // ใส่ภาพพื้นหลัง
+        backgroundImage: `url(${Path_File}images/bg_footer.jpg)`, // ใส่ภาพพื้นหลัง
         color: "#fff", // เปลี่ยนสีตัวอักษรให้เป็นสีขาวเพื่อให้ตัดกับพื้นหลัง
         padding: "1rem 0",
         textAlign: "center",

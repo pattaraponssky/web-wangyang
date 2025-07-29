@@ -1,6 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Box } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
+import { Path_File } from "../../utility";
 
 interface HeaderProps {
   setOpen: (open: boolean) => void;
@@ -56,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ setOpen }) => {
         <Box sx={{ marginLeft: "auto" }}>
           <img
             // src="./images/logo_rid.png" // เปลี่ยนเป็นโลโก้ของคุณ
-            src="./images/logo_rid.png" 
+            src={`${Path_File}images/logo_rid.png`} 
             alt="Logo"
             style={{ height: "50px" }} // ปรับขนาดโลโก้ตามต้องการ
           />
