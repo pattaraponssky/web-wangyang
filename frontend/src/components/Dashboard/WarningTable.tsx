@@ -40,7 +40,7 @@ const warningData = [
   },
   {
     id: 3,
-    location: "บ้านท่าแห (เหนือน้ำ)",
+    location: "BTH",
     district: "ฆ้องชัย",
     province: "กาฬสินธุ์",
     lowBankElevation: 135.50, // Added a placeholder value, was null
@@ -134,12 +134,13 @@ const locationMapping = (key: string): string => {
   const map: { [key: string]: string } = {
     "WY": "เขื่อนวังยาง",
     "RE": "เขื่อนร้อยเอ็ด",
-    "E.66A": "E.66A (ท้ายน้ำ)"
+    "E.66A": "E.66A (ท้ายน้ำ)",
+    "BTH": "บ้านท่าแห (เหนือน้ำ)"
   };
   return map[key] || key; // If key not found in map, return original key
 };
 
-const FloodWarningTable: React.FC<FloodWarningTableProps> = ({s maxLevels, maxFlows }) => {
+const FloodWarningTable: React.FC<FloodWarningTableProps> = ({ maxLevels, maxFlows }) => {
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
   const isMediumScreen = useMediaQuery("(max-width: 900px)");
 

@@ -54,9 +54,9 @@ export default function RainInputTable() {
 
 
     const cardData = [
-        { title: "ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/dowload_rain_grid.php` },
+        { title: "1.ดาวน์โหลดกริดฝนพยากรณ์ (กรมอุตุนิยมวิทยา)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/dowload_rain_grid.php` },
         // { title: "สร้างไฟล์ input-hms.txt โดยใช้ฝนพยากรณ์", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/write_input_txt.php` },
-        { title: "แปลงรูปแบบไฟล์เป็น input-hms.dss", color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_api/write_input_dss.php` },
+        { title: "3..แปลงรูปแบบไฟล์เป็น input-hms.dss", color: "#1976d2", icon: <Flood />, url: `${API_URL}hec_api/write_input_dss.php` },
         { title: "รันสคริปต์ทั้งหมด (Hec-Dss)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/dss_all.php` },
     ];
 
@@ -445,7 +445,7 @@ export default function RainInputTable() {
             {renderTable(flowRows, "ข้อมูลปริมาณน้ำท่าตรวจวัด (ย้อนหลัง 7 วันและวันปัจจุบัน)", -7, 0, flowDataLoaded)}
 
             <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ mt: 2, py:1, fontFamily: "Prompt", fontSize:"1rem", fontWeight:"bold" }}>
-                คำนวณ SB แล้วสร้างไฟล์ input-hms.txt
+               2.คำนวณ SB แล้วสร้างไฟล์ input-hms.txt
             </Button>
             <Grid container spacing={2} sx={{ mt: 2 }}>
              {cardData.slice(1, 3).map((card, index) => (

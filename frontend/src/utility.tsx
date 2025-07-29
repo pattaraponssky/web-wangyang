@@ -103,7 +103,7 @@ export const nowThaiDate = () => {
 
 export const API_URL = "http://localhost/wangyang/"; // URL ของ API ที่ใช้ในการเรียกข้อมูล
 
-export const Path_File = "/"; // For Dev
+export const Path_File = "./"; // For Dev
 // export const Path_File = "./";
 
 

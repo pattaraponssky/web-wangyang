@@ -5,8 +5,8 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "แก้ไขช่วงวันที่พยากรณ์ (HEC-HMS)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/hms_change_date.php` },
-  { title: "จำลองปริมาณน้ำท่า (HEC-HMS Compute)", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/hms_compute.php` },
+  { title: "1.แก้ไขช่วงวันที่พยากรณ์ (HEC-HMS)", color: "#1976d2", icon: <BeachAccess />, url: `${API_URL}hec_api/hms_change_date.php` },
+  { title: "2.จำลองปริมาณน้ำท่า (HEC-HMS Compute)", color: "#1976d2", icon: <WaterDrop />, url: `${API_URL}hec_api/hms_compute.php` },
   { title: "รันสคริปต์ทั้งหมด (HEC-HMS)", color: "#2e7d32", icon: <Flood />, url: `${API_URL}hec_api/hms_all.php` },
 ];
 

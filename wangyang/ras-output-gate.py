@@ -1,7 +1,7 @@
 from hec.heclib.dss import HecDss
 from datetime import datetime, timedelta
 
-file = R"C:\wangyang\RAS_Wangyang1D\Wangyang1D.dss"
+file = R"C:\wangyang\RAS_Wangyang1D\RAS_Wangyang.dss"
 dssfile = HecDss.open(file)
 
 today = datetime.today()
@@ -15,8 +15,8 @@ if not same_month:
     end_date_part = end_date.strftime("01%b%Y")
 
 paths = [
-    "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/Gate Opening/{}/1Hour/Plan 02/".format(date_part),
-    "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/FLOW-GATE/{}/1Hour/Plan 02/".format(date_part)
+    "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/Gate Opening/{}/1Hour/Plan/".format(date_part),
+    "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/FLOW-GATE/{}/1Hour/Plan/".format(date_part)
 ]
 
 
@@ -24,8 +24,8 @@ flows_start = [dssfile.get(path) for path in paths]
 
 if not same_month:
     path_end = [
-        "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/Gate Opening/{}/1Hour/Plan 02/".format(end_date_part),
-        "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/FLOW-GATE/{}/1Hour/Plan 02/".format(end_date_part)
+        "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/Gate Opening/{}/1Hour/Plan/".format(end_date_part),
+        "/Chi River_US Reach 1/62030 INL STRUCT Gate #1/FLOW-GATE/{}/1Hour/Plan/".format(end_date_part)
     ]
     flows_end = [dssfile.get(path) for path in path_end]
 

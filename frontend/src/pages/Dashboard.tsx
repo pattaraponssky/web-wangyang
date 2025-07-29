@@ -27,10 +27,23 @@ interface waterData {
   WaterLevel: number;
 }
 
+// Define the structure of the raw data parsed from output_ras.csv
+interface RawOutputRasDataItem {
+  "Date": string;
+  "Cross Section": string;
+  "Water_Elevation": string;
+}
+
+// Define the format ApexCharts expects for its series data (needed here now)
+interface ApexChartSeriesData {
+  name: string;
+  data: [number, number][]; // [timestamp, value]
+}
+
 const stationMapping: Record<string, number> = {
   "E.91": 184803,
   "E.8A": 112911,
-  "บ้านท่าแห (เหนือน้ำ)": 79205,
+  "BTH": 79205,
   "WY": 62093,
   "E.66A": 51452,
   "E.87": 3636,
@@ -49,6 +62,12 @@ interface RawStaFlowDataItem {
   'BTH': string; 
 }
 
+// นี่คือการดึง (Define) ข้อมูล mapping ที่หน้า Dashboard
+const stationWaterLevelForecastMap: Record<string, number> = {
+  "เขื่อนวังยาง": 62093,
+  "เขื่อนร้อยเอ็ด": 1158,
+};
+
 const Dashboard: React.FC = () => {
   const mapKey = 'e75fee377b3d393b7a32576ce2b0229d';
   const [maxElevations, setMaxElevations] = useState<Record<string, number>>({});
@@ -56,6 +75,7 @@ const Dashboard: React.FC = () => {
   const [data, setData] = useState<WaterLevelData[]>([]);
   const [waterData, setWaterData] = useState<waterData[]>([]);// for LongProfileChart
   const [displayDate, setDisplayDate] = useState<string>("");
+  const [forecastChartData, setForecastChartData] = useState<ApexChartSeriesData[] | null>(null); // New state for forecast chart data
 
   // สถานะสำหรับ delay การแสดงผล
   const [showForecast, setShowForecast] = useState(false);
@@ -102,6 +122,7 @@ const Dashboard: React.FC = () => {
     };
   }, []);
 
+   // Helper function to convert "dd/mm/yyyy HH:MM" to Unix timestamp (moved here)
    const convertToTimestamp = (dateTimeStr: string): number | null => {
     const trimmedStr = dateTimeStr?.trim();
     if (!trimmedStr) return null;
@@ -157,6 +178,204 @@ const Dashboard: React.FC = () => {
 
     loadAllApiData();
   }, []);
+
+  // --- Combined useEffect for fetching and processing output_ras.csv ---
+  useEffect(() => {
+    const csvFilePath = `${Path_File}ras-output/output_ras.csv`;
+    fetch(csvFilePath)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+      })
+      .then((csvData) => {
+        Papa.parse(csvData, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: (header) => header.trim(),
+          complete: (result) => {
+            const rawData: RawOutputRasDataItem[] = result.data as RawOutputRasDataItem[];
+            
+            if (!rawData.length) {
+                showForecastAlert(); // Show alert if no data at all
+                setForecastChartData(null); // Set chart data to null on no data
+                setMaxElevations({}); // Reset related states
+                setData([]);
+                setWaterData([]);
+                setDisplayDate("ไม่พบข้อมูล");
+                return;
+            }
+
+            const sevenAmToday = new Date();
+            sevenAmToday.setDate(sevenAmToday.getDate() - 7); // Start 7 days ago at 7 AM
+            sevenAmToday.setHours(7, 0, 0, 0);
+
+            // --- Processing for WaterLevelForecastChart (forecastChartData) ---
+            const processedForecastData: WaterLevelData[] = [];
+            rawData.forEach((row) => {
+                const rawTime = row["Date"];
+                const crossSectionRaw = row["Cross Section"];
+                const elevationRaw = row["Water_Elevation"];
+
+                if (rawTime === undefined || crossSectionRaw === undefined || elevationRaw === undefined) {
+                    console.warn('Skipping row in forecast data due to missing essential data:', row);
+                    return;
+                }
+
+                const time = convertToTimestamp(rawTime);
+                const crossSectionNum = Number(crossSectionRaw.trim());
+                const elevation = parseFloat(elevationRaw.trim());
+
+                const station = Object.keys(stationWaterLevelForecastMap).find((key) => stationWaterLevelForecastMap[key] === crossSectionNum) || "";
+
+                if (
+                    time !== null &&
+                    station !== "" &&
+                    !isNaN(elevation) &&
+                    time >= sevenAmToday.getTime()
+                ) {
+                    processedForecastData.push({ time: new Date(time).toISOString(), station, elevation });
+                } else {
+                    // console.warn('Skipping invalid or out-of-range forecast data point:', { rawTime, crossSectionRaw, elevationRaw, time, station, elevation });
+                }
+            });
+
+            const groupedForecastData: { [key: string]: [number, number][] } = {};
+            processedForecastData.forEach(item => {
+                const timestamp = new Date(item.time).getTime();
+                if (!isNaN(timestamp)) {
+                    if (!groupedForecastData[item.station]) {
+                        groupedForecastData[item.station] = [];
+                    }
+                    groupedForecastData[item.station].push([timestamp, item.elevation]);
+                }
+            });
+
+            const seriesForChart: ApexChartSeriesData[] = Object.keys(groupedForecastData).map(stationName => ({
+                name: stationName,
+                data: groupedForecastData[stationName].sort((a, b) => a[0] - b[0])
+            })).filter(series => series.data.length > 0);
+
+            setForecastChartData(seriesForChart);
+            // --- End Processing for WaterLevelForecastChart ---
+
+
+            // --- Processing for WaterLevelChart, LongProfileChart, maxElevations, displayDate ---
+            const parsedDataForWaterLevel: WaterLevelData[] = rawData.map((row) => {
+                const rawTime = row["Date"]?.trim();
+                const crossSection = Number(row["Cross Section"]?.trim());
+                const elevation = parseFloat(row["Water_Elevation"]?.trim());
+                
+                const station = Object.keys(stationMapping).find((key) => stationMapping[key] === crossSection) || ""; 
+
+                let time = "";
+                if (rawTime) {
+                    const [datePart, timePart] = rawTime.split(" ");
+                    const [day, month, year] = datePart.split("/").map(Number);
+                    const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                    time = `${isoDateStr}T${timePart}`;
+                }
+                return { time, station, elevation };
+            })
+            .filter(item => item.station && item.time && new Date(item.time) >= sevenAmToday)
+            .filter(item => item.station && item.time);
+
+            let parsedWaterDataForLongProfile = rawData.slice(1).map((row: any) => {
+                const rawDate = row["Date"]?.trim();
+                const crossSection = row['Cross Section'].trim();
+                const elevation = parseFloat(row["Water_Elevation"]?.trim());
+                let formattedDate = null;
+
+                if (rawDate) {
+                    const [day, month, yearAndTime] = rawDate.split("/");
+                    const [year, time] = yearAndTime.split(" ");
+                    formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${time}`;
+                }
+                return {
+                    CrossSection: parseInt(crossSection),
+                    Date: formattedDate,
+                    WaterLevel: elevation,
+                };
+            })
+            .filter((item: any) => item.Date && new Date(item.Date) >= sevenAmToday);
+
+            const stationMaxMap: Record<string, number> = {};
+            const latestTime = parsedDataForWaterLevel.length > 0 ? new Date(Math.max(...parsedDataForWaterLevel.map((d) => new Date(d.time).getTime()))) : new Date();
+            const sevenDaysAgo = new Date(latestTime);
+            sevenDaysAgo.setDate(latestTime.getDate() - 6);
+
+            Object.keys(stationMapping).forEach((station) => {
+                const stationData = parsedDataForWaterLevel.filter(
+                    (d) => d.station === station && new Date(d.time) >= sevenAmToday
+                );
+                const maxElevation = Math.max(...stationData.map((d) => d.elevation));
+                if (!isNaN(maxElevation)) {
+                    stationMaxMap[station] = maxElevation;
+                }
+            });
+
+            const latestValid = parsedDataForWaterLevel[parsedDataForWaterLevel.length - 1]; 
+            let calculatedDisplayDate = "";
+
+            if (latestValid) {
+                const latestDateFromCSV = new Date(latestValid.time);
+                latestDateFromCSV.setDate(latestDateFromCSV.getDate() - 6); 
+
+                calculatedDisplayDate = latestDateFromCSV.toLocaleDateString("th-TH", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                });
+            } else {
+                calculatedDisplayDate = "ไม่พบข้อมูล"; 
+            }
+
+            const currentDateForComparison = new Date();
+            const formattedCurrentDate = currentDateForComparison.toLocaleDateString('th-TH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            if (calculatedDisplayDate !== formattedCurrentDate) {
+                showForecastAlert();
+            } else {
+                hideForecastAlert();
+            }
+            
+            setDisplayDate(calculatedDisplayDate);
+            setMaxElevations(stationMaxMap);
+            setData(parsedDataForWaterLevel);
+            setWaterData(parsedWaterDataForLongProfile);
+            // --- End Processing for other charts ---
+          },
+          error: (err: any) => {
+            console.error('PapaParse error for output_ras.csv:', err);
+            setForecastChartData(null);
+            setMaxElevations({});
+            setData([]);
+            setWaterData([]);
+            setDisplayDate("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+            showForecastAlert(); // Show alert on parse error as well
+          }
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching output_ras.csv:', error);
+        setForecastChartData(null);
+        setMaxElevations({});
+        setData([]);
+        setWaterData([]);
+        setDisplayDate("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+        showForecastAlert(); // Show alert on fetch error as well
+      });
+  }, []); // Empty dependency array means this runs once on component mount
+
+  // --- End Combined useEffect for output_ras.csv ---
+
 
   useEffect(() => {
     const csvFilePath = `${Path_File}ras-output/sta_flow.csv`;
@@ -225,147 +444,10 @@ const Dashboard: React.FC = () => {
       });
   }, []);
 
-useEffect(() => {
-    fetch(`${Path_File}ras-output/output_ras.csv`)
-      .then((response) => response.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (result) => {
-            const rawData: any[] = result.data;
-            if (!rawData.length) {
-              showForecastAlert(); // Show alert if no data at all
-              return;
-            }
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            // --- Define 7 AM on current day for filtering ---
-            const sevenAmToday = new Date();
-            sevenAmToday.setHours(7, 0, 0, 0); // Set to 7:00:00 of today
-            // --- End 7 AM definition ---
-
-            // แปลงข้อมูล CSV ระดับน้ำเป็นอ็อบเจ็กต์
-            const parsedData: WaterLevelData[] = rawData.map((row) => {
-              const rawTime = row["Date"]?.trim();
-              const crossSection = Number(row["Cross Section"]?.trim());
-              const elevation = parseFloat(row["Water_Elevation"]?.trim());
-              const station = Object.keys(stationMapping).find((key) => stationMapping[key] === crossSection) || "";
-
-              let time = "";
-              if (rawTime) {
-                const [datePart, timePart] = rawTime.split(" ");
-                const [day, month, year] = datePart.split("/").map(Number);
-                const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-                time = `${isoDateStr}T${timePart}`;
-              }
-
-              return { time, station, elevation };
-            })
-            // Filter data to start from 7 AM of today
-            .filter(item => {
-              return item.station && item.time && new Date(item.time) >= sevenAmToday;
-            }).filter(item => item.station && item.time);
-
-            let parsedWaterData = rawData.slice(1).map((row: any) => {
-              const rawDate = row["Date"]?.trim();
-              const crossSection = row['Cross Section'].trim();
-              const elevation = parseFloat(row["Water_Elevation"]?.trim());
-              let formattedDate = null;
-
-              if (rawDate) {
-                const [day, month, yearAndTime] = rawDate.split("/");
-                const [year, time] = yearAndTime.split(" ");
-                formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${time}`;
-              }
-
-              return {
-                CrossSection: parseInt(crossSection),
-                Date: formattedDate,
-                WaterLevel: elevation,
-              };
-            })
-            // Filter parsedWaterData to start from 7 AM of today as well
-            .filter((item: any) => {
-              return item.Date && new Date(item.Date) >= sevenAmToday;
-            });
-
-            // ข้อมูล maxElevations
-            const stationMaxMap: Record<string, number> = {};
-            // If parsedData is empty after 7 AM filter, latestTime will be problematic.
-            // Ensure parsedData has elements before finding latest time.
-            const latestTime = parsedData.length > 0 ? new Date(Math.max(...parsedData.map((d) => new Date(d.time).getTime()))) : new Date(); // Fallback to current date
-            const sevenDaysAgo = new Date(latestTime);
-            sevenDaysAgo.setDate(latestTime.getDate() - 6); // corrected to 7 days ago
-
-            Object.keys(stationMapping).forEach((station) => {
-              // Ensure filtering for maxElevation also respects the 7 AM start for consistency
-              const stationData = parsedData.filter(
-                (d) => d.station === station && new Date(d.time) >= sevenAmToday
-              );
-              const maxElevation = Math.max(...stationData.map((d) => d.elevation));
-              if (!isNaN(maxElevation)) {
-                stationMaxMap[station] = maxElevation;
-              }
-            });
-
-            // --- Logic for displayDate and alert ---
-            // The latestValid should be from the data *after* 7 AM filter
-            const latestValid = parsedData[parsedData.length - 1]; 
-            let calculatedDisplayDate = "";
-
-            if (latestValid) {
-              const latestDateFromCSV = new Date(latestValid.time);
-              // Set the display date to 7 days *before* the latest valid date in CSV
-              latestDateFromCSV.setDate(latestDateFromCSV.getDate() - 6); 
-
-              calculatedDisplayDate = latestDateFromCSV.toLocaleDateString("th-TH", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              });
-            } else {
-              // If no valid data at all (after 7 AM filter), the display date should reflect that there's an issue
-              calculatedDisplayDate = "ไม่พบข้อมูล"; 
-            }
-
-            // Get current date formatted for comparison
-            const currentDateForComparison = new Date();
-            const formattedCurrentDate = currentDateForComparison.toLocaleDateString('th-TH', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            
-            if (calculatedDisplayDate !== formattedCurrentDate) {
-                showForecastAlert();
-            } else {
-                hideForecastAlert();
-            }
-            
-            setDisplayDate(calculatedDisplayDate); // Set the calculated display date
-            // --- End Logic for displayDate and alert ---
-
-            // Set state for each required data
-            setMaxElevations(stationMaxMap);
-            setData(parsedData); // This seems to be for another table/chart, if not used, can remove.
-            setWaterData(parsedWaterData); // ตรวจสอบข้อมูลก่อนการตั้ง state
-          },
-        });
-      })
-      .catch((error) => {
-        console.error("Error loading CSV:", error);
-        showForecastAlert(); // Show alert also on fetch/parse error
-      });
-  }, []);
-
   useEffect(() => {
     // Only show components when all necessary data is loaded
-    if (rainData && flowData && eleData && wyData && data.length > 0 && waterData.length > 0) {
+    // Now include forecastChartData in the dependency array
+    if (rainData && flowData && eleData && wyData && data.length > 0 && waterData.length > 0 && forecastChartData !== null) {
       const timers = [
         setTimeout(() => setShowForecast(true), 1000),
         setTimeout(() => setShowProfile(true), 1000),
@@ -374,7 +456,7 @@ useEffect(() => {
       ];
       return () => timers.forEach(clearTimeout);
     }
-  }, [rainData, flowData, eleData, wyData, data, waterData]); // Add all data dependencies
+  }, [rainData, flowData, eleData, wyData, data, waterData, forecastChartData]); // Add forecastChartData
 
   const JsonPaths = [
     `${Path_File}data/River.geojson`,
@@ -422,7 +504,11 @@ useEffect(() => {
 
       <Box sx={{ ...BoxStyle, padding: "20px" }} id="forecast-chart">
         {showForecast && <WaterForecastChart />}
-        <WaterLevelForecastChart />
+        {/* ส่ง forecastChartData และ stationWaterLevelForecastMap ไปให้ WaterLevelForecastChart */}
+        <WaterLevelForecastChart 
+          chartData={forecastChartData} 
+          stationMapping={stationWaterLevelForecastMap} 
+        />
       </Box>
 
 

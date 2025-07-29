@@ -5,8 +5,8 @@ import axios from "axios";
 import { API_URL } from "../../utility";
 
 const cardData = [
-  { title: "สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",color: "#1976d2",icon: <Flood />, url: `${API_URL}hec_api/gate_json.php` },
-  { title: "ส่งข้อมูลข้อเสนอแนะปตร.วังยาง ไปเว็บไซต์หลัก",color: "#1976d2",icon: <WaterDrop />, url: `${API_URL}hec_api/send_gate_open.php` },
+  { title: "1.สร้างไฟล์ API ข้อเสนอแนะปตร.วังยาง",color: "#1976d2",icon: <Flood />, url: `${API_URL}hec_api/gate_json.php` },
+  { title: "2.ส่งข้อมูลข้อเสนอแนะปตร.วังยาง ไปเว็บไซต์หลัก",color: "#1976d2",icon: <WaterDrop />, url: `${API_URL}hec_api/send_gate_open.php` },
 ];
 
 const RunGate: React.FC = () => {
