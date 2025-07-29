@@ -7,11 +7,12 @@ import WaterForecastChart from "../components/Dashboard/WaterForecastChart";
 import FloodWarningTable from "../components/Dashboard/WarningTable";
 
 import WaterGateTable from "../components/Dashboard/WaterGateTable";
-import WaterLevelChart from "../components/Dashboard/WaterLevel";
+import WaterLevelChart from '../components/Dashboard/WaterLevel';
 import FloatingMenu from "../components/Dashboard/selectMenu";
 import Papa from "papaparse";
 import { API_URL, Path_File } from "../utility";
 import ImageComponent from "../components/Dashboard/ImageComponent";
+import WaterLevelForecastChart from "../components/Dashboard/WaterLevelForecastChart";
 
 
 interface WaterLevelData {
@@ -27,17 +28,31 @@ interface waterData {
 }
 
 const stationMapping: Record<string, number> = {
-  "E.91": 184715,
-  "E.1": 151870,
+  "E.91": 184803,
   "E.8A": 112911,
+  "บ้านท่าแห (เหนือน้ำ)": 79205,
   "WY": 62093,
   "E.66A": 51452,
   "E.87": 3636,
+  "RE": 1158,
 };
+
+interface RawStaFlowDataItem {
+  DateTime: string;
+  'E.91': string;
+  'E.1': string;
+  'E.8A': string;
+  'WY': string; // For 'เขื่อนวังยาง'
+  'E.66A': string;
+  'E.87': string;
+  'RE': string; 
+  'BTH': string; 
+}
 
 const Dashboard: React.FC = () => {
   const mapKey = 'e75fee377b3d393b7a32576ce2b0229d';
   const [maxElevations, setMaxElevations] = useState<Record<string, number>>({});
+  const [maxFlows, setMaxFlows] = useState<Record<string, number>>({});
   const [data, setData] = useState<WaterLevelData[]>([]);
   const [waterData, setWaterData] = useState<waterData[]>([]);// for LongProfileChart
   const [displayDate, setDisplayDate] = useState<string>("");
@@ -87,6 +102,33 @@ const Dashboard: React.FC = () => {
     };
   }, []);
 
+   const convertToTimestamp = (dateTimeStr: string): number | null => {
+    const trimmedStr = dateTimeStr?.trim();
+    if (!trimmedStr) return null;
+
+    const dateTimeParts = trimmedStr.split(' ');
+    if (dateTimeParts.length !== 2) return null;
+    const [datePart, timePart] = dateTimeParts;
+
+    const dateSubParts = datePart.split('/');
+    if (dateSubParts.length !== 3) return null;
+    const [dayStr, monthStr, yearStr] = dateSubParts;
+
+    const day = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+    const year = parseInt(yearStr, 10);
+
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+
+    // Use string format recognized by Date constructor for robustness (YYYY-MM-DDTHH:MM)
+    const isoDateStr = `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+    const dateObj = new Date(`${isoDateStr}T${timePart}`);
+
+    if (isNaN(dateObj.getTime())) return null;
+
+    return dateObj.getTime();
+  };
+
   useEffect(() => {
     const safeFetch = async (url: string) => {
       try {
@@ -107,7 +149,7 @@ const Dashboard: React.FC = () => {
         safeFetch(`${API_URL}API/api_station_daily.php`),
       ]);
 
-      setRainData(rain ?? []); // ❗️ fallback เป็น array เปล่า
+      setRainData(rain ?? []); 
       setFlowData(flow ?? []);
       setEleData(ele ?? []);
       setWyData(wy ?? []);
@@ -116,6 +158,72 @@ const Dashboard: React.FC = () => {
     loadAllApiData();
   }, []);
 
+  useEffect(() => {
+    const csvFilePath = `${Path_File}ras-output/sta_flow.csv`;
+    fetch(csvFilePath)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.text();
+      })
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: (header) => header.trim(), // Trim headers for consistency
+          complete: (result) => {
+            const rawData: RawStaFlowDataItem[] = result.data as RawStaFlowDataItem[];
+            
+            // Define the start time for the "future" 7 days
+            const now = new Date();
+            // Start from 7 days ago at 7 AM, extending into the future
+            const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 7, 0, 0).getTime();
+            
+            const stationFlows: Record<string, number[]> = {
+                'E.91': [], 'E.1': [], 'E.8A': [], 'WY': [],
+                'E.66A': [], 'E.87': [], 'RE': [], 'BTH': []
+            };
+
+            rawData.forEach(row => {
+                const timestamp = convertToTimestamp(row.DateTime);
+                if (timestamp && timestamp >= startTime) {
+                    // Collect all flow values for each station within the 7-day window
+                    // Ensure the keys here match the CSV headers and your stationFlows object
+                    if (row['E.91']) stationFlows['E.91'].push(parseFloat(row['E.91']));
+                    if (row['E.1']) stationFlows['E.1'].push(parseFloat(row['E.1']));
+                    if (row['E.8A']) stationFlows['E.8A'].push(parseFloat(row['E.8A']));
+                    if (row['WY']) stationFlows['WY'].push(parseFloat(row['WY']));
+                    if (row['E.66A']) stationFlows['E.66A'].push(parseFloat(row['E.66A']));
+                    if (row['E.87']) stationFlows['E.87'].push(parseFloat(row['E.87']));
+                    if (row['RE']) stationFlows['RE'].push(parseFloat(row['RE'])); // New station
+                    if (row['BTH']) stationFlows['BTH'].push(parseFloat(row['BTH'])); // New station
+                }
+            });
+
+            const calculatedMaxFlows: Record<string, number> = {};
+            // Find the maximum flow for each station
+            for (const station in stationFlows) {
+                const flows = stationFlows[station];
+                if (flows.length > 0) {
+                    const max = Math.max(...flows.filter(f => !isNaN(f))); // Filter out NaNs before finding max
+                    calculatedMaxFlows[station] = max;
+                } else {
+                    calculatedMaxFlows[station] = 0; // Or some default like null
+                }
+            }
+            
+            setMaxFlows(calculatedMaxFlows);
+          },
+          error: (err: any) => {
+            console.error('PapaParse error for sta_flow.csv:', err);
+            setMaxFlows({}); // Reset on error
+          }
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching sta_flow.csv:', error);
+        setMaxFlows({}); // Reset on error
+      });
+  }, []);
 
 useEffect(() => {
     fetch(`${Path_File}ras-output/output_ras.csv`)
@@ -314,10 +422,12 @@ useEffect(() => {
 
       <Box sx={{ ...BoxStyle, padding: "20px" }} id="forecast-chart">
         {showForecast && <WaterForecastChart />}
+        <WaterLevelForecastChart />
       </Box>
 
+
       <Box sx={{ ...BoxStyle }} id="flood-warning">
-        <FloodWarningTable maxLevels={maxElevations} />
+        <FloodWarningTable maxLevels={maxElevations} maxFlows={maxFlows} />
       </Box>
 
       <Box sx={BoxStyle} id="profile-chart">

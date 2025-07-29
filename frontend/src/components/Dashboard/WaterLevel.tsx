@@ -13,26 +13,39 @@ interface WaterLevelData {
 
 const warningLevels: Record<string, { watch: number; alert: number; crisis: number }> = {
   "E.91": { watch: 149.30, alert: 150.80, crisis: 152.20 },
-  "E.1": { watch: 146.10, alert: 147.30, crisis: 148.70 },
   "E.8A": { watch: 145.40, alert: 147.00, crisis: 148.00 },
+  "BTH": { watch: 135.60, alert: 136.30, crisis: 137.10 },
   "WY": { watch: 137.40, alert: 138.00, crisis: 139.00 },
   "E.66A": { watch: 138.60, alert: 140.00, crisis: 141.50 },
   "E.87": { watch: 137.80, alert: 138.90, crisis: 139.90 },
+  "RE": { watch: 133.80, alert: 135.10, crisis: 136.30 },
 };
 
 
 const stationMapping: Record<string, number> = {
   "E.91": 184715,
-  "E.1": 151870,
+  "BTH": 79205,
   "E.8A": 112911,
   "WY": 62093,
   "E.66A": 51452,
   "E.87": 3636,
+  "RE": 1158,
 };
 
 interface Props {
   data: WaterLevelData[];
 }
+
+
+const locationMapping = (key: string): string => {
+  const map: { [key: string]: string } = {
+    "BTH": "บ้านท่าแห (เหนือน้ำ)",
+    "WY": "เขื่อนวังยาง",
+    "RE": "เขื่อนร้อยเอ็ด",
+    "E.66A": "E.66A (ท้ายน้ำ)"
+  };
+  return map[key] || key; // If key not found in map, return original key
+};
 
 const WaterLevelChart: React.FC<Props> = ({data}) => {
   const [secondData, setSecondData] = useState<WaterLevelData[]>([]);
@@ -55,11 +68,12 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
             if (!rawData.length) return;
             const parsedData: WaterLevelData[] = rawData.flatMap((row) => [
               { station: "E.91", elevation: parseFloat(row["E.91"]), time: row["NO"]?.trim() },
-              { station: "E.1", elevation: parseFloat(row["E.1"]), time: row["NO"]?.trim() },
+              { station: "BTH", elevation: parseFloat(row["BTH"]), time: row["NO"]?.trim() },
               { station: "E.8A", elevation: parseFloat(row["E.8A"]), time: row["NO"]?.trim() },
               { station: "WY", elevation: parseFloat(row["WY"]), time: row["NO"]?.trim() },
               { station: "E.66A", elevation: parseFloat(row["E.66A"]), time: row["NO"]?.trim() },
               { station: "E.87", elevation: parseFloat(row["E.87"]), time: row["NO"]?.trim() },
+              { station: "RE", elevation: parseFloat(row["RE"]), time: row["NO"]?.trim() },
             ]);
             setSecondData(parsedData);
           },
@@ -399,7 +413,7 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
           disabled={isPlaying} // Disable during playback
         >
           {Object.keys(stationMapping).map((station) => (
-            <MenuItem key={station} value={station}>{station}</MenuItem>
+            <MenuItem key={station} value={station}>{locationMapping(station)}</MenuItem>
           ))}
         </Select>
         

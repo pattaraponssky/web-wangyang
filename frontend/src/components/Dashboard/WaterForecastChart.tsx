@@ -30,11 +30,12 @@ const WaterForecastChart: React.FC = () => {
 
             const seriesData = [
               { name: 'E.91', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.91']) || 0]) },
-              { name: 'E.1', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.1']) || 0]) },
+              { name: 'บ้านท่าแห (เหนือน้ำ)', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['BTH']) || 0]) },
               { name: 'E.8A', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.8A']) || 0]) },
               { name: 'เขื่อนวังยาง', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['WY']) || 0]) },
-              { name: 'E.66A', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.66A']) || 0]) },
+              { name: 'E.66A (ท้ายน้ำ)', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.66A']) || 0]) },
               { name: 'E.87', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['E.87']) || 0]) },
+              // { name: 'เขื่อนร้อยเอ็ด', data: filteredData.map((item: any) => [convertToTimestamp(item.DateTime), parseFloat(item['RE']) || 0]) },
             ];
   
             setChartData(seriesData);
@@ -92,7 +93,6 @@ const WaterForecastChart: React.FC = () => {
                 x: { format: 'dd MMM yyyy HH:mm' },
                 y: { formatter: (val: any) => `${Number(val.toFixed(2)).toLocaleString()} ลบ.ม./วินาที` },
               },
-              
               annotations: {
                 xaxis: [
                   {

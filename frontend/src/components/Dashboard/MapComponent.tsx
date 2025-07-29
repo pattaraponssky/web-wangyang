@@ -443,40 +443,40 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
             switch (geoJsonData.name) {
               case 'DAM Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/reservoir_icon.png" style="width:32px; height:32px;"/>
+                              <img src="/images/icons/reservoir_icon.png" style="width:32px; height:32px;"/>
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
-                iconUrl = "./images/icons/reservoir_icon.png";
+                iconUrl = "/images/icons/reservoir_icon.png";
                 break;
               case 'Rain Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/rain_station_icon.png" style="width:32px; height:32px;" />
+                              <img src="/images/icons/rain_station_icon.png" style="width:32px; height:32px;" />
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
-                iconUrl = "./images/icons/rain_station_icon.png";
+                iconUrl = "/images/icons/rain_station_icon.png";
                 break;
               case 'Hydro Station':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/flow_station_icon.png" style="width:32px; height:32px;"/>
+                              <img src="/images/icons/flow_station_icon.png" style="width:32px; height:32px;"/>
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;">
                                 ${feature.properties.CodeStation}
                               </div>
 
                             </div>`;
-                iconUrl = "./images/icons/flow_station_icon.png";
+                iconUrl = "/images/icons/flow_station_icon.png";
                 break;
               case 'ProjectStation':
                 iconHtml = `<div style="text-align:center;">
-                              <img src="./images/icons/gate_icon.png" style="width:32px; height:32px;"/>
+                              <img src="/images/icons/gate_icon.png" style="width:32px; height:32px;"/>
                                <div style="background-color: rgba(255, 255, 255, 0.6); padding:2px; border-radius:5px; font-size: 14px; margin-top: 2px;width:80px;">
                                 ${feature.properties.Name}
                               </div>
                             </div>`;
-                iconUrl = "./images/icons/gate_icon.png";
+                iconUrl = "/images/icons/gate_icon.png";
                 break;
             }
 
@@ -494,7 +494,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                         }
                         </span>`,
                 detail: geoJsonData.name === 'DAM Station' ?
-                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"} เวลา 7.00 น.<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span>
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${River || "ไม่มีข้อมูล"} ${Basin || "ไม่มีข้อมูล"} ${Detail || "ไม่มีรายละเอียด"}<br> </span>
                         <span style="font-size:0.9rem; font-weight:bold;">ปริมาณกักเก็บ: </span>
@@ -502,7 +502,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
 
                         <div id="${chartId}" style="width: auto; height: auto;"></div>`
                         : geoJsonData.name === 'Rain Station' ?
-                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"} เวลา 7.00 น.<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">สถานีวัดน้ำฝน: </span>
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span>
@@ -513,7 +513,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                         <div id="${chartId}" style="width: auto; height: auto;"></div>
                         `
                         : geoJsonData.name === 'Hydro Station' ?
-                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"} เวลา 7.00 น.<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">รหัสสถานีวัดน้ำท่า: </span>
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${CodeStation}</span><br>
                         <span style="font-size:0.9rem; font-weight:bold;">พื้นที่: </span>
@@ -526,7 +526,7 @@ const LongdoMap: React.FC<LongdoMapProps> = ({ mapKey, JsonPaths, rainData, flow
                         </div>
                         <div id="${chartId}" style="width: auto; height: auto;"></div>`
                         : // This is for ProjectStation
-                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"}<br></span>
+                        `<span style="font-size:0.9rem; font-weight:bold;">ข้อมูลประจำวัน${nowThaiDate() || "วันที่ไม่ทราบ"} เวลา 7.00 น.<br></span>
                         <span style="font-size:0.9rem; font-weight:bold;">สถานีติดตั้วอุปกรณ์วัดน้ำ: </span>
                         <span style="font-size:0.9rem; font-weight:bold; color:blue">${Name}</span><br>
                         <div style="font-size: 0.9rem; line-height: 1.4rem;">
