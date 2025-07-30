@@ -529,7 +529,7 @@ const Dashboard: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} sm={12}>
           <Box sx={BoxStyle} id="flood-map">
-            <ImageComponent src="./images/map_flood.png" alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
+            <ImageComponent src={`${Path_File}images/map_flood.png`} alt="" title={"แผนที่น้ำท่วมพื้นที่วังยาง"} />
           </Box>
         </Grid>
         <Grid item xs={12} md={6} sm={12}>

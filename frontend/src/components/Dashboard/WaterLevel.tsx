@@ -17,7 +17,7 @@ const warningLevels: Record<string, { watch: number; alert: number; crisis: numb
   "BTH": { watch: 135.60, alert: 136.30, crisis: 137.10 },
   "WY": { watch: 137.40, alert: 138.00, crisis: 139.00 },
   "E.66A": { watch: 138.60, alert: 140.00, crisis: 141.50 },
-  "E.87": { watch: 137.80, alert: 138.90, crisis: 139.90 },
+  // "E.87": { watch: 137.80, alert: 138.90, crisis: 139.90 },
   "RE": { watch: 133.80, alert: 135.10, crisis: 136.30 },
 };
 
@@ -28,7 +28,7 @@ const stationMapping: Record<string, number> = {
   "E.8A": 112911,
   "WY": 62093,
   "E.66A": 51452,
-  "E.87": 3636,
+  // "E.87": 3636,
   "RE": 1158,
 };
 
