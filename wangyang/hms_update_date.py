@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 # --- Automatic Date and Time Settings ---
 today = datetime.today()
+
 # Start Date for flow data (7 days before today)
 start_date_flow = (today - timedelta(days=7)).strftime("%d %B %Y")
 # End Date for flow data (today)
@@ -59,13 +60,23 @@ try:
     new_lines_gage = []
     in_gage_block = False
     gage_type = None # To distinguish Flow from Precipitation
+    current_gage_name = None # To store the name of the current gage (e.g., SB-01)
 
-    for line in lines:
+    # Format dates for DSS Pathname: DdMonYYYY (e.g., 23Jul2025)
+    # Use %b for abbreviated month name, then custom capitalize the first letter
+    dss_start_date_raw = (today - timedelta(days=7)).strftime("%d%b%Y")
+    dss_start_date = dss_start_date_raw[:2] + dss_start_date_raw[2].upper() + dss_start_date_raw[3:]
+
+    dss_end_date_raw = (today + timedelta(days=6)).strftime("%d%b%Y")
+    dss_end_date = dss_end_date_raw[:2] + dss_end_date_raw[2].upper() + dss_end_date_raw[3:]
+
+    for line_num, line in enumerate(lines):
         stripped_line = line.strip()
 
         if stripped_line.startswith("Gage:"):
             in_gage_block = True
             gage_type = None # Reset type for new gage
+            current_gage_name = stripped_line.split(":")[1].strip() # Extract gage name
             new_lines_gage.append(line)
         elif in_gage_block and stripped_line.startswith("Gage Type:"):
             if "Flow" in line:
@@ -87,9 +98,17 @@ try:
                 new_lines_gage.append(f"       End Time: {end_date_precip}, {gage_time}\n")
             else: # Default to precipitation range
                 new_lines_gage.append(f"       End Time: {end_date_precip}, {gage_time}\n")
+        elif in_gage_block and stripped_line.startswith("DSS Pathname:"):
+            if gage_type == "Precipitation" and current_gage_name:
+                # Construct the new DSS Pathname for Precipitation gages
+                new_dss_pathname = f"       DSS Pathname: //{current_gage_name}/PRECIP-INC/{dss_start_date} - {dss_end_date}/1Day/GAGE/\n"
+                new_lines_gage.append(new_dss_pathname)
+            else:
+                new_lines_gage.append(line) # Keep original if not precipitation or gage name missing
         elif stripped_line == "End:":
             in_gage_block = False # Exit gage block
             gage_type = None # Clear gage type
+            current_gage_name = None # Clear current gage name
             new_lines_gage.append(line)
         else:
             new_lines_gage.append(line)
