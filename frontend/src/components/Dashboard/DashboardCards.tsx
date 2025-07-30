@@ -1,11 +1,12 @@
 import React from "react";
 import { Paper, Card, CardContent, Typography, Stack, Grid } from "@mui/material";
+import { Path_File } from "../../utility";
 
 const cardData = [
-  { title: "เขื่อนกั้นน้ํา", value: "3", unit: "แห่ง", image: "./images/icons/reservoir_icon.png", gradient: "linear-gradient(135deg, #64b5f6, #1976d2)" },
-  { title: "สถานีวัดน้ำฝน", value: "6", unit: "สถานี", image: "./images/icons/rain_station_icon.png", gradient: "linear-gradient(135deg, #ffd54f, #ff8f00)" },
-  { title: "สถานีวัดน้ำท่า", value: "7", unit: "สถานี", image: "./images/icons/flow_station_icon.png", gradient: "linear-gradient(135deg, #4db6ac, #00796b)" },
-  { title: "สถานีโครงการ", value: "4", unit: "สถานี", image: "./images/icons/gate_icon.png", gradient: "linear-gradient(135deg, #e57373, #d32f2f)" },
+  { title: "เขื่อนกั้นน้ํา", value: "3", unit: "แห่ง", image: `${Path_File}images/icons/reservoir_icon.png`, gradient: "linear-gradient(135deg, #64b5f6, #1976d2)" },
+  { title: "สถานีวัดน้ำฝน", value: "6", unit: "สถานี", image: `${Path_File}images/icons/rain_station_icon.png`, gradient: "linear-gradient(135deg, #ffd54f, #ff8f00)" },
+  { title: "สถานีวัดน้ำท่า", value: "7", unit: "สถานี", image: `${Path_File}images/icons/flow_station_icon.png`, gradient: "linear-gradient(135deg, #4db6ac, #00796b)" },
+  { title: "สถานีโครงการ", value: "4", unit: "สถานี", image: `${Path_File}images/icons/gate_icon.png`, gradient: "linear-gradient(135deg, #e57373, #d32f2f)" },
 ];
 
 const DashboardCards: React.FC = () => {

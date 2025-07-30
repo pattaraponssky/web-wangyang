@@ -85,6 +85,12 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
   const stationData = data.filter((item) => item.station === selectedStation);
   const selectedData = data.find((item) => item.station === selectedStation && item.time === selectedTime)
   || { time: "", elevation: 0, station: selectedStation };
+  
+  // Create an array of all available full datetime strings for the selected station, sorted chronologically
+  const allDateTimes = stationData
+    .map(item => item.time)
+    .filter(Boolean) // Remove any null/undefined times
+    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime()); // Sort chronologically
 
 
   const filteredSecondData = secondData.filter((item) => item.station === selectedStation);
@@ -181,7 +187,11 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
         const currentDayIndex = availableDates.indexOf(selectedDate);
         if (currentDayIndex < availableDates.length - 1) {
           const nextDate = availableDates[currentDayIndex + 1];
-          setSelectedDate(nextDate); // This will trigger the new useEffect for selectedTime
+          const timesForNextDate = groupedByDate[nextDate]?.map(item => item.time) || [];
+          const nextTime = timesForNextDate[0] || "";
+          setSelectedDate(nextDate);
+          setSelectedTime(nextTime); // 👈 เพิ่มบรรทัดนี้ เพื่อให้เวลาถูกเซตตามวันที่ใหม่
+
         } else {
           // End of all dates, stop playing
           setIsPlaying(false);
@@ -494,38 +504,16 @@ const WaterLevelChart: React.FC<Props> = ({data}) => {
             mb: { xs: 2, sm: 0 },
           }}
           variant="contained"
-          onClick={() => {
+           onClick={() => {
             setIsPlaying(false); // Pause on manual navigation
-            const timesForSelectedDate = groupedByDate[selectedDate]?.map(item => item.time) || [];
-            const currentIndexInDay = timesForSelectedDate.indexOf(selectedTime);
+            const currentFullDateTime = selectedDate && selectedTime ? `${selectedDate}T${selectedTime}` : null;
+            const currentIndex = allDateTimes.indexOf(currentFullDateTime ?? "");
 
-            if (currentIndexInDay !== -1 && currentIndexInDay < timesForSelectedDate.length - 1) {
-              setSelectedTime(timesForSelectedDate[currentIndexInDay + 1]);
-            } else {
-              // If at the end of the day, try to go to the next day
-              const currentDayIndex = availableDates.indexOf(selectedDate);
-              if (currentDayIndex < availableDates.length - 1) {
-                const nextDate = availableDates[currentDayIndex + 1];
-                setSelectedDate(nextDate);
-                // When moving to next day, set time based on existing selectedTime or 7 AM if not found
-                const timesForNextDate = groupedByDate[nextDate]?.map(item => item.time) || [];
-                const timePart = selectedTime.split('T')[1]; // Get just the time part
-                const targetTimeOnNextDate = nextDate + 'T' + timePart;
-
-                let nextDayTime = timesForNextDate[0]; // Default to first available time
-
-                if (timesForNextDate.includes(targetTimeOnNextDate)) {
-                  nextDayTime = targetTimeOnNextDate;
-                } else {
-                  const nextClosest = timesForNextDate.find(t => t > targetTimeOnNextDate);
-                  if (nextClosest) {
-                    nextDayTime = nextClosest;
-                  } else if (timesForNextDate.length > 0) {
-                    nextDayTime = timesForNextDate[timesForNextDate.length - 1]; // Fallback to last time if no next
-                  }
-                }
-                setSelectedTime(nextDayTime || "");
-              }
+            if (currentIndex !== -1 && currentIndex < allDateTimes.length - 1) {
+              const nextDateTime = allDateTimes[currentIndex + 1];
+              const [nextDatePart, nextTimePart] = nextDateTime.split("T");
+              setSelectedDate(nextDatePart);
+              setSelectedTime(nextTimePart);
             }
           }}
           disabled={isPlaying || (selectedDate === availableDates[availableDates.length - 1] && selectedTime === (groupedByDate[availableDates[availableDates.length - 1]]?.[groupedByDate[availableDates[availableDates.length - 1]]?.length - 1]?.time || ""))}

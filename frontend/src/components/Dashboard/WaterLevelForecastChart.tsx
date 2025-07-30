@@ -99,13 +99,16 @@ const WaterLevelForecastChart: React.FC<WaterLevelForecastChartProps> = ({ chart
               </Grid>
             );
           })
-        ) : (
+        ) 
+        : 
+        (
           <Grid item xs={12}>
-            <Typography sx={{ fontFamily: 'Prompt', textAlign: 'center', mt: 4 }}>
+            <Typography sx={{ fontFamily: 'Prompt',fontSize:"1rem" ,textAlign: 'center', mt: 4 }}>
               กำลังโหลดข้อมูล หรือไม่พบข้อมูลการพยากรณ์ระดับน้ำ
             </Typography>
           </Grid>
-        )}
+        )
+        }
       </Grid>
     </Box>
   );

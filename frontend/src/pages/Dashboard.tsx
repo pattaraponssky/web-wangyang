@@ -206,10 +206,12 @@ const Dashboard: React.FC = () => {
                 setDisplayDate("ไม่พบข้อมูล");
                 return;
             }
-
+            const sevenDay = new Date();
             const sevenAmToday = new Date();
-            sevenAmToday.setDate(sevenAmToday.getDate() - 7); // Start 7 days ago at 7 AM
+            sevenAmToday.setDate(sevenAmToday.getDate()); // Start 7 days ago at 7 AM
             sevenAmToday.setHours(7, 0, 0, 0);
+            sevenDay.setDate(sevenDay.getDate() - 7); // Start 7 days ago at 7 AM
+            sevenDay.setHours(7, 0, 0, 0);
 
             // --- Processing for WaterLevelForecastChart (forecastChartData) ---
             const processedForecastData: WaterLevelData[] = [];
@@ -233,7 +235,7 @@ const Dashboard: React.FC = () => {
                     time !== null &&
                     station !== "" &&
                     !isNaN(elevation) &&
-                    time >= sevenAmToday.getTime()
+                    time >= sevenDay.getTime()
                 ) {
                     processedForecastData.push({ time: new Date(time).toISOString(), station, elevation });
                 } else {
@@ -374,9 +376,6 @@ const Dashboard: React.FC = () => {
       });
   }, []); // Empty dependency array means this runs once on component mount
 
-  // --- End Combined useEffect for output_ras.csv ---
-
-
   useEffect(() => {
     const csvFilePath = `${Path_File}ras-output/sta_flow.csv`;
     fetch(csvFilePath)
@@ -449,9 +448,9 @@ const Dashboard: React.FC = () => {
     // Now include forecastChartData in the dependency array
     if (rainData && flowData && eleData && wyData && data.length > 0 && waterData.length > 0 && forecastChartData !== null) {
       const timers = [
-        setTimeout(() => setShowForecast(true), 1000),
+        setTimeout(() => setShowForecast(true), 500),
         setTimeout(() => setShowProfile(true), 1000),
-        setTimeout(() => setShowWaterLevel(true), 1000),
+        setTimeout(() => setShowWaterLevel(true), 500),
         setTimeout(() => setShowGate(true), 2000),
       ];
       return () => timers.forEach(clearTimeout);
@@ -504,7 +503,6 @@ const Dashboard: React.FC = () => {
 
       <Box sx={{ ...BoxStyle, padding: "20px" }} id="forecast-chart">
         {showForecast && <WaterForecastChart />}
-        {/* ส่ง forecastChartData และ stationWaterLevelForecastMap ไปให้ WaterLevelForecastChart */}
         <WaterLevelForecastChart 
           chartData={forecastChartData} 
           stationMapping={stationWaterLevelForecastMap} 

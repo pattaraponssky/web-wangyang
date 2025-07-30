@@ -110,15 +110,7 @@ const LongProfileChart: React.FC<Props> = ({ waterData }) => {
           setSelectedDate(nextDatePart);
           setSelectedTime(nextTimePart);
         } else {
-          // Stop playing when the end is reached
           setIsPlaying(false);
-          // Optional: reset to the first date/time after finishing
-          // const firstDateTime = allDateTimes[0];
-          // if (firstDateTime) {
-          //   const [datePart, timePart] = firstDateTime.split(" ");
-          //   setSelectedDate(datePart);
-          //   setSelectedTime(timePart);
-          // }
         }
       }, 400); 
     } else {
