@@ -13,6 +13,7 @@ interface WaterLevelForecastChartProps {
   stationMapping: Record<string, number>; // Still needs this for mapping names
 }
 
+
 const WaterLevelForecastChart: React.FC<WaterLevelForecastChartProps> = ({ chartData }) => { // Removed setChartData as it's not managed here
   return (
     <Box sx={{mt:2}}>
@@ -36,7 +37,17 @@ const WaterLevelForecastChart: React.FC<WaterLevelForecastChartProps> = ({ chart
             const dashedData = seriesItem.data.slice(169); // Assumed forecast data points
 
             const annotationXValue = seriesItem.data.length > 169 ? seriesItem.data[169][0] : undefined;
+            const allYValues = seriesItem.data.map(point => point[1]);
+            let minValue = Math.min(...allYValues);
+            let maxValue = Math.max(...allYValues);
 
+            // Ensure minimum Y range of 5
+            const range = maxValue - minValue;
+            if (range < 2) {
+              const padding = (2 - range) / 2;
+              minValue = minValue - padding;
+              maxValue = maxValue + padding;
+            }
             const options: ApexOptions = {
               chart: {
                 id: `chart-water-level-standalone-${index}`,
@@ -50,6 +61,7 @@ const WaterLevelForecastChart: React.FC<WaterLevelForecastChartProps> = ({ chart
                 align: 'center',
                 style: { fontSize: '18px' }
               },
+              
               stroke: { width: 5, curve: 'smooth', dashArray: [0, 8] },
               xaxis: {
                 type: 'datetime',
@@ -57,7 +69,12 @@ const WaterLevelForecastChart: React.FC<WaterLevelForecastChartProps> = ({ chart
                 title: { text: 'วันที่-เวลา', style: { fontSize: '1rem' } },
               },
               yaxis: {
-                labels: { formatter: (val: any) => Number(val.toFixed(2)).toLocaleString(), style: { fontSize: '1rem' } },
+                min: minValue,
+                max: maxValue,
+                labels: {
+                formatter: (val) => Math.round(val).toLocaleString(),
+                style: { fontSize: '1rem' }
+                },
                 title: { text: 'ระดับน้ำ (ม.รทก.)', style: { fontSize: '1rem' } },
               },
               tooltip: {
@@ -82,6 +99,8 @@ const WaterLevelForecastChart: React.FC<WaterLevelForecastChartProps> = ({ chart
               },
               colors: ['#1E88E5', '#66BB6A'],
             };
+
+
 
             return (
               <Grid item xs={12} sm={6} key={index}>
