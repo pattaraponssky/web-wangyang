@@ -46,7 +46,7 @@ const stationMapping: Record<string, number> = {
   "BTH": 79205,
   "WY": 62093,
   "E.66A": 51452,
-  "E.87": 3636,
+  // "E.87": 3636,
   "RE": 1158,
 };
 
@@ -55,7 +55,7 @@ interface RawStaFlowDataItem {
   'E.91': string;
   'E.1': string;
   'E.8A': string;
-  'WY': string; // For 'เขื่อนวังยาง'
+  'WY': string; 
   'E.66A': string;
   'E.87': string;
   'RE': string; 
